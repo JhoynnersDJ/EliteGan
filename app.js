@@ -8,6 +8,7 @@ import {sequelizeClients} from './src/database/sequelize.js';
 
 import ClientesRouter from './src/modules/clientes/routes/ClientesRouter.js';
 import ResponsablesClienteRouter from './src/modules/responsables_clientes/routes/responsables_clienteRoutes.js';
+import ServicioRouter from './src/modules/servicios/routes/ServicioRouter.js'
 
 const port = process.env.PORT || 3000;
 const host = process.env.HOST;
@@ -40,6 +41,9 @@ app.use('/clientes', ClientesRouter);
 
 //Middleware para responsable cliente
 app.use('/responsables-cliente', ResponsablesClienteRouter);
+
+//Middleware para servicios
+app.use('/servicios', ServicioRouter);
 
 app.use(express.static('public'));
 
