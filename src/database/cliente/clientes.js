@@ -1,8 +1,8 @@
 // clientes.js
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../sequelize.js'; 
+import { sequelizeClients } from '../sequelize.js'; 
 
-const ClientesR = sequelize.define('clientes', {
+const Clientes = sequelizeClients.define('clientes', {
   id_cliente: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -21,4 +21,4 @@ const ClientesR = sequelize.define('clientes', {
         timestamps: false, // Desactivar las columnas createdAt y updatedAt
 
     });
-  export { ClientesR };
+  export { Clientes };
