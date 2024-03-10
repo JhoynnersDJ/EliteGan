@@ -9,6 +9,15 @@ import {sequelizeClients} from './src/database/sequelize.js';
 import ClientesRouter from './src/modules/clientes/routes/ClientesRouter.js';
 import ResponsablesClienteRouter from './src/modules/responsables_clientes/routes/responsables_clienteRoutes.js';
 
+//usuarios
+import UsuariosRouter from './src/modules/usuarios/routes/usuarios.js'
+
+//feriados
+import FeriadosRouter from './src/modules/feriados/routes/feriados.js'
+
+//tareas
+import TareasRouter from './src/modules/tareas/routes/tareas.js'
+
 const port = process.env.PORT || 3000;
 const host = process.env.HOST;
 const corsOrigin = process.env.CORS_ORIGIN;
@@ -40,6 +49,15 @@ app.use('/clientes', ClientesRouter);
 
 //Middleware para responsable cliente
 app.use('/responsables-cliente', ResponsablesClienteRouter);
+
+//Middleware para usuarios
+app.use('/usuarios', UsuariosRouter);
+
+//Middleware para feriados
+app.use('/feriados', FeriadosRouter);
+
+//Middleware para tareas
+app.use('/tareas', TareasRouter);
 
 app.use(express.static('public'));
 
