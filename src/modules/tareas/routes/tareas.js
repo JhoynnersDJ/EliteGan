@@ -1,5 +1,5 @@
 import { Router } from "express";
-import  {register} from "./controllers/TareaController.js"
+import  {register} from "../controllers/TareaController.js"
 
 const router = Router();
 

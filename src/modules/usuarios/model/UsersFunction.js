@@ -1,10 +1,10 @@
 import { user, userRol } from "./UserModel.js";
-import { Rol } from "../../src/Modelo/Syssopgan/RolModel.js";
-import { Usuarios } from "../../../database/hormiwatch/Usuarioss.js";
+import { Roles } from "../../../database/hormiwatch/roles.js";
+import { Usuarios } from "../../../database/hormiwatch/Usuarios.js";
 import "dotenv/config";
 import nodemailer from "nodemailer";
 
-import ibmdb from "ibm_db";
+import ibmdb from "ibm_db"; 
 
 const dbSelect = process.env.SELECT_DB;
 var emailTemp;
@@ -26,7 +26,7 @@ let connStr =
 async function saveUser(user) {
   try {
     if (dbSelect == "MYSQL") {
-      const rol = await Rol.findOne({
+      const rol = await Roles.findOne({
         where: { nombre: "usuario" },
       });
 
@@ -132,7 +132,7 @@ async function findOne(email) {
     });
     //console.log(user1);
     if (!user1) return null;
-    const rol = await Rol.findOne({
+    const rol = await Roles.findOne({
       where: { id_rol: user1.dataValues.id_rolref },
     });
     return new user(
@@ -204,7 +204,7 @@ async function findOneById(id) {
     const user1 = await Usuarios.findByPk(id, {
       include: [
         {
-          model: Rol,
+          model: Roles,
         },
       ],
     }).catch((error) => {
@@ -276,7 +276,7 @@ async function findOneById(id) {
 //actualiza el rol del Usuarios cuyo email se paso por el req.body
 async function updateRol(rol, email) {
   if (dbSelect == "MYSQL") {
-    const rolFound = await Rol.findOne({
+    const rolFound = await Roles.findOne({
       where: { nombre: rol },
     });
 
@@ -572,4 +572,3 @@ export default class userFunction {
   }
 }
 
-let users = new userMockup();
