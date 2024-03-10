@@ -18,8 +18,8 @@ export const registerSchema = z.object({
     }).min(6, {
         message: 'Password must be at least 6 characters'
     }),
-    num_tel: z.string({
-        required_error: 'cellphone is required, in string'
+    telefono: z.number({
+        required_error: 'cellphone is required, in number'
     }),
     empresa: z.string({
         required_error: 'empress is required, in string'
@@ -30,6 +30,12 @@ export const registerSchema = z.object({
     departamento: z.string({
         required_error: 'departament is required, in string'
     }).optional(),
+    cedula: z.number({
+        required_error: 'cedula es requerido',
+        invalid_type_error: 'cedula debe ser un número'
+        }).nonnegative({
+            message: 'cedula debe ser un número positivo'
+        }),
 
 
 })
@@ -54,7 +60,7 @@ export const updateRolfromAdmin = z.object({
     }).email({
         message: 'Invalid email'
     }),
-    rol: z.string({
+    nombre_rol: z.string({
         required_error: 'rol is required'
     })
 });

@@ -2,18 +2,19 @@ import userFunction from'./UsersFunction.js';
 
 //clase que define la estructura del usuario del sistema
 export class user {
-    constructor(nombre,apellido, email, password, num_tel, empresa,cargo, departamento, rol, id_us, verificado) {
+    constructor(nombre,apellido, email, password, telefono, empresa,cargo, departamento, rol, id_usuario, id_estado_usuario, cedula) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.password = password;
-        this.num_tel = num_tel;
+        this.telefono = telefono;
         this.empresa = empresa;
         this.cargo = cargo;
         this.departamento = departamento;
         this.rol = rol;
-        this.id_us = id_us;
-        this.verificado = verificado;
+        this.id_usuario = id_usuario;
+        this.id_estado_usuario = id_estado_usuario;
+        this.cedula = cedula;
     }
 
     //gets de los atributos de user
@@ -21,11 +22,11 @@ export class user {
     getUserLastName() { return this.apellido; }
     getUserEmail() { return this.email; }
     getUserPassword() { return this.password; }
-    getUserId() { return this.id_us; }
-    getUserCellphone() { return this.num_tel; }
+    getUserId() { return this.id_usuario; }
+    getUserCellphone() { return this.telefono; }
     getUserEmpress() { return this.empresa; }
     getUserDepartament() { return this.departamento; }
-    getUserRol() { return this.rol.nameRol; }
+    getUserRol() { return this.rol.id_rol; }
 
     //sets de los atributos de user
     setname(name) { this.name = name;}
@@ -42,6 +43,10 @@ export class user {
     static findOne(email){
         return userFunction.findOne(email);
     }
+
+    static verificado(email) {
+        return userFunction.verificado(email);
+      }
 
     static findOneById(id){
         return userFunction.findOneById(id);
@@ -67,14 +72,15 @@ export class user {
         return userFunction.updateVerificar(ver,id);
     }
 
+
 }
 
 export class userRol{
-    constructor(id, nameRol, descriptionRol){
-        this.id = id,
-        this.nameRol = nameRol,
-        this.descriptionRol = descriptionRol
+    constructor(id_rol, nombre_rol, descripcion_rol){
+        this.id_rol = id_rol,
+        this.nombre_rol = nombre_rol,
+        this.descripcion_rol = descripcion_rol
     }
-    getUseRol() {return this.nameRol;}
+    getUseRol() {return this.nombre_rol;}
 }
 

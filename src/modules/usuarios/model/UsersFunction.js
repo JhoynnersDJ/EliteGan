@@ -1,6 +1,8 @@
 import { user, userRol } from "./UserModel.js";
 import { Roles } from "../../../database/hormiwatch/roles.js";
-import { Usuarios } from "../../../database/hormiwatch/Usuarios.js";
+import { Usuarios } from "../../../database/hormiwatch/usuarios.js";
+import {EstadoUsuarios} from '../../../database/hormiwatch/estado_usuarios.js';
+
 import "dotenv/config";
 import nodemailer from "nodemailer";
 
@@ -27,10 +29,16 @@ async function saveUser(user) {
   try {
     if (dbSelect == "MYSQL") {
       const rol = await Roles.findOne({
-        where: { nombre: "usuario" },
+        where: { nombre_rol: "Tecnico" },
       });
-
+      //console.log(rol)
       if (!rol) return null;
+
+      const estado = await EstadoUsuarios.findOne({
+        where: { nombre_estado_usuario: "verificado" },
+      });
+      //console.log(rol)
+      if (!estado) return null;
 
       const user1 = await Usuarios.create(
         {
@@ -38,13 +46,14 @@ async function saveUser(user) {
           apellido: user.apellido,
           email: user.email,
           password: user.password,
-          id_rolref: rol.dataValues.id_rol,
+          id_rol: rol.dataValues.id_rol,
           empresa: user.empresa,
           cargo: user.cargo,
-          num_tel: user.num_tel,
+          telefono: user.telefono,
           departamento: user.departamento,
-          id_us: user.id_us,
-          verificado: true
+          id_usuario: user.id_usuario,
+          id_estado_usuario: estado.id_estado_usuario,
+          cedula: user.cedula
         },
         {
           fields: [
@@ -52,21 +61,22 @@ async function saveUser(user) {
             "apellido",
             "email",
             "password",
-            "id_rolref",
+            "id_rol",
             "empresa",
             "cargo",
-            "num_tel",
+            "telefono",
             "departamento",
-            "id_us",
-            "verificado",
+            "id_usuario",
+            "id_estado_usuario",
+            "cedula",
           ],
         }
       );
 
       return new userRol(
         rol.dataValues.id_rol,
-        rol.dataValues.nombre,
-        rol.dataValues.descripcion
+        rol.dataValues.nombre_rol,
+        rol.dataValues.descripcion_rol
       );
     }
 
@@ -124,6 +134,23 @@ async function saveUser(user) {
   //users.users.push(user);
 }
 
+async function verificado(email) {
+  if (dbSelect == "MYSQL") {
+    const user1 = await Usuarios.findOne({
+      where: { email: email },
+    });
+    //console.log(user1);
+    if (!user1) return null;
+    const estado = await EstadoUsuarios.findOne({
+      where: { id_estado_usuario:  user1.dataValues.id_estado_usuario},
+    });
+    //console.log(rol)
+    if (!estado) return null;
+    return estado.nombre_estado_usuario === 'verificado'
+  }
+  return null
+}
+
 //busca en la lista de usuarios un email pasado por parametro
 async function findOne(email) {
   if (dbSelect == "MYSQL") {
@@ -133,24 +160,25 @@ async function findOne(email) {
     //console.log(user1);
     if (!user1) return null;
     const rol = await Roles.findOne({
-      where: { id_rol: user1.dataValues.id_rolref },
+      where: { id_rol: user1.dataValues.id_rol },
     });
     return new user(
       user1.dataValues.nombre,
       user1.dataValues.apellido,
       user1.dataValues.email,
       user1.dataValues.password,
-      user1.dataValues.num_tel,
+      user1.dataValues.telefono,
       user1.dataValues.empresa,
       user1.dataValues.cargo,
       user1.dataValues.departamento,
       new userRol(
         rol.dataValues.id_rol,
-        rol.dataValues.nombre,
-        rol.dataValues.descripcion
+        rol.dataValues.nombre_rol,
+        rol.dataValues.descripcion_rol
       ),
-      user1.dataValues.id_us,
-      user1.dataValues.verificado
+      user1.dataValues.id_usuario,
+      user1.dataValues.id_estado_usuario,
+      user1.dataValues.cedula
     );
   }
 
@@ -201,16 +229,18 @@ async function findOne(email) {
 //devuelve un objeto tipi Usuarios por id
 async function findOneById(id) {
   if (dbSelect == "MYSQL") {
-    const user1 = await Usuarios.findByPk(id, {
-      include: [
-        {
-          model: Roles,
-        },
-      ],
-    }).catch((error) => {
+    const user1 = await Usuarios.findByPk(id).catch((error) => {
       console.error("Failed to retrieve data : ", error);
     });
+
     if (!user1) return null;
+
+    const rol = await Roles.findOne({
+      where: { id_rol: user1.dataValues.id_rol },
+    });
+    
+    if (!rol) return null;
+
     return new user(
       user1.dataValues.nombre,
       user1.dataValues.apellido,
@@ -221,12 +251,13 @@ async function findOneById(id) {
       user1.dataValues.cargo,
       user1.dataValues.departamento,
       new userRol(
-        user1.rol.dataValues.id_rol,
-        user1.rol.dataValues.nombre,
-        user1.rol.dataValues.descripcion
+        rol.dataValues.id_rol,
+        rol.dataValues.nombre_rol,
+        rol.dataValues.descripcion_rol
       ),
-      user1.dataValues.id_us,
-      user1.dataValues.verificado
+      user1.dataValues.id_usuario,
+      user1.dataValues.id_estado_usuario,
+      user1.dataValues.cedula
     );
   }
   //DB2
@@ -277,7 +308,7 @@ async function findOneById(id) {
 async function updateRol(rol, email) {
   if (dbSelect == "MYSQL") {
     const rolFound = await Roles.findOne({
-      where: { nombre: rol },
+      where: { nombre_rol: rol },
     });
 
     if (!rolFound) return null;
@@ -297,17 +328,18 @@ async function updateRol(rol, email) {
       user1.dataValues.apellido,
       user1.dataValues.email,
       user1.dataValues.password,
-      user1.dataValues.num_tel,
+      user1.dataValues.telefono,
       user1.dataValues.empresa,
       user1.dataValues.cargo,
       user1.dataValues.departamento,
       new userRol(
         rolFound.dataValues.id_rol,
-        rolFound.dataValues.nombre,
-        rolFound.dataValues.descripcion
+        rolFound.dataValues.nombre_rol,
+        rolFound.dataValues.descripcion_rol
       ),
-      user1.dataValues.id_us,
-      user1.dataValues.verificado
+      user1.dataValues.id_usuario,
+      user1.dataValues.id_estado_usuario,
+      user1.dataValues.cedula
     );
   }
 
@@ -516,7 +548,13 @@ async function updateVerificar(ver, id) {
 
     if (!userFound) return null;
 
-    userFound.verificado = ver;
+    const estado = await EstadoUsuarios.findOne({
+      where: { nombre_estado_usuario: ver },
+    });
+    //console.log(rol)
+    if (!estado) return null;
+
+    userFound.id_estado_usuario = estado.id_estado_usuario;
 
     return userFound.save();
   }
@@ -545,6 +583,10 @@ export default class userFunction {
 
   static findOne(email) {
     return findOne(email);
+  }
+
+  static verificado(email) {
+    return verificado(email);
   }
 
   static findOneById(id) {
