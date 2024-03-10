@@ -67,8 +67,6 @@ export class Servicio {
             console.log(error.message)
         }
     }
-
-
 }
 
 

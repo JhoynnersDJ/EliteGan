@@ -1,5 +1,5 @@
-import { Servicio } from "../model/servicioModel.js"
-import date from "date-and-time";
+import { Servicio } from "../model/servicioModel.js" // Funciones a diferentes bases de datos
+import date from "date-and-time"
 // import { Servicios } from '../../../database/hormiwatch/asociaciones.js'
 
 class ServicioController {
