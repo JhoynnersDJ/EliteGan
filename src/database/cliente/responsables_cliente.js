@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../sequelize.js'; 
+import { sequelizeClients } from '../sequelize.js'; 
 
-const ResponsablesClienteR = sequelize.define('responsables_cliente', {
+const ResponsablesCliente = sequelizeClients.define('responsables_cliente', {
     id_responsable_cliente: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -42,4 +42,4 @@ const ResponsablesClienteR = sequelize.define('responsables_cliente', {
 
 });
 
-export  { ResponsablesClienteR };
+export  { ResponsablesCliente };

@@ -3,8 +3,11 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-// Importar el enrutador de usuario desde el archivo './usuarios/usuarios'
 import {sequelize} from './src/database/sequelize.js';
+import {sequelizeClients} from './src/database/sequelize.js';
+
+import ClientesRouter from './src/modules/clientes/routes/ClientesRouter.js';
+import ResponsablesClienteRouter from './src/modules/responsables_clientes/routes/responsables_clienteRoutes.js';
 
 const port = process.env.PORT || 3000;
 const host = process.env.HOST;
@@ -28,7 +31,15 @@ await sequelize.sync({ force: false }).then(() => {
   console.log('Modelo sincronizado con la base de datos');
 });
 
+await sequelizeClients.sync({ force: false }).then(() => {
+  console.log('Modelo sincronizado con la base de datos de clientes');
+});
 
+//Middleware para  cliente
+app.use('/clientes', ClientesRouter);
+
+//Middleware para responsable cliente
+app.use('/responsables-cliente', ResponsablesClienteRouter);
 
 app.use(express.static('public'));
 
