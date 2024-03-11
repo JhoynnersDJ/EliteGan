@@ -8,6 +8,7 @@ import {sequelizeClients} from './src/database/sequelize.js';
 
 import ClientesRouter from './src/modules/clientes/routes/ClientesRouter.js';
 import ResponsablesClienteRouter from './src/modules/responsables_clientes/routes/responsables_clienteRoutes.js';
+import ServicioRouter from './src/modules/servicios/routes/ServicioRouter.js'
 
 //usuarios
 import UsuariosRouter from './src/modules/usuarios/routes/usuarios.js'
@@ -58,6 +59,8 @@ app.use('/feriados', FeriadosRouter);
 
 //Middleware para tareas
 app.use('/tareas', TareasRouter);
+//Middleware para servicios
+app.use('/servicios', ServicioRouter);
 
 app.use(express.static('public'));
 
