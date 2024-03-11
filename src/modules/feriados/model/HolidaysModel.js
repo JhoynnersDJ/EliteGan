@@ -2,15 +2,15 @@ import holidayFunction from "./HolidaysFunction.js";
 
 //clase que define la estructura de los feriados del sistema
 export default class holidays {    
-    constructor(nombre, fecha, id) {
-        this.nombre = nombre;
-        this.fecha = fecha;
+    constructor(nombre_feriado, fecha_feriado, id) {
+        this.nombre_feriado = nombre_feriado;
+        this.fecha_feriado = fecha_feriado;
         this.id = id;
     }
 
     //gets de los atributos de user
-    getHolidayName() { return this.name; }
-    getHolidayDate() { return this.date; }
+    getHolidayName() { return this.name_feriado; }
+    getHolidayDate() { return this.fecha_feriado; }
     getHolidayId() { return this.id; }
 
     //sets de los atributos de user

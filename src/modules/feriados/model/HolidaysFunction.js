@@ -12,8 +12,8 @@ const dbSelect = process.env.SELECT_DB;
 //guarda al Feriados para persistencia
 async function saveHoliday(holiday) {
     if (dbSelect == "MYSQL") {
-        return await Feriados.create({ nombre: holiday.nombre, fecha: holiday.fecha },
-            { fields: ['nombre', 'fecha'] });
+        return await Feriados.create({ nombre_feriado: holiday.nombre_feriado, fecha_feriado: holiday.fecha_feriado },
+            { fields: ['nombre_feriado', 'fecha_feriado'] });
     }
 
     //DB2
@@ -54,12 +54,18 @@ async function saveHoliday(holiday) {
 
 //busca en la lista de feriados una fecha pasada por parametro
 async function findOne(id) {
-    //DB2
-    var holidayFound = await Feriados.findOne(
-        {
-            where: { id: id }
-        }
-    );
+    //MYSQL
+    if (dbSelect == "MYSQL") {
+        var holidayFound = await Feriados.findOne(
+            {
+                where: { id: id }
+            }
+        );
+
+        if (!holidayFound) return null
+
+        return holidayFound;
+    }
     //DB2
     /*var holidayFound2 = await new Promise((resolve, reject) => {
         ibmdb.open(connStr, async (err, conn) => {
@@ -83,15 +89,19 @@ async function findOne(id) {
     if(holidayFound) return new holidays(holidayFound.dataValues.nombre, holidayFound.dataValues.fecha, holidayFound.dataValues.id);
     if(holidayFound2) return new holidays(holidayFound.dataValues.NOMBRE, holidayFound.dataValues.FECHA, holidayFound.dataValues.ID);*/
 
-    if (!holidayFound) return null
 
-    return holidayFound;
+    return null;
     //return holidays.holidays.find((holidays) => holidays.id == id);
 }
 
 //devuelve todos los Feriadoss guardados
 async function getHolidays() {
-    var allHolidays = await Feriados.findAll();
+    if (dbSelect == "MYSQL") {
+        var allHolidays = await Feriados.findAll();
+
+        if (!allHolidays) return null;
+        return allHolidays;
+    }
 
     //DB2
     /*var allHolidays2 = await new Promise((resolve, reject) => {
@@ -115,16 +125,18 @@ async function getHolidays() {
         });
     if(!allHolidays) allHolidays = allHolidays2;
     if(!allHolidays2) return null;*/
-    if (!allHolidays) return null;
-    return allHolidays;
-    //return holidays.holidays;
+
+    return null;
 }
 
 async function getHolidaysDate() {
-    const allHolidays = await Feriados.findAll();
-    let dates = [];
-    allHolidays.forEach((holiday) => dates.push(holiday.dataValues.fecha));
-
+    if (dbSelect == "MYSQL") {
+        const allHolidays = await Feriados.findAll();
+        let dates = [];
+        if (!allHolidays) return null;
+        allHolidays.forEach((holiday) => dates.push(holiday.dataValues.fecha_feriado));
+        return dates;
+    }
     //DB2
     /*var allHolidays2 = await new Promise((resolve, reject) => {
         ibmdb.open(connStr, async (err, conn) => {
@@ -146,17 +158,19 @@ async function getHolidaysDate() {
         });
         });
     allHolidays2.forEach((holiday) => dates.push(holiday.FECHA));*/
-    return dates;
+    return null;
     //return holidays.holidays;
 }
 
 //elimina un feriado por id
 async function deleteOne(id) {
-    const deleteHoliday = await Feriados.destroy({
-        where: {
-            id: id
-        },
-    });
+    if (dbSelect == "MYSQL") {
+        const deleteHoliday = await Feriados.destroy({
+            where: {
+                id: id
+            },
+        });
+    }
     //DB2
     /*await new Promise((resolve, reject) => {
         ibmdb.open(connStr, (err, conn) => {
@@ -195,6 +209,15 @@ async function deleteOne(id) {
 
 //encuentra un feriado por fecha
 async function findOneByDate(date) {
+    if (dbSelect == "MYSQL") {
+        var holidayFound = await Feriados.findOne(
+            {
+                where: { fecha_feriado: date }
+            }
+        );
+        if (!holidayFound) return null;
+        return holidayFound;
+    }
     //DB2
     /*var holidayFound2 = await new Promise((resolve, reject) => {
     ibmdb.open(connStr, async (err, conn) => {
@@ -218,42 +241,42 @@ async function findOneByDate(date) {
 
     //if(!holidayFound2) return null; 
 
-    var holidayFound = await Feriados.findOne(
-        {
-            where: { fecha: date }
-        }
-    );
+
     /*if(!holidayFound) holidayFound = holidayFound2;
     if(!holidayFound2) return null;*/
-    if (!holidayFound) return null;
-    return holidayFound;
+    return null;
+
 
 }
 
 async function updateName(name, id) {
+    if (dbSelect == "MYSQL") {
+        const holidayFound = await Feriados.findOne(
+            {
+                where: { id: id }
+            }
+        );
+        if (!holidayFound) return null;
 
-    const holidayFound = await Feriados.findOne(
-        {
-            where: { id: id }
-        }
-    );
-    if (!holidayFound) return null;
-
-    holidayFound.nombre = name;
-    return holidayFound.save();
+        holidayFound.nombre = name;
+        return holidayFound.save();
+    }
+    return null;
 }
 
 async function updateDate(date, id) {
+    if (dbSelect == "MYSQL") {
+        const holidayFound = await Feriados.findOne(
+            {
+                where: { id: id }
+            }
+        );
+        if (!holidayFound) return null;
 
-    const holidayFound = await Feriados.findOne(
-        {
-            where: { id: id }
-        }
-    );
-    if (!holidayFound) return null;
-
-    holidayFound.fecha = date;
-    return holidayFound.save();
+        holidayFound.fecha = date;
+        return holidayFound.save();
+    }
+    return null;
 }
 
 export default class holidayFunction {

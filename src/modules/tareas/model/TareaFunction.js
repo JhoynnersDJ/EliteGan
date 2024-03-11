@@ -19,18 +19,7 @@ async function save(tarea) {
 
 async function findProjectById(id) {
   if (dbSelect == "MYSQL") {
-    const project = await Proyecto.findByPk(id, {
-      attributes: [
-        'id_proyecto',
-        'tarifa',
-        'nombre_proyecto',
-        'id_responsable_tecnico_fk',
-        'id_usuario_fk',
-        'id_responsable_cliente_fk',
-        'status',
-        'fecha_inicio'
-      ]
-    })
+    const project = await Proyectos.findByPk(id)
     if (!project) return null;
     return project;
   }
@@ -39,7 +28,7 @@ async function findProjectById(id) {
 
 async function findServiceById(id) {
   if (dbSelect == "MYSQL") {
-    const serviceFound = await Servicio.findByPk(id)
+    const serviceFound = await Servicios.findByPk(id)
     if (!serviceFound) return null;
     return serviceFound;
   }
