@@ -51,6 +51,7 @@ export const register = async (req, res) => {
     //se guarda el usuario
     const userSaved = await user.save(newuser);
       //console.log(userSaved)
+    if(!userSaved) res.status(202).json({ message: "ERROR AL CREAR USUARIO" });
     //se genera el token para ser manejado por la cookie
     const authToken = await createAccessToken({
       id_usuario: newuser.getUserId(),
@@ -117,6 +118,7 @@ export const login = async (req, res) => {
       nombre: userFound.getUserName(),
       email: userFound.getUserEmail(),
       authToken: authToken,
+      id_rol: userFound.getUserRol()
     });
     console.log(`El usuario ${userFound.getUserName()} a iniciado sesion`);
     //userFound = null;
