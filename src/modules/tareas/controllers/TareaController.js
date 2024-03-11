@@ -1,7 +1,8 @@
 //import Tareas from '../model/TareasModel.js';
 //import {Tareas} from '../../../database/hormiwatch/Tareas.js'
-import tarea from '../model/TareaModel.js'
-import { calcularDiferenciaDeTiempo, calculartarifa, isHoliday } from '../libs/Tarifa.js'
+import tarea from '../model/TareaModel.js';
+import { calcularDiferenciaDeTiempo, calculartarifa, formatHour } from '../libs/Tarifa.js';
+import holidayFunction from '../../feriados/model/HolidaysFunction.js';
 
 export const register = async (req, res) => {
     const { fecha, hora_inicio, hora_fin, id_proyecto, id_servicio, status } = req.body;
@@ -14,40 +15,57 @@ export const register = async (req, res) => {
 
         if (!serviceFound) return res.status(404).json({ message: 'Servicio no encontrado' });
 
-        var time = calcularDiferenciaDeTiempo(hora_inicio, hora_fin);
+        const holidays = await holidayFunction.getHolidaysDate();
 
-        var time2 = calculartarifa(hora_inicio, hora_fin, fecha);
+        var time = calcularDiferenciaDeTiempo(hora_inicio, hora_fin);
+        console.log(calcularDiferenciaDeTiempo(hora_inicio, '00:00AM'));
+
+        var time2 = calculartarifa(hora_inicio, hora_fin, fecha, holidays);
 
         if (time2.fin) {
-            /*await Tarea.create(
-                { fecha: fecha, hora_inicio:hora_inicio, hora_fin: '12:00AM', total_hora: calcularDiferenciaDeTiempo(hora_inicio,'12:00AM'), id_proyecto_fk: id_proyecto, id_servicio_fk: id_servicio, feriado_fk: isHoliday(fecha), total_tarifa: calculartarifa(hora_inicio,'12:00AM', fecha).tarifa1 },
-                { fields: ['fecha', 'hora_inicio', 'hora_fin', 'total_hora', 'id_proyecto_fk', 'id_servicio_fk', 'feriado_fk','total_tarifa'] }
-            );
-            await Tarea.create(
-                { fecha: time2.fin, hora_inicio:'12:00AM', hora_fin: hora_fin, total_hora: calcularDiferenciaDeTiempo('12:00AM',hora_fin), id_proyecto_fk: id_proyecto, id_servicio_fk: id_servicio, feriado_fk: isHoliday(time2.fin), total_tarifa: calculartarifa('12:00AM',hora_fin, fecha).tarifa1 },
-                { fields: ['fecha', 'hora_inicio', 'hora_fin', 'total_hora', 'id_proyecto_fk', 'id_servicio_fk', 'feriado_fk','total_tarifa'] }
-            )*/
-        } else {
-            const tareaSaved = new tarea(null, fecha, hora_inicio, hora_fin, 
-                tiempo_total, factor_tiempo_total, id_proyecto, id_servicio, total_tarifa, status)
-            // Parsea las horas, minutos y período de date1
-            /*const [hours1, minutes1, period1] = hora_inicio.match(/\d+|AM|PM/g);
+            const horas1 = formatHour(hora_inicio,hora_fin);
 
-            // Parsea las horas, minutos y período de date2
-            const [hours2, minutes2, period2] = hora_fin.match(/\d+|AM|PM/g);
-            console.log(hours1+':'+minutes1+':00')
-            await Tarea.create(
-                { fecha: new Date(fecha), hora_inicio:hours1+':'+minutes1+':00', hora_fin: hours2+':'+minutes2+':00', total_hora: time, id_proyecto_fk: id_proyecto, id_servicio_fk: id_servicio, feriado_fk: isHoliday(fecha), total_tarifa: time2.tarifa1},
-                { fields: ['fecha', 'hora_inicio', 'hora_fin', 'total_hora', 'id_proyecto_fk', 'id_servicio_fk', 'feriado_fk','total_tarifa'] }
-            )*/
+            const tiempo_total_dia1 = calcularDiferenciaDeTiempo(hora_inicio, '00:00AM').tiempo_minutos;
+
+            const tareaSaved_dia1 = new tarea(null, fecha, horas1.tiempo_formateado1, '00:00AM', 
+            tiempo_total_dia1, time2.tarifa1, 
+            id_proyecto, id_servicio, time2.tarifa1*proyectFound.tarifa, status,null);
+
+            await tarea.restPoolProjectById(id_proyecto,tiempo_total_dia1);
+
+            await tarea.save(tareaSaved_dia1);
+
+            const horas2 = formatHour(hora_inicio,hora_fin);
+
+            const tiempo_total_dia2 = calcularDiferenciaDeTiempo( '00:00AM',hora_fin).tiempo_minutos;
+            
+            const tareaSaved_dia2 = new tarea(null, time2.fin, '00:00AM', horas2.tiempo_formateado2, 
+            tiempo_total_dia2, time2.tarifa2, 
+            id_proyecto, id_servicio, time2.tarifa2*proyectFound.tarifa, status,null);
+
+            await tarea.save(tareaSaved_dia2);
+
+            await tarea.restPoolProjectById(id_proyecto,tiempo_total_dia2);
+            
+        } else {
+            const horas = formatHour(hora_inicio,hora_fin)
+            const tareaSaved = new tarea(null, fecha, horas.tiempo_formateado1, horas.tiempo_formateado2, 
+                time.tiempo_minutos, time2.tarifa1, id_proyecto, id_servicio, time2.tarifa1*proyectFound.tarifa, status,null)
+                
+            await tarea.save(tareaSaved);
+
+            await tarea.restPoolProjectById(id_proyecto,time.tiempo_minutos);
+            
+            
         }
-        res.status(200).json({
+        res.status(200).json({message: "se creao la tarea exitosamente"})
+        /*res.status(200).json({
             total_time: time.tiempo_formateado,
             total_time2: time.tiempo_minutos,
             total_tarifa_dia1: time2.tarifa1,
             total_tarifa_da2: time2.tarifa2,
             siguiente_dia: time2.fin
-        })
+        })*/
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -56,9 +74,26 @@ export const register = async (req, res) => {
 export const getByProject = async (req, res) => {
     const { id } = req.params
     try {
-        const proyectFound = await Tareas.findProjectById(id_proyecto);
+        const proyectFound = await tarea.findProjectById(id);
 
         if (!proyectFound) return res.status(404).json({ message: 'Proyecto no encontrado' });
+
+        const tasks = await tarea.findTaskByProjectId(id);
+        res.status(200).json(tasks)
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const deleteById = async (req, res) => {
+    const { id } = req.params
+    try {
+        const taskFound = await tarea.getTasksById(id);
+
+        if (!taskFound) return res.status(404).json({ message: 'tarea no encontrada' });
+
+        const deleteTask = await tarea.deleteTasksById(id);
+        res.status(200).json(taskFound)
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

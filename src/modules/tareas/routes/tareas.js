@@ -1,8 +1,14 @@
 import { Router } from "express";
-import  {register} from "../controllers/TareaController.js"
+import  {register, getByProject, deleteById} from "../controllers/TareaController.js"
 
 const router = Router();
 
-router.post('/test',register)
+router.post('/crear',register)
+
+router.get('/proyecto/:id',getByProject)
+
+router.get('/seleccionar/:id',getByProject)
+
+router.delete('/eliminar/:id',deleteById)
 
 export default router;

@@ -20,7 +20,7 @@ import {
 
 const router = Router();
 //registrar usuario (nombre de usuario, contraseña, email)
-router.post("/registro", validateSchema(registerSchema), register);
+router.post("/crear", validateSchema(registerSchema), register);
 
 //iniciar sesion con email y contraseña
 router.post("/login", validateSchema(loginSchema), login);

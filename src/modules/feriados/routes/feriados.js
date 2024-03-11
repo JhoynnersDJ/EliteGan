@@ -9,7 +9,7 @@ const router = Router()
 router.get('/cargar-feriados',loadHolidays)
 
 //agrega un feriado ccon nombre y fecha
-router.post('/agregar-feriado',validateSchema(createHolidaySchema), createHoliday)
+router.post('/crear',validateSchema(createHolidaySchema), createHoliday)
 
 //actualiza un feriado por id en los campos opcionales de nombre o feccha
 router.put('/actualizar-feriado/:id',validateSchema(updateHolidaySchema), updateHoliday)
