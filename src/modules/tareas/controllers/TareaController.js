@@ -39,7 +39,8 @@ export const register = async (req, res) => {
             )*/
         }
         res.status(200).json({
-            total_time: time,
+            total_time: time.tiempo_formateado,
+            total_time2: time.tiempo_minutos,
             total_tarifa_dia1: time2.tarifa1,
             total_tarifa_da2: time2.tarifa2,
             siguiente_dia: time2.fin

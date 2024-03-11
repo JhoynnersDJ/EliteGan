@@ -3,6 +3,6 @@ import  {register} from "../controllers/TareaController.js"
 
 const router = Router();
 
-router.get('/test',register)
+router.post('/test',register)
 
 export default router;
