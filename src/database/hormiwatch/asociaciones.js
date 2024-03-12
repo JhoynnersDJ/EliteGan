@@ -65,6 +65,7 @@ Tareas.belongsTo(Servicios, { targetKey:'id_servicio', foreignKey: 'id_servicio'
 // Definir la relación de muchos a muchos con Proyectos y Usuarios
 Proyectos.belongsToMany(Usuarios, { through: Asignaciones, foreignKey: 'id_proyecto'});
 Usuarios.belongsToMany(Proyectos, { through: Asignaciones, foreignKey: 'id_usuario' });
+Proyectos.belongsToMany(Usuarios, { through: Asignaciones, foreignKey: 'id_proyecto', as: 'tecnicos'});
 
 
 /* ----- Hooks ----- */

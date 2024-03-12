@@ -43,7 +43,6 @@ class ProyectoController {
             const { id } = req.params
             // comprobar si existe el usuario
             const userFound = await user.findOneById(id)
-            console.log(userFound)
             if (!userFound) {
                 return res.status(404).json({ message: 'Usuario no encontrado' })
             }

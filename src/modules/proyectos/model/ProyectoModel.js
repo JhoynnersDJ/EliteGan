@@ -95,6 +95,16 @@ export class Proyecto {
                         },
                         {
                             model: Usuarios,
+                            attributes: [],
+                            through:{
+                                model: Asignaciones,
+                                attributes: [],
+                            },
+                            where: { id_usuario: id }
+                        },
+                        {
+                            model: Usuarios,
+                            as: 'tecnicos',
                             attributes: [
                                 ['id_usuario', 'id'],
                                 'nombre',
@@ -104,27 +114,26 @@ export class Proyecto {
                             through:{
                                 model: Asignaciones,
                                 attributes: [],
-                            },
-                            where: { id_usuario: id }
+                            }
                         }
                     ]
                 })
                 // formato de los datos
-                // const formattedProyectos = proyectos.map(proyecto => ({
-                //     id_proyecto: proyecto.id_proyecto,
-                //     nombre: proyecto.nombre_proyecto,
-                //     tarifa: proyecto.tarifa,
-                //     status: proyecto.status,
-                //     fecha_inicio: proyecto.fecha_inicio,
-                //     fecha_fin: proyecto.fecha_fin,
-                //     pool_horas: proyecto.pool_horas,
-                //     id_responsable_cliente: proyecto.id_responsable_cliente,
-                //     nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
-                //     id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
-                //     nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre,
-                //     usuarios: proyecto.usuarios
-                // }))
-                return proyectos
+                const formattedProyectos = proyectos.map(proyecto => ({
+                    id_proyecto: proyecto.id_proyecto,
+                    nombre: proyecto.nombre_proyecto,
+                    tarifa: proyecto.tarifa,
+                    status: proyecto.status,
+                    fecha_inicio: proyecto.fecha_inicio,
+                    fecha_fin: proyecto.fecha_fin,
+                    pool_horas: proyecto.pool_horas,
+                    id_responsable_cliente: proyecto.id_responsable_cliente,
+                    nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
+                    id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
+                    nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre,
+                    usuarios: proyecto.tecnicos
+                }))
+                return formattedProyectos
             }
         } catch (error) {
             console.log(error.message)
