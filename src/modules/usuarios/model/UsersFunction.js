@@ -228,7 +228,7 @@ async function findOne(email) {
 
 //devuelve un objeto tipi Usuarios por id
 async function findOneById(id) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const user1 = await Usuarios.findByPk(id).catch((error) => {
       console.error("Failed to retrieve data : ", error);
     });

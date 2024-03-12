@@ -1,6 +1,5 @@
 import { Servicio } from "../model/servicioModel.js" // Funciones a diferentes bases de datos
 import date from "date-and-time"
-// import { Servicios } from '../../../database/hormiwatch/asociaciones.js'
 
 class ServicioController {
     // devuelve todos los servicios
@@ -47,13 +46,32 @@ class ServicioController {
     static async create (req, res){
         try {
             // capturar datos
-            const {nombre, tipo, categoria, plataforma } = req.body
-            let { descripcion } = req.body
+            const { tipo, categoria, plataforma } = req.body
+            let { nombre, descripcion } = req.body
             // si descripcion es una cadena vacia
             if (descripcion === "") descripcion = null
+            nombre = nombre.trim()
+            // primera letra plataforma
+            const primera_letra_plataforma = plataforma.charAt(0)
+            // primera letra categoria
+            const primera_letra_categoria = categoria.charAt(0)
+            // primera letra tipo
+            let letra_tipo = null
+            // si es null toma el nombre
+            if (!tipo) {
+                letra_tipo = nombre.slice(0,3)
+            } else {
+                letra_tipo = tipo.charAt(0)
+            }
             // generar id de servicio
-            const id = "123" 
-
+            let id = primera_letra_plataforma + primera_letra_categoria + letra_tipo + '-'
+            // cantidad de filas con ese patron
+            let filas = await Servicio.findPatronId(id)
+            filas = filas + 1
+            // si supera el limite
+            if (filas > 999) return res.status(500).json({ message: 'Se ha alcanzado el limite para esta categoria'})  
+            filas = filas.toString().padStart(3, '0')
+            id = id + filas
             // comprobar si el id se repite
             const servicioFound = await Servicio.findByPk(id)
             if (servicioFound) {

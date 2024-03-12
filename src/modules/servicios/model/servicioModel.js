@@ -1,8 +1,7 @@
 import { Servicios } from '../../../database/hormiwatch/asociaciones.js'
+import { Op } from "sequelize";
 
 const database = process.env.SELECT_DB;
-
-// falta update y delete
 
 export class Servicio {
     constructor(id, nombre, plataforma, categoria, tipo, descripcion){
@@ -34,6 +33,25 @@ export class Servicio {
             if (database === "SEQUELIZE") {
                 const servicio = await Servicios.findByPk(id)
                 return servicio
+            }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+    // devuelve un registro donde se encuentre un patron
+    static async findPatronId(patron){
+        try {
+            const id  = patron + '%'
+            // funcion para las bases de datos de sequelize
+            if (database === "SEQUELIZE") {
+                const filas = await Servicios.count({
+                    where: {
+                        id_servicio:{
+                            [Op.like]: id
+                        }
+                    }
+                })
+                return filas
             }
         } catch (error) {
             console.log(error.message)
