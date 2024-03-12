@@ -27,7 +27,7 @@ let connStr =
 //guarda al Usuarios para persistencia
 async function saveUser(user) {
   try {
-    if (dbSelect == "MYSQL") {
+    if (dbSelect == "SEQUELIZE") {
       const rol = await Roles.findOne({
         where: { nombre_rol: "Tecnico" },
       });
@@ -135,7 +135,7 @@ async function saveUser(user) {
 }
 
 async function verificado(email) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const user1 = await Usuarios.findOne({
       where: { email: email },
     });
@@ -153,7 +153,7 @@ async function verificado(email) {
 
 //busca en la lista de usuarios un email pasado por parametro
 async function findOne(email) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const user1 = await Usuarios.findOne({
       where: { email: email },
     });
@@ -306,7 +306,7 @@ async function findOneById(id) {
 
 //actualiza el rol del Usuarios cuyo email se paso por el req.body
 async function updateRol(rol, email) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const rolFound = await Roles.findOne({
       where: { nombre_rol: rol },
     });
@@ -395,7 +395,7 @@ async function updateRol(rol, email) {
 }
 
 async function updateToken(token, id) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const userFound = await Usuarios.findByPk(id);
 
     if (!userFound) return null;
@@ -527,7 +527,7 @@ async function sendEmailToken(token, email, nombre) {
 }
 
 async function updateEmail(id) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const userFound = await Usuarios.findByPk(id);
 
     if (!userFound) return null;
@@ -543,7 +543,7 @@ async function updateEmail(id) {
 }
 
 async function updateVerificar(ver, id) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const userFound = await Usuarios.findByPk(id);
 
     if (!userFound) return null;

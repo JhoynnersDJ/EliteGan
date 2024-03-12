@@ -11,7 +11,7 @@ const dbSelect = process.env.SELECT_DB;
 
 //guarda al Feriados para persistencia
 async function saveHoliday(holiday) {
-    if (dbSelect == "MYSQL") {
+    if (dbSelect == "SEQUELIZE") {
         return await Feriados.create({ nombre_feriado: holiday.nombre_feriado, fecha_feriado: holiday.fecha_feriado },
             { fields: ['nombre_feriado', 'fecha_feriado'] });
     }
@@ -54,8 +54,8 @@ async function saveHoliday(holiday) {
 
 //busca en la lista de feriados una fecha pasada por parametro
 async function findOne(id) {
-    //MYSQL
-    if (dbSelect == "MYSQL") {
+    //SEQUELIZE
+    if (dbSelect == "SEQUELIZE") {
         var holidayFound = await Feriados.findOne(
             {
                 where: { id: id }
@@ -96,7 +96,7 @@ async function findOne(id) {
 
 //devuelve todos los Feriadoss guardados
 async function getHolidays() {
-    if (dbSelect == "MYSQL") {
+    if (dbSelect == "SEQUELIZE") {
         var allHolidays = await Feriados.findAll();
 
         if (!allHolidays) return null;
@@ -130,7 +130,7 @@ async function getHolidays() {
 }
 
 async function getHolidaysDate() {
-    if (dbSelect == "MYSQL") {
+    if (dbSelect == "SEQUELIZE") {
         const allHolidays = await Feriados.findAll();
         let dates = [];
         if (!allHolidays) return null;
@@ -164,7 +164,7 @@ async function getHolidaysDate() {
 
 //elimina un feriado por id
 async function deleteOne(id) {
-    if (dbSelect == "MYSQL") {
+    if (dbSelect == "SEQUELIZE") {
         const deleteHoliday = await Feriados.destroy({
             where: {
                 id: id
@@ -209,7 +209,7 @@ async function deleteOne(id) {
 
 //encuentra un feriado por fecha
 async function findOneByDate(date) {
-    if (dbSelect == "MYSQL") {
+    if (dbSelect == "SEQUELIZE") {
         var holidayFound = await Feriados.findOne(
             {
                 where: { fecha_feriado: date }
@@ -250,7 +250,7 @@ async function findOneByDate(date) {
 }
 
 async function updateName(name, id) {
-    if (dbSelect == "MYSQL") {
+    if (dbSelect == "SEQUELIZE") {
         const holidayFound = await Feriados.findOne(
             {
                 where: { id: id }
@@ -265,7 +265,7 @@ async function updateName(name, id) {
 }
 
 async function updateDate(date, id) {
-    if (dbSelect == "MYSQL") {
+    if (dbSelect == "SEQUELIZE") {
         const holidayFound = await Feriados.findOne(
             {
                 where: { id: id }

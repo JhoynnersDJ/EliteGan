@@ -7,7 +7,7 @@ import "dotenv/config";
 
 const dbSelect = process.env.SELECT_DB;
 async function save(tarea) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const isCompleted = tarea.status === true ? "C" : "P";
     return await Tareas.create(
       {
@@ -41,7 +41,7 @@ async function save(tarea) {
 }
 
 async function findProjectById(id) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const project = await Proyectos.findByPk(id);
     if (!project) return null;
     return project;
@@ -50,7 +50,7 @@ async function findProjectById(id) {
 }
 
 async function restPoolProjectById(id, horas) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const project = await Proyectos.findByPk(id);
     if (!project) return null;
     const result = project.pool_horas - horas;
@@ -61,7 +61,7 @@ async function restPoolProjectById(id, horas) {
 }
 
 async function findServiceById(id) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const serviceFound = await Servicios.findByPk(id);
     if (!serviceFound) return null;
     return serviceFound;
@@ -76,7 +76,7 @@ async function calulateTotalTime(dt1, dt2) {
 }
 
 async function findTaskByProjectId(id) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "SEQUELIZE") {
     const tasks = await Tareas.findAll({
       where: {
         id_proyecto: id,
@@ -114,7 +114,7 @@ async function findTaskByProjectId(id) {
 }
 
 async function deleteTasksById(id) {
-  if (dbSelect == "MYSQL") {
+  if (dbSelect == "MYSSEQUELIZEQL") {
     const task = await Tareas.findByPk(id);
     if (!task) return null;
 
@@ -133,7 +133,7 @@ async function deleteTasksById(id) {
 }
 
 async function getTasksById(id) {
-  if (dbSelect == "MYSQL"){
+  if (dbSelect == "SEQUELIZE"){
     const task = await Tareas.findByPk(id);
     if (!task) return null;    
     return new tarea(
