@@ -1,15 +1,18 @@
 import { Proyectos, ResponsablesClienteR, ClientesR, Usuarios, Asignaciones } from '../../../database/hormiwatch/asociaciones.js'
+// import { user } from '../../usuarios/model/UserModel.js';
 
 const database = process.env.SELECT_DB;
 
 export class Proyecto {
-    constructor(nombre, tarifa, pool, fecha_fin, responsable_cliente, id_tecnico){
+    constructor(nombre, tarifa,status, pool_horas, fecha_inicio, fecha_fin, responsable_cliente, tecnicos ){
         this.nombre = nombre
         this.tarifa= tarifa
-        this.pool = pool
+        this.pool_horas = pool_horas
+        this.fecha_inicio= fecha_inicio
         this.fecha_fin= fecha_fin
         this.responsable_cliente = responsable_cliente
-        this.id_tecnico = id_tecnico
+        this.tecnicos = tecnicos
+        this.status = status
     }
 
     // devuelve todos los registros
@@ -199,49 +202,72 @@ export class Proyecto {
         }
     }
 
+    // devuelve un unico registro segun su 
+    static async findOneName(nombre, id_responsable_cliente){
+        try {
+            // funcion para las bases de datos de sequelize
+            if (database === "SEQUELIZE") {
+                const proyecto = await Proyectos.findOne({
+                    attributes:['nombre_proyecto'],
+                    where: {
+                        nombre_proyecto: nombre,
+                        id_responsable_cliente
+                    }
+                })
+                return proyecto
+            }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    // registra un unico registro en la base de datos
-    static async create(servicio){
+    // registra en la base de datos
+    static async create(proyecto){
         try {
             // funcion para las bases de datos de sequelize
             if (database === "SEQUELIZE") {
                 // guardar en la base de datos
-                const result = await Servicios.create({
-                    id_servicio: servicio.id,
-                    nombre_servicio: servicio.nombre,
-                    descripcion_servicio: servicio.descripcion,
-                    tipo_servicio: servicio.tipo,
-                    categoria_servicio: servicio.categoria,
-                    plataforma_servicio: servicio.plataforma
+                const proyectoCreado = await Proyectos.create({ 
+                    tarifa: proyecto.tarifa,
+                    nombre_proyecto: proyecto.nombre,
+                    status: proyecto.status,
+                    fecha_inicio: proyecto.fecha_inicio,
+                    id_responsable_cliente: proyecto.responsable_cliente,
+                    pool_horas: proyecto.pool_horas,
+                    fecha_fin: proyecto.fecha_fin,
                 }, { fields: [
-                        'id_servicio',
-                        'nombre_servicio',
-                        'descripcion_servicio',
-                        'tipo_servicio',
-                        'categoria_servicio',
-                        'plataforma_servicio'
-                    ]}
+                    'tarifa',
+                    'nombre_proyecto',
+                    'status',
+                    'fecha_inicio',
+                    'id_responsable_cliente',
+                    'pool_horas',
+                    'fecha_fin',]
+                })
+                // Asocia los usuarios al proyecto en la tabla asignaciones
+                for (const tecnico of proyecto.tecnicos) {
+                    const usuario = await Usuarios.findByPk(tecnico.id_usuario);
+                    if (usuario) {
+                        await proyectoCreado.addUsuario(usuario);
+                    }
+                }
+                return proyectoCreado
+            }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    // elimina un registro en la base de datos
+    static async delete(id){
+        try {
+            // funcion para las bases de datos de sequelize
+            if (database === "SEQUELIZE") {
+                // guardar en la base de datos
+                const proyecto = await Proyectos.destroy(
+                    { where: { id_proyecto: id } }
                 )
-                return result
+                return proyecto
             }
         } catch (error) {
             console.log(error.message)

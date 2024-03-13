@@ -46,11 +46,20 @@ class ServicioController {
     static async create (req, res){
         try {
             // capturar datos
-            const { tipo, categoria, plataforma } = req.body
-            let { nombre, descripcion } = req.body
+            const {categoria, plataforma } = req.body
+            let { nombre, descripcion, tipo } = req.body
             // si descripcion es una cadena vacia
-            if (descripcion === "") descripcion = null
-            nombre = nombre.trim()
+            if (descripcion === "") {
+                descripcion = null
+            }else{
+                nombre = nombre.trim()
+            }
+            // si tipo es una cadena vacia
+            if (tipo === ""){
+                tipo = null
+            }else{
+                tipo = tipo.trim()
+            }
             // primera letra plataforma
             const primera_letra_plataforma = plataforma.charAt(0)
             // primera letra categoria
@@ -90,6 +99,24 @@ class ServicioController {
             await Servicio.create(servicio)
             // devuelve respuesta
             res.status(201).json({ message: 'Servicio creado correctamente'})
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+
+    // eliminar un proyecto
+    static async delete(req, res) {
+        try {
+            // capturar id de proyecto
+            const { id } = req.params
+            // comprobar si existe el proyecto
+            const servicioFound = await Servicio.findByPk(id)
+            if (!servicioFound) {
+                return res.status(404).json({ message: 'Servicio no encontrado' })
+            }
+            // eliminar un proyecto de la base de datos
+            await Servicio.delete(id)
+            res.status(200).json({ message: 'Servicio eliminado correctamente' })
         } catch (error) {
             res.status(500).json({ message: error.message });
         }

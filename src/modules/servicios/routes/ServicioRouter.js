@@ -9,6 +9,7 @@ const ServicioRouter = Router()
 ServicioRouter.get('/todos', ServicioController.index)
 ServicioRouter.get('/seleccionar/:id', ServicioController.getById)
 ServicioRouter.post('/crear', validateSchema(createEschema), ServicioController.create)
+ServicioRouter.delete('/eliminar/:id', ServicioController.delete)
 // ServicioRouter.post('/actualizar/:id', /*validateSchema(updateEschema)*/, ServicioController.update)
 
 export default ServicioRouter

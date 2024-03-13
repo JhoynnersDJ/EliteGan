@@ -45,6 +45,9 @@ export class Servicio {
             // funcion para las bases de datos de sequelize
             if (database === "SEQUELIZE") {
                 const filas = await Servicios.count({
+                    attributes:[
+                        ['id_servicio', 'id']
+                    ],
                     where: {
                         id_servicio:{
                             [Op.like]: id
@@ -80,6 +83,22 @@ export class Servicio {
                     ]}
                 )
                 return result
+            }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    // elimina un registro en la base de datos
+    static async delete(id){
+        try {
+            // funcion para las bases de datos de sequelize
+            if (database === "SEQUELIZE") {
+                // guardar en la base de datos
+                const servicio = await Servicios.destroy(
+                    { where: { id_servicio: id } }
+                )
+                return servicio
             }
         } catch (error) {
             console.log(error.message)
