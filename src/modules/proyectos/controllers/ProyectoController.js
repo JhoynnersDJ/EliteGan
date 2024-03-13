@@ -29,7 +29,13 @@ class ProyectoController {
             const proyecto = await Proyecto.findByPk(id)
             // comprobar si existe el proyecto
             if (!proyecto) {
-                return res.status(404).json({ message: 'Proyecto no encontrado' })
+                return res.status(404).json({
+                    code: 'Recurso no encontrado',
+                    message: 'Proyecto no encontrado',
+                    details: 'Proyecto con el id '+ id +' no se encuentra en la base de datos',
+                    timestamp: date.format(new Date(),  'YYYY-MM-DDTHH:mm:ss'),
+                    requestID: id
+                })
             }
             res.status(200).json(proyecto)
         } catch (error) {
@@ -45,7 +51,13 @@ class ProyectoController {
             // comprobar si existe el usuario
             const userFound = await user.findOneById(id)
             if (!userFound) {
-                return res.status(404).json({ message: 'Usuario no encontrado' })
+                return res.status(404).json({
+                    code: 'Recurso no encontrado',
+                    message: 'Usuario no encontrado',
+                    details: 'Usuario con el id '+ id +' no se encuentra en la base de datos',
+                    timestamp: date.format(new Date(),  'YYYY-MM-DDTHH:mm:ss'),
+                    requestID: id
+                })
             }
             // buscar el proyecto segun el id del usuario
             const proyectos = await Proyecto.findByUser(id)
@@ -108,7 +120,13 @@ static async create(req, res) {
         let fin = new Date(fecha_fin)
         fin = date.format(fin, 'YYYY-MM-DD')
         if (fin < fecha_inicio) {
-            return res.status(404).json({ message: 'Fecha de fin no válida, verifique que sea posterior a la fecha de creación' })
+            return res.status(400).json({ message: 'Fecha de fin no válida, verifique que sea posterior a la fecha de creación' },{
+                code: 'Bad Request',
+                message: 'Fecha inválida',
+                details: 'La fecha de finalización debe ser posterior a la fecha de creación',
+                timestamp: date.format(new Date(),  'YYYY-MM-DDTHH:mm:ss'),
+                requestID: fecha_fin
+            })
         }
         // instanciar un objeto de la clase Servicio
         const proyecto = new Proyecto(
@@ -137,7 +155,13 @@ static async create(req, res) {
             // comprobar si existe el proyecto
             const projectFound = await Proyecto.findByPk(id)
             if (!projectFound) {
-                return res.status(404).json({ message: 'Proyecto no encontrado' })
+                return res.status(404).json({
+                    code: 'Recurso no encontrado',
+                    message: 'Proyecto no encontrado',
+                    details: 'Proyecto con el id '+ id +' no se encuentra en la base de datos',
+                    timestamp: date.format(new Date(),  'YYYY-MM-DDTHH:mm:ss'),
+                    requestID: id
+                })
             }
             // eliminar un proyecto de la base de datos
             await Proyecto.delete(id)

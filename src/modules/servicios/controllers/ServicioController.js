@@ -112,7 +112,13 @@ class ServicioController {
             // comprobar si existe el proyecto
             const servicioFound = await Servicio.findByPk(id)
             if (!servicioFound) {
-                return res.status(404).json({ message: 'Servicio no encontrado' })
+                return res.status(404).json({
+                    code: 'Recurso no encontrado',
+                    message: 'Servicio no encontrado',
+                    details: 'Servicio con el id '+ id +' no se encuentra en la base de datos',
+                    timestamp: date.format(new Date(),  'YYYY-MM-DDTHH:mm:ss'),
+                    requestID: id
+                })
             }
             // eliminar un proyecto de la base de datos
             await Servicio.delete(id)
