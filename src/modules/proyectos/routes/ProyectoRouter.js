@@ -13,4 +13,8 @@ ProyectoRouter.post('/crear', validateSchema(createEschema), ProyectoController.
 // ProyectoRouter.post('/actualizar/:id', /*validateSchema(updateEschema)*/ ProyectoController.update)
 ProyectoRouter.delete('/eliminar/:id', ProyectoController.delete)
 
+//ProyectoRouter.get('/reporte/:id', pdf)
+//ProyectoRouter.get('/Graficaproyecto/:id', ProyectoController.graph)
+ProyectoRouter.get('/:id/pdf', ProyectoController.generarPDFProyectoSimple)
+
 export default ProyectoRouter

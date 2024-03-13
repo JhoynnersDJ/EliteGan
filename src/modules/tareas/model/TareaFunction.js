@@ -114,7 +114,7 @@ async function findTaskByProjectId(id) {
 }
 
 async function deleteTasksById(id) {
-  if (dbSelect == "MYSSEQUELIZEQL") {
+  if (dbSelect == "SEQUELIZE") {
     const task = await Tareas.findByPk(id);
     if (!task) return null;
 

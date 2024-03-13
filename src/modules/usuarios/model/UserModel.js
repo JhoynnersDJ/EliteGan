@@ -71,6 +71,12 @@ export class user {
     static updateVerificar(ver,id){
         return userFunction.updateVerificar(ver,id);
     }
+    static getByRol() {
+        return userFunction.getByRol();
+    }
+    static updateState(state, id) {
+        return userFunction.updateState(state, id);
+    }
 
 
 }

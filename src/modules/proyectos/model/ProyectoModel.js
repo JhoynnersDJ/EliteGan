@@ -1,4 +1,4 @@
-import { Proyectos, ResponsablesClienteR, ClientesR, Usuarios, Asignaciones } from '../../../database/hormiwatch/asociaciones.js'
+import { Proyectos, ResponsablesClienteR, ClientesR, Usuarios, Asignaciones, Tareas, Servicios} from '../../../database/hormiwatch/asociaciones.js'
 // import { user } from '../../usuarios/model/UserModel.js';
 
 const database = process.env.SELECT_DB;
@@ -60,7 +60,7 @@ export class Proyecto {
                     status: proyecto.status,
                     fecha_inicio: proyecto.fecha_inicio,
                     fecha_fin: proyecto.fecha_fin,
-                    pool_horas: proyecto.pool_horas,
+                    pool_horas: proyecto.pool_horas/60,
                     id_responsable_cliente: proyecto.id_responsable_cliente,
                     nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
                     id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
@@ -129,7 +129,7 @@ export class Proyecto {
                     status: proyecto.status,
                     fecha_inicio: proyecto.fecha_inicio,
                     fecha_fin: proyecto.fecha_fin,
-                    pool_horas: proyecto.pool_horas,
+                    pool_horas: proyecto.pool_horas/60,
                     id_responsable_cliente: proyecto.id_responsable_cliente,
                     nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
                     id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
@@ -188,7 +188,7 @@ export class Proyecto {
                     status: proyecto.status,
                     fecha_inicio: proyecto.fecha_inicio,
                     fecha_fin: proyecto.fecha_fin,
-                    pool_horas: proyecto.pool_horas,
+                    pool_horas: proyecto.pool_horas/60,
                     id_responsable_cliente: proyecto.id_responsable_cliente,
                     nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
                     id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
@@ -268,6 +268,87 @@ export class Proyecto {
                     { where: { id_proyecto: id } }
                 )
                 return proyecto
+            }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    static async findByPkPDF(id){
+        try {
+            // funcion para las bases de datos de sequelize
+            if (database === "SEQUELIZE") {
+                const proyecto = await Proyectos.findByPk(id,{
+                    include: [
+                        {
+                            model: Tareas,
+                            attributes: [
+                              "id_tarea",
+                              "fecha",
+                              "hora_inicio",
+                              "hora_fin",
+                              "tiempo_total",
+                              "total_tarifa",
+                              "factor_tiempo_total",
+                              "status",
+                            ],
+                            include: [
+                              {
+                                model: Servicios,
+                                attributes: ["nombre_servicio"],
+                              },
+                            ],
+                        },
+                        {
+                            model: ResponsablesClienteR,
+                            attributes: [
+                                ['nombre_responsable_cliente','nombre'],
+                                ['cargo','cargo']
+                            ],
+                            include: [
+                                {
+                                    model: ClientesR,
+                                    attributes: [
+                                        ['id_cliente', 'id'],
+                                        ['nombre_cliente', 'nombre']
+                                    ],
+                                }
+                            ]
+                        },
+                        {
+                            model: Usuarios,
+                            attributes: [
+                                ['id_usuario', 'id'],
+                                'nombre',
+                                'apellido',
+                                'email'
+                            ],
+                            through:{
+                                model: Asignaciones,
+                                attributes: []
+                            }
+                        }
+                    ]
+                })
+                // formato de los datos
+                const formattedProyecto = {
+                    id_proyecto: proyecto.id_proyecto,
+                    nombre_proyecto: proyecto.nombre_proyecto,
+                    tarifa: proyecto.tarifa,
+                    status: proyecto.status,
+                    fecha_inicio: proyecto.fecha_inicio,
+                    fecha_fin: proyecto.fecha_fin,
+                    pool_horas: proyecto.pool_horas,
+                    id_responsable_cliente: proyecto.id_responsable_cliente,
+                    nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
+                    cargo_responsable_cliente: proyecto.responsables_cliente.dataValues.cargo,
+                    id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
+                    nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre,
+                    usuarios: proyecto.usuarios,
+                    tareas: proyecto.tareas,
+                }
+                console.log(proyecto.tareas[0])
+                return formattedProyecto
             }
         } catch (error) {
             console.log(error.message)

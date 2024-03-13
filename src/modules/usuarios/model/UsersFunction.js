@@ -1,12 +1,12 @@
 import { user, userRol } from "./UserModel.js";
-import { Roles } from "../../../database/hormiwatch/roles.js";
-import { Usuarios } from "../../../database/hormiwatch/usuarios.js";
-import {EstadoUsuarios} from '../../../database/hormiwatch/estado_usuarios.js';
+import { Roles } from "../../../database/hormiwatch/asociaciones.js";
+import { Usuarios } from "../../../database/hormiwatch/asociaciones.js";
+import { EstadoUsuarios } from "../../../database/hormiwatch/asociaciones.js";
 
 import "dotenv/config";
 import nodemailer from "nodemailer";
 
-import ibmdb from "ibm_db"; 
+import ibmdb from "ibm_db";
 
 const dbSelect = process.env.SELECT_DB;
 var emailTemp;
@@ -53,7 +53,7 @@ async function saveUser(user) {
           departamento: user.departamento,
           id_usuario: user.id_usuario,
           id_estado_usuario: estado.id_estado_usuario,
-          cedula: user.cedula
+          cedula: user.cedula,
         },
         {
           fields: [
@@ -142,13 +142,13 @@ async function verificado(email) {
     //console.log(user1);
     if (!user1) return null;
     const estado = await EstadoUsuarios.findOne({
-      where: { id_estado_usuario:  user1.dataValues.id_estado_usuario},
+      where: { id_estado_usuario: user1.dataValues.id_estado_usuario },
     });
     //console.log(rol)
     if (!estado) return null;
-    return estado.nombre_estado_usuario === 'verificado'
+    return estado.nombre_estado_usuario === "verificado";
   }
-  return null
+  return null;
 }
 
 //busca en la lista de usuarios un email pasado por parametro
@@ -238,7 +238,7 @@ async function findOneById(id) {
     const rol = await Roles.findOne({
       where: { id_rol: user1.dataValues.id_rol },
     });
-    
+
     if (!rol) return null;
 
     return new user(
@@ -319,7 +319,7 @@ async function updateRol(rol, email) {
 
     if (!user1) return null;
 
-    user1.id_rolref = rolFound.id_rol;
+    user1.id_rol = rolFound.id_rol;
 
     user1.save();
 
@@ -399,7 +399,7 @@ async function updateToken(token, id) {
     const userFound = await Usuarios.findByPk(id);
 
     if (!userFound) return null;
-    sendSMSToken(token,userFound.num_tel,userFound.nombre);
+    sendSMSToken(token, userFound.num_tel, userFound.nombre);
     userFound.token = token;
 
     return userFound.save();
@@ -516,7 +516,7 @@ async function sendEmailToken(token, email, nombre) {
     subject: "Actualización de Correo Electronico",
     html: htmlContent,
   };
-  
+
   await transporter.sendMail(mailOptions, function (error, info) {
     if (error) {
       console.log(error);
@@ -557,6 +557,70 @@ async function updateVerificar(ver, id) {
     userFound.id_estado_usuario = estado.id_estado_usuario;
 
     return userFound.save();
+  }
+}
+
+async function getByRol() {
+  if (dbSelect == "SEQUELIZE") {
+    const rol = await Roles.findOne({
+      where: { nombre_rol: "Tecnico" },
+    });
+
+    if (!rol) return null;
+
+    const userFound = await Usuarios.findAll({
+      where: { id_rol: rol.id_rol },
+    });
+
+    if (userFound.length === 0 || !userFound) return [];
+    
+    const fromatedUser = userFound.map(
+      (users) => ({
+      id_usuario:  users.id_usuario,
+      nombre: users.nombre,
+      apellido: users.apellido,      
+      
+      })
+      
+    );
+    
+
+    return fromatedUser;
+  }
+}
+
+async function updateState(state, id) {
+  if (dbSelect == "SEQUELIZE") {
+    const estado = await EstadoUsuarios.findOne({
+      where: { nombre_estado_usuario: state },
+    });
+    //console.log(rol)
+    if (!estado) return null;
+
+    const user1 = await Usuarios.findOne({
+      where: { id_usuario: id },
+    });
+
+    if (!user1) return null;
+
+    user1.id_estado_usuario = estado.id_estado_usuario;
+
+    user1.save();
+
+    return new user(
+      user1.dataValues.nombre,
+      user1.dataValues.apellido,
+      user1.dataValues.email,
+      user1.dataValues.password,
+      user1.dataValues.telefono,
+      user1.dataValues.empresa,
+      user1.dataValues.cargo,
+      user1.dataValues.departamento,
+      null,
+      user1.dataValues.id_usuario,
+      state,
+      user1.dataValues.cedula
+    );
   }
 }
 
@@ -612,5 +676,10 @@ export default class userFunction {
   static updateVerificar(ver, id) {
     return updateVerificar(ver, id);
   }
+  static getByRol() {
+    return getByRol();
+  }
+  static updateState(state, id) {
+    return updateState(state, id);
+  }
 }
-

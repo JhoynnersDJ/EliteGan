@@ -183,10 +183,10 @@ export function calculartarifa(date1, date2, inicio, holidays) {
   if (!tarifa1) tarifa1 = Number(tarifa.toFixed(1));
 
   if (tarifa !== tarifa1)
-    tarifa2 = Number(tarifa.toFixed(1)) - Number(tarifa1.toFixed(1));
+    tarifa2 = Number(tarifa.toFixed(3)) - Number(tarifa1.toFixed(3));
 
-  tarifa1 = Number(tarifa1.toFixed(1));
-
+  tarifa1 = Number(tarifa1.toFixed(3));
+  console.log(tarifa);
   return { tarifa1, tarifa2, fin };
 }
 

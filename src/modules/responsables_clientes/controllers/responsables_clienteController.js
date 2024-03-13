@@ -94,7 +94,7 @@ class ResponsablesClienteController {
             })
           }
           // obtener todos los responsables cliente de un cliente
-          const responsables_cliente = await ResponsableClienteReplica.findAll()
+          const responsables_cliente = await ResponsableClienteReplica.findByCliente(clienteFound.id_cliente)
           // si no se encuentran tareas
           if (!responsables_cliente) {
               return res.status(204).json({message: 'Este cliente no tiene responsables', data: []})

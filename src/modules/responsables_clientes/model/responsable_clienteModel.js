@@ -88,15 +88,8 @@ export class ResponsableClienteReplica {
         try {
             // funcion para las bases de datos de sequelize
             if (database === "SEQUELIZE") {
-                const responsable_cliente = await ResponsablesClienteR.findByPk({
-                    attributes: [
-                        'id_responsable_cliente',
-                        ['nombre_responsable_cl', 'nombre'],
-                        'cargo',
-                        'departamento',
-                        'telefono',
-                        'cedula'
-                    ],
+                const responsable_cliente = await ResponsablesClienteR.findAll({
+                    
                     where: {
                         id_cliente: id
                     }

@@ -140,7 +140,7 @@ export const logout = (req, res) => {
 
 //obtener datos del usuario
 export const profile = async (req, res) => {
-  console.log(req.user.id_usuario)
+  console.log(req.user)
   //busca al usuario por el id
   const userFound = await user.findOneById(req.user.id_usuario);
 
@@ -289,6 +289,56 @@ export const updateEmail = async (req, res) => {
         email: userSaved.email,
         id_rol: userFound.getUserRol(),
       });
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getByRol = async (req, res) => {
+  console.log(req.user)
+  //busca al usuario por el id
+  const userFound = await user.findOneById(req.user.id_usuario);
+
+  //si no encuentra al usurio da el mensaje de error
+  if (!userFound) return res.status(202).json({ message: "usuario no encontrado" });
+
+    const userTecnico = await user.getByRol();
+
+  //manda una respuesta con los datos del usuario encontrados
+  res.status(200).json(userTecnico);
+};
+
+export const suspendUser = async (req, res) => {
+  //busca al usuario por el id
+
+  const userAdmin = await user.findOneById(req.user.id_usuario);
+
+  //si no encuentra al usurio da el mensaje de error
+  if (!userAdmin) return res.status(202).json({ message: "Usuario no encontrado" });
+
+  const { id } = req.params;
+
+  try {
+    //busca al usuario por el email
+    const userFound = await user.findOneById(id);
+
+    //si no se encuentra el email se da el siguiente mensaje de error
+    if (!userFound) return res.status(202).json({ message: "usuario no encontrado" });
+
+    const newuser = await user.updateState("suspendido", id);
+
+    if (!newuser) return res.status(202).json({ message: "estado de usuario no encontrado" });
+    res.status(200).json({
+      id_usuario: newuser.getUserId(),
+      nombre: newuser.getUserName(),
+      apellido: newuser.getUserLastName(),
+      email: newuser.getUserEmail(),
+      password: newuser.getUserPassword(),
+      telefono: newuser.getUserCellphone(),
+      empresa: newuser.getUserEmpress(),
+      departamento: newuser.getUserDepartament(),
+      estado_usuario:newuser.id_estado_usuario
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
