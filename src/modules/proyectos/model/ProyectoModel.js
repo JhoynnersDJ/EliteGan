@@ -1,6 +1,6 @@
 import { Proyectos, ResponsablesClienteR, ClientesR, Usuarios, Asignaciones, Tareas, Servicios} from '../../../database/hormiwatch/asociaciones.js'
 // import { user } from '../../usuarios/model/UserModel.js';
-
+import { formatearMinutos } from "../libs/pool_horas.js";
 const database = process.env.SELECT_DB;
 
 export class Proyecto {
@@ -8,7 +8,7 @@ export class Proyecto {
         this.nombre = nombre
         this.tarifa= tarifa
         this.pool_horas = pool_horas
-        this.fecha_inicio= fecha_inicio
+        this.fecha_inicio = fecha_inicio
         this.fecha_fin= fecha_fin
         this.responsable_cliente = responsable_cliente
         this.tecnicos = tecnicos
@@ -60,7 +60,7 @@ export class Proyecto {
                     status: proyecto.status,
                     fecha_inicio: proyecto.fecha_inicio,
                     fecha_fin: proyecto.fecha_fin,
-                    pool_horas: proyecto.pool_horas/60,
+                    pool_horas: formatearMinutos(proyecto.pool_horas),
                     id_responsable_cliente: proyecto.id_responsable_cliente,
                     nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
                     id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
@@ -80,6 +80,9 @@ export class Proyecto {
             // funcion para las bases de datos de sequelize
             if (database === "SEQUELIZE") {
                 const proyectos = await Proyectos.findAll({
+                    where: {
+                        status: 0
+                    },
                     include: [
                         {
                             model: ResponsablesClienteR,
@@ -129,7 +132,7 @@ export class Proyecto {
                     status: proyecto.status,
                     fecha_inicio: proyecto.fecha_inicio,
                     fecha_fin: proyecto.fecha_fin,
-                    pool_horas: proyecto.pool_horas/60,
+                    pool_horas: formatearMinutos(proyecto.pool_horas),
                     id_responsable_cliente: proyecto.id_responsable_cliente,
                     nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
                     id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
@@ -188,7 +191,7 @@ export class Proyecto {
                     status: proyecto.status,
                     fecha_inicio: proyecto.fecha_inicio,
                     fecha_fin: proyecto.fecha_fin,
-                    pool_horas: proyecto.pool_horas/60,
+                    pool_horas: formatearMinutos(proyecto.pool_horas),
                     id_responsable_cliente: proyecto.id_responsable_cliente,
                     nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
                     id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
@@ -202,7 +205,7 @@ export class Proyecto {
         }
     }
 
-    // devuelve un unico registro segun su 
+    // devuelve un unico registro segun su nombre
     static async findOneName(nombre, id_responsable_cliente){
         try {
             // funcion para las bases de datos de sequelize
