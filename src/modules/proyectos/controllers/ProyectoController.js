@@ -2,8 +2,8 @@ import { Proyecto } from "../model/ProyectoModel.js";
 import { user } from "../../usuarios/model/UserModel.js";
 import { ResponsableClienteReplica } from "../../responsables_clientes/model/responsable_clienteModel.js";
 import date from "date-and-time";
-import puppeteer from 'puppeteer';
-import {calcularDiferenciaDeTiempo} from '../../tareas/libs/Tarifa.js'
+import puppeteer from "puppeteer";
+import { calcularDiferenciaDeTiempo } from "../../tareas/libs/Tarifa.js";
 
 class ProyectoController {
   // devuelve todos los registros
@@ -131,12 +131,10 @@ class ProyectoController {
         id_responsable_cliente
       );
       if (proyectoExistente) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "El responsable cliente ya tiene un proyecto con el mismo nombre",
-          });
+        return res.status(400).json({
+          message:
+            "El responsable cliente ya tiene un proyecto con el mismo nombre",
+        });
       }
       // fecha de inicio
       const now = new Date();
@@ -165,7 +163,7 @@ class ProyectoController {
         nombre,
         tarifa,
         status,
-        pool_horas*60,
+        pool_horas * 60,
         fecha_inicio,
         fecha_fin,
         id_responsable_cliente,
@@ -274,50 +272,12 @@ class ProyectoController {
           .json({ message: "Falta el parámetro id_proyecto" });
       }
       const project = await Proyecto.findByPkPDF(id);
-      /*const project = await Proyecto.findByPk(id, {
-        include: [
-          {
-            model: Tarea,
-            attributes: [
-              "id_tarea",
-              "fecha",
-              "hora_inicio",
-              "hora_fin",
-              "total_hora",
-              "total_tarifa",
-            ],
-            include: [
-              {
-                model: Servicio,
-                attributes: ["nombre"],
-              },
-            ],
-          },
-          {
-            model: ReplicaResponsableCliente,
-            attributes: ["nombre_responsable_cl"],
-            include: [
-              {
-                model: ClienteReplica,
-                attributes: ["nombre_cliente, cargo"],
-              },
-            ],
-          },
-          {
-            model: ResponsableTecnico, // Aquí se incluye la relación con responsable_tecnico
-            attributes: ["nombre_responsable_tec"], // Ajusta esto según las propiedades de tu modelo
-          },
-          {
-            model: Usuario,
-            attributes: ["nombre", "apellido"],
-          },
-        ],
-      });*/
+
       // Comprobar si el proyecto existe
       if (!project) {
         return res.status(404).json({ message: "Proyecto no encontrado" });
       }
-      
+
       // Configurar el contenido HTML que se va a renderizar en el PDF
       const content = `
         <!DOCTYPE html>
@@ -348,13 +308,13 @@ class ProyectoController {
                         class="text-sm font-bold text-gray-800"
                         >Fecha:
                             <span class="font-normal">
-                                12/12/2020
+                            ${new Date().toLocaleDateString()}
                             </span>
                         </p>
                         <p class="text-sm font-bold text-gray-800">
                             Codigo Proyecto:
                             <span class="font-normal">
-                                123456
+                            ${project.id_proyecto.split('-')[0]}
                             </span>
                         </p>
                     </div>
@@ -366,7 +326,7 @@ class ProyectoController {
                     <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
                         Nombre: 
                         <span class="font-normal">${
-                          project.nombre_responsable_cliente
+                          project.nombre_cliente
                         }</span>
     
                     </p>
@@ -374,13 +334,13 @@ class ProyectoController {
                         <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
                             Codigo Cliente:
                             <span class="font-normal">
-                                123456
+                            ${project.id_cliente.split('-')[0]}
                             </span>
                         </p>
                         <p class="text-sm font-bold text-gray-800 px-2">
                             Departamento:
                             <span class="font-normal">
-                                Informatica
+                            ${project.departamento_responsable_cliente}
                             </span>
                         </p>
                     </div>
@@ -400,7 +360,7 @@ class ProyectoController {
                         <p class="text-sm font-bold text-gray-800 px-2">
                             Telefono:
                             <span class="font-normal">
-                                0412-1234567
+                            ${project.telefono_responsable_cliente}
                             </span>
                        </p> 
                     </div>
@@ -425,7 +385,7 @@ class ProyectoController {
                     <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
                         Pool de Horas Asignadas
                         <span class="font-normal">
-                        300
+                        ${project.pool_horas}
                         </span>
                     </p>
                     <p class="text-sm font-bold text-gray-800 px-2 border-b-[1px] border-gray-600">
@@ -437,7 +397,9 @@ class ProyectoController {
                     <p class="text-sm font-bold text-gray-800 px-2">
                         Tecnico Asignado:
                         <span class="font-normal">
-                        ${project.usuarios[0].nombre} ${project.usuarios[0].apellido}
+                        ${project.usuarios[0].nombre} ${
+        project.usuarios[0].apellido
+      }
                         </span>
                     </p>
                 </div>
@@ -481,14 +443,33 @@ class ProyectoController {
                             .map(
                               (tarea) => `
                             <tr>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${tarea.servicio.nombre_servicio}</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${tarea.fecha}</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${tarea.hora_inicio}</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${tarea.hora_fin}</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${calcularDiferenciaDeTiempo(tarea.hora_inicio,tarea.hora_fin).tiempo_formateado}</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${tarea.factor_tiempo_total}</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${tarea.status}</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${tarea.total_tarifa}</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                tarea.servicio.nombre_servicio
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                tarea.fecha
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                tarea.hora_inicio
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                tarea.hora_fin
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                calcularDiferenciaDeTiempo(
+                                  tarea.hora_inicio,
+                                  tarea.hora_fin
+                                ).tiempo_formateado
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                tarea.factor_tiempo_total
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                tarea.status
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                tarea.total_tarifa
+                              }</td>
                             </tr>
                             `
                             )
@@ -503,7 +484,7 @@ class ProyectoController {
                               <th scope="col" class="px-2 py-3 "></th>
                               <th scope="col" class="px-2 py-3 "></th>
                               <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border-2  border-sky-500 bg-sky-500 text-sky-100">Total de Horas</th>
-                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">16</th>
+                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">${project.total_horas_tareas}</th>
                             </tr>
                         </table>
                       </div>
@@ -520,7 +501,7 @@ class ProyectoController {
                         <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
                             Nombre del Cliente: 
                             <span class="font-normal">
-                            ${project.nombre_responsable_cliente}
+                            ${project.nombre_cliente}
                             </span>
                         </p>
                         <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
@@ -531,7 +512,7 @@ class ProyectoController {
                         <p class="text-sm font-bold text-gray-800 px-2">
                             Firma: 
                             <span class="font-normal">
-                                __
+                                _________
                             </span>
                         </p>
                     </div>
@@ -545,9 +526,10 @@ class ProyectoController {
                                 <!-- Muestra todos los usuarios del array -->
                                 ${project.usuarios
                                   .map(
-                                    (usuario) =>`
+                                    (usuario) => `
                                       ${usuario.nombre} ${usuario.apellido}
-                                      `)
+                                      `
+                                  )
                                   .join(", ")}
                             </span>
                         </p>
@@ -556,21 +538,19 @@ class ProyectoController {
                             <span class="font-normal">
                                <!-- Muestra todos las cedulas de los usuarios -->
                                 ${project.usuarios
-                                  .map((usuario) =>` ${usuario.cedula}`)
+                                  .map((usuario) => ` ${usuario.cedula}`)
                                   .join(", ")}
                             </span>
                         </p>  
                                                             <!-- Genera espacio de firmas por cada usuario -->
-                                                            ${
-                                    project.usuarios.map((usuario) => {`
                                         <p class="text-sm font-bold text-gray-800 px-2">
                                         Firma: 
                                         <span class="font-normal">
-                                           _____
+                                           ______________________________________________________
                                         </span>
                                         </p>
-                                        `})
-                                }
+          
+
                     </div>
                 </div>
                 <!-- Cierre -->
