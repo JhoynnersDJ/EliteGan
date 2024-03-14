@@ -1,5 +1,6 @@
 import { Proyectos, Usuarios, Asignaciones, Tareas, ResponsablesClienteR } from '../../../database/hormiwatch/asociaciones.js'
 import { formatearMinutos } from "../../proyectos/libs/pool_horas.js";
+import { sumTareaTiempoTotal } from "../libs/sumTareaTiempoTotal.js"
 
 const database = process.env.SELECT_DB;
 
@@ -46,16 +47,16 @@ export class Metricas {
           if (database === "SEQUELIZE") {
             const proyectos = await Proyectos.findAll({
                 attributes:[
-                    'id_proyecto'
-                    ['nombre_proyecto', 'nombre']
+                    'id_proyecto',
+                    'nombre_proyecto',
+                    'fecha_inicio'
                 ],
                 limit:2, 
-                order: ['fecha_inicio', 'ASC'],
+                order: [['fecha_inicio', 'DESC']],
                 include: [
                     {
                         model: Tareas,
                         attributes:[
-                            'id_tareas',
                             'tiempo_total'
                         ]
                     },
@@ -78,17 +79,15 @@ export class Metricas {
                 ]
             })
             // formato de los datos
-            // const formattedProyectos = proyectos.map(proyecto => ({
-            //     id_proyecto: proyecto.id_proyecto,
-            //     nombre: proyecto.nombre_proyecto,
-            //     fecha_inicio: proyecto.fecha_inicio,
-            //     id_responsable_cliente: proyecto.id_responsable_cliente,
-            //     nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
-            //     id_tarea: proyecto.tareas.dataValues.id_tareas,
-            //     tiempo_total: formatearMinutos(proyecto.tareas.dataValues.tiempo_total),
-            //     usuarios: proyecto.usuarios
-            // }))
-            return proyectos
+            const formattedProyectos = proyectos.map(proyecto => ({
+                id_proyecto: proyecto.id_proyecto,
+                nombre_proyecto: proyecto.nombre_proyecto,
+                fecha_inicio: proyecto.fecha_inicio,
+                id_responsable_cliente: proyecto.responsables_cliente.dataValues.id_responsable_cliente,
+                nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
+                tiempo_total: formatearMinutos(sumTareaTiempoTotal(proyecto.tareas)),
+            }))
+            return formattedProyectos
         }
         } catch (error) {
             console.log(error.message)
@@ -124,11 +123,7 @@ export class Metricas {
                     id_usuario
                 }
             })
-            let tiempo_total = 0
-            for (let i = 0; i < filas.length; i++) {
-                tiempo_total = tiempo_total + filas[i].tiempo_total
-            }
-            const total = formatearMinutos(tiempo_total)
+            const total = formatearMinutos(sumTareaTiempoTotal(filas))
             return total
         }
         } catch (error) {

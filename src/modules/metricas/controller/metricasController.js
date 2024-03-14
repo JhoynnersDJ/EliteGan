@@ -48,6 +48,9 @@ class MetricasController {
             // buscar los proyectos recientes
             const proyectos = await Metricas.proyectosRecientes(id_usuario)
             // devuelve una respuesta
+            if (proyectos.length === 0) {
+                return res.status(204).json({message: 'Este usuario no tiene proyectos en los que aparezca'});  
+            }
             res.status(200).json(proyectos);  
         } catch (error) {
             res.status(500).json({ message: error.message });
