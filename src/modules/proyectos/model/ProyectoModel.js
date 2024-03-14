@@ -241,6 +241,7 @@ export class Proyecto {
                     id_responsable_cliente: proyecto.responsable_cliente,
                     pool_horas: proyecto.pool_horas,
                     fecha_fin: proyecto.fecha_fin,
+                    pool_horas_contratadas:proyecto.pool_horas,
                 }, { fields: [
                     'tarifa',
                     'nombre_proyecto',
@@ -248,7 +249,9 @@ export class Proyecto {
                     'fecha_inicio',
                     'id_responsable_cliente',
                     'pool_horas',
-                    'fecha_fin',]
+                    'fecha_fin',
+                    'pool_horas_contratadas'
+                ]
                 })
                 // Asocia los usuarios al proyecto en la tabla asignaciones
                 for (const tecnico of proyecto.tecnicos) {
