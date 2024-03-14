@@ -4,10 +4,10 @@ import jwt from "jsonwebtoken";
 export const authRequired  = (req, res, next) => {
     //obtiene el usuario del request
     //const {authToken} = req.cookies;
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers['Authorization'];
     const authToken = authHeader && authHeader;
     
-    //console.log(token)
+    console.log(authToken)
     //si no hay usuario lanza un error
     if (!authToken) return res.status(401).json({message: "No hay Token, autorizacion denegada"});
     

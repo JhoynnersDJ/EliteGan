@@ -21,7 +21,8 @@ class ResponsablesClienteController {
             requestID: id
         });
         }
-  
+        console.log(cliente)
+        console.log(id_cliente)
         // Crear el responsable del cliente
         const responsableCliente = await ResponsablesCliente.create({
           nombre_responsable_cliente,
@@ -29,7 +30,7 @@ class ResponsablesClienteController {
           departamento,
           telefono,
           cedula,
-          id_cliente: id_cliente, 
+          id_cliente, 
         });
   
         res.status(201).json({ message: 'Responsable de cliente creado correctamente', responsableCliente });

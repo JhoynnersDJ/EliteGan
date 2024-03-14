@@ -194,20 +194,12 @@ export async function isHoliday(holidays, fecha) {
   return holidays.includes(fecha);
 }
 
-export function esDiaActualOAnterior(fecha) {
+export function esDiaActualOAnterior(fecha, date1, date2) {
   // Convertir la fecha dada a un objeto Date
   const fechaDada = new Date(fecha);
-  fechaDada.setDate(fechaDada.getDate() + 1);
   // Obtener la fecha actual
-  const fechaActual = new Date();
-  // Crear una nueva instancia de fecha para la fecha anterior
-  const fechaAnterior = new Date(fechaActual);
-  fechaAnterior.setDate(fechaActual.getDate() - 1);
-  
-  // Convertir las fechas a cadenas YYYY-MM-DD para comparar solo los días
-  const fechaDadaStr = fechaDada.toLocaleDateString();
-  const fechaActualStr = fechaActual.toLocaleDateString();
-  const fechaAnteriorStr = fechaAnterior.toLocaleDateString();
+  const fechaInicio = new Date(date1);
+  const fechaFin = new Date(date2);  
   // Comparar si la fecha dada es igual a la fecha actual o a la fecha anterior
-  return fechaDadaStr === fechaActualStr || fechaDadaStr === fechaAnteriorStr;
+  return Date.parse(fechaDada)<=Date.parse(fechaFin) && Date.parse(fechaDada)>=Date.parse(fechaInicio);
 }
