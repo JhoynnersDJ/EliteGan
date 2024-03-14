@@ -12,7 +12,8 @@ export default class tarea {
     id_servicio,
     total_tarifa,
     status,
-    nombre_servicio
+    nombre_servicio,
+    id_usuario
   ) {
     this.id_tarea = id_tarea;
     this.fecha = fecha;
@@ -25,6 +26,7 @@ export default class tarea {
     this.total_tarifa = total_tarifa;
     this.status = status;
     this.nombre_servicio = nombre_servicio;
+    this.id_usuario = id_usuario;
   }
   static save(tarea) {
     return tareaFunction.save(tarea);
@@ -49,5 +51,8 @@ export default class tarea {
   }
   static getTasksById(id) {
     return tareaFunction.getTasksById(id);
+  }
+  static updateTaskById(task) {
+    return tareaFunction.updateTaskById(task);
   }
 }

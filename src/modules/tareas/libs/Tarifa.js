@@ -180,16 +180,34 @@ export function calculartarifa(date1, date2, inicio, holidays) {
     }
   }
 
-  if (!tarifa1) tarifa1 = Number(tarifa.toFixed(1));
+  if (!tarifa1) tarifa1 = Number(tarifa.toFixed(3));
 
   if (tarifa !== tarifa1)
     tarifa2 = Number(tarifa.toFixed(3)) - Number(tarifa1.toFixed(3));
 
   tarifa1 = Number(tarifa1.toFixed(3));
-  console.log(tarifa);
+  //console.log(tarifa1);
   return { tarifa1, tarifa2, fin };
 }
 
 export async function isHoliday(holidays, fecha) {
   return holidays.includes(fecha);
+}
+
+export function esDiaActualOAnterior(fecha) {
+  // Convertir la fecha dada a un objeto Date
+  const fechaDada = new Date(fecha);
+  fechaDada.setDate(fechaDada.getDate() + 1);
+  // Obtener la fecha actual
+  const fechaActual = new Date();
+  // Crear una nueva instancia de fecha para la fecha anterior
+  const fechaAnterior = new Date(fechaActual);
+  fechaAnterior.setDate(fechaActual.getDate() - 1);
+  
+  // Convertir las fechas a cadenas YYYY-MM-DD para comparar solo los días
+  const fechaDadaStr = fechaDada.toLocaleDateString();
+  const fechaActualStr = fechaActual.toLocaleDateString();
+  const fechaAnteriorStr = fechaAnterior.toLocaleDateString();
+  // Comparar si la fecha dada es igual a la fecha actual o a la fecha anterior
+  return fechaDadaStr === fechaActualStr || fechaDadaStr === fechaAnteriorStr;
 }

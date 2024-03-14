@@ -17,6 +17,13 @@ import { Usuarios } from "./usuarios.js";
 Roles.hasMany(Usuarios, { foreignKey:'id_rol'});
 Usuarios.belongsTo(Roles, { targetKey:'id_rol', foreignKey: 'id_rol'});
 
+/* ----- Asociaciones relacionadas a Tareas  ----- */
+
+// Un rol tiene muchos usuarios
+// Definir la relación de uno a muchos con roles y usuarios
+Usuarios.hasMany(Tareas, { foreignKey:'id_usuario'});
+Tareas.belongsTo(Usuarios, { targetKey:'id_usuario', foreignKey: 'id_usuario'});
+
 
 /* ----- Asociaciones relacionadas a EstadoUsuarios  ----- */
 

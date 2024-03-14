@@ -25,7 +25,7 @@ tiempo_total: {
     allowNull: false
   },
 factor_tiempo_total: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
     allowNull: false
   },
 status: {
@@ -50,6 +50,14 @@ id_servicio: {
     references: {
       model: 'servicios', // Nombre del modelo de la tabla a la que se hace referencia
       key: 'id_servicio', // Clave primaria de la tabla a la que se hace referencia
+    },
+  },
+id_usuario: {
+    type: DataTypes.UUID, // Tipo de datos UUID para la clave externa
+    allowNull: false,
+    references: {
+      model: 'usuarios', // Nombre del modelo de la tabla a la que se hace referencia
+      key: 'id_usuario', // Clave primaria de la tabla a la que se hace referencia
     },
   },
 }, {

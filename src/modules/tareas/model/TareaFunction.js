@@ -20,6 +20,7 @@ async function save(tarea) {
         id_servicio: tarea.id_servicio,
         total_tarifa: tarea.total_tarifa,
         status: isCompleted,
+        id_usuario: tarea.id_usuario
       },
       {
         fields: [
@@ -32,10 +33,11 @@ async function save(tarea) {
           "id_servicio",
           "total_tarifa",
           "status",
+          "id_usuario"
         ],
       }
     );
-    
+
   }
   return null;
 }
@@ -98,7 +100,7 @@ async function findTaskByProjectId(id) {
           task.dataValues.fecha,
           task.dataValues.hora_inicio,
           task.dataValues.hora_fin,
-          calcularDiferenciaDeTiempo(task.hora_inicio,task.hora_fin).tiempo_formateado,
+          calcularDiferenciaDeTiempo(task.hora_inicio, task.hora_fin).tiempo_formateado,
           task.dataValues.factor_tiempo_total,
           task.dataValues.id_proyecto,
           task.dataValues.id_servicio,
@@ -133,9 +135,9 @@ async function deleteTasksById(id) {
 }
 
 async function getTasksById(id) {
-  if (dbSelect == "SEQUELIZE"){
+  if (dbSelect == "SEQUELIZE") {
     const task = await Tareas.findByPk(id);
-    if (!task) return null;    
+    if (!task) return null;
     return new tarea(
       task.id_tarea,
       task.fecha,
@@ -147,8 +149,26 @@ async function getTasksById(id) {
       task.id_servicio,
       task.total_tarifa,
       task.status,
-      null
+      null,
+      task.id_usuario
     )
+  }
+  return null;
+}
+
+async function updateTaskById(task) {
+  if (dbSelect == "SEQUELIZE") {
+    return await Tareas.update(
+      {
+        hora_inicio: task.hora_inicio, hora_fin: task.hora_fin, tiempo_total: task.tiempo_total,
+        id_servicio: task.id_service, fecha: task.fecha, status: task.status,
+        factor_tiempo_total: task.factor_tiempo_total, total_tarifa: task.total_tarifa
+      },
+      {
+        fields: ['hora_inicio', 'hora_fin', 'tiempo_total', 'id_servicio', 'fecha', 'status',
+          'factor_tiempo_total', 'total_tarifa'],
+        where: { id_tarea: task.id_tarea }
+      })
   }
   return null;
 }
@@ -177,5 +197,8 @@ export default class tareaFunction {
   }
   static getTasksById(id) {
     return getTasksById(id);
+  }
+  static updateTaskById(task) {
+    return updateTaskById(task);
   }
 }
