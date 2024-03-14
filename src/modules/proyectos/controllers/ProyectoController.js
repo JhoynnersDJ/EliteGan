@@ -99,7 +99,6 @@ class ProyectoController {
       // comprobar si existe el usuario
       for (const tecnico of tecnicos) {
         const usuario = await user.findOneById(tecnico.id_usuario);
-        console.log(usuario);
         if (!usuario) {
           return res.status(404).json({
             code: "Recurso no encontrado",
