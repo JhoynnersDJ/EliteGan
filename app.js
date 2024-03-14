@@ -10,6 +10,7 @@ import ClientesRouter from './src/modules/clientes/routes/ClientesRouter.js';
 import ResponsablesClienteRouter from './src/modules/responsables_clientes/routes/responsables_clienteRoutes.js';
 import ServicioRouter from './src/modules/servicios/routes/ServicioRouter.js'
 import ProyectoRouter from './src/modules/proyectos/routes/ProyectoRouter.js'
+import MetricasRouter from './src/modules/metricas/routes/metricasRoutes.js'
 
 //usuarios
 import UsuariosRouter from './src/modules/usuarios/routes/usuarios.js'
@@ -64,6 +65,8 @@ app.use('/tareas', TareasRouter);
 app.use('/servicios', ServicioRouter);
 //Middleware para proyectos
 app.use('/proyectos', ProyectoRouter);
+//Middleware para proyectos
+app.use('/metricas', MetricasRouter);
 
 app.use(express.static('public'));
 
