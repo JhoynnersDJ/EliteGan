@@ -1,4 +1,4 @@
-import { Proyectos, Usuarios, Asignaciones, Tareas} from '../../../database/hormiwatch/asociaciones.js'
+import { Proyectos, Usuarios, Asignaciones, Tareas, ResponsablesClienteR } from '../../../database/hormiwatch/asociaciones.js'
 import { formatearMinutos } from "../../proyectos/libs/pool_horas.js";
 
 const database = process.env.SELECT_DB;
@@ -33,6 +33,62 @@ export class Metricas {
                 ]
             })
             return numProyectosCompletados
+        }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    // 2 proyectos mas recientes
+    static async proyectosRecientes(id_usuario){
+        try {
+          // funcion para las bases de datos de sequelize
+          if (database === "SEQUELIZE") {
+            const proyectos = await Proyectos.findAll({
+                attributes:[
+                    'id_proyecto'
+                    ['nombre_proyecto', 'nombre']
+                ],
+                limit:2, 
+                order: ['fecha_inicio', 'ASC'],
+                include: [
+                    {
+                        model: Tareas,
+                        attributes:[
+                            'id_tareas',
+                            'tiempo_total'
+                        ]
+                    },
+                    {
+                        model: ResponsablesClienteR,
+                        attributes:[
+                            'id_responsable_cliente',
+                            ['nombre_responsable_cliente', 'nombre']
+                        ]
+                    },
+                    {
+                        model: Usuarios,
+                        attributes: [],
+                        through:{
+                            model: Asignaciones,
+                            attributes: [],
+                        },
+                        where: { id_usuario }
+                    }
+                ]
+            })
+            // formato de los datos
+            // const formattedProyectos = proyectos.map(proyecto => ({
+            //     id_proyecto: proyecto.id_proyecto,
+            //     nombre: proyecto.nombre_proyecto,
+            //     fecha_inicio: proyecto.fecha_inicio,
+            //     id_responsable_cliente: proyecto.id_responsable_cliente,
+            //     nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
+            //     id_tarea: proyecto.tareas.dataValues.id_tareas,
+            //     tiempo_total: formatearMinutos(proyecto.tareas.dataValues.tiempo_total),
+            //     usuarios: proyecto.usuarios
+            // }))
+            return proyectos
         }
         } catch (error) {
             console.log(error.message)

@@ -76,6 +76,7 @@ class ServicioController {
             let id = primera_letra_plataforma + primera_letra_categoria + letra_tipo + '-'
             // cantidad de filas con ese patron
             let filas = await Servicio.findPatronId(id)
+            console.log(filas)
             filas = filas + 1
             // si supera el limite
             if (filas > 999) return res.status(500).json({ message: 'Se ha alcanzado el limite para esta categoria'})  

@@ -1,3 +1,4 @@
+import { where } from 'sequelize';
 import { Proyectos, ResponsablesClienteR, ClientesR, Usuarios, Asignaciones, Tareas, Servicios} from '../../../database/hormiwatch/asociaciones.js'
 // import { user } from '../../usuarios/model/UserModel.js';
 import { formatearMinutos } from "../libs/pool_horas.js";
@@ -255,6 +256,26 @@ export class Proyecto {
                     }
                 }
                 return proyectoCreado
+            }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    // cambiar el status de un proyecto a completado en la base de datos
+    static async concretarProyecto(id){
+        try {
+            // funcion para las bases de datos de sequelize
+            if (database === "SEQUELIZE") {
+                // guardar en la base de datos
+                const proyecto = await Proyectos.update({ 
+                    status: proyecto.status, 
+                }, { fields: [
+                    'status'
+                ], where: {
+                    id_proyecto: id
+                }})
+                return proyecto
             }
         } catch (error) {
             console.log(error.message)
