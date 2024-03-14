@@ -51,7 +51,7 @@ router.post("/actualizar-email", authRequired, updateEmailToken);
 //cambiar email por el nuevo, verificado = true
 router.post("/verificar-email", authRequired, updateEmail);
 
-router.get("/todos-tecnicos", authRequired, getByRol);
+router.get("/todos-tecnicos", getByRol);
 
 router.post("/suspender_usuario/:id", authRequired2,suspendUser);
 

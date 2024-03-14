@@ -2,10 +2,12 @@ import { Proyectos } from "../../../database/hormiwatch/asociaciones.js";
 import { Servicios } from "../../../database/hormiwatch/asociaciones.js";
 import { Tareas } from "../../../database/hormiwatch/asociaciones.js";
 import tarea from "./TareaModel.js";
+import {user} from "../../usuarios/model/UserModel.js"
 import { calcularDiferenciaDeTiempo, calculartarifa } from '../libs/Tarifa.js'
 import "dotenv/config";
 
 const dbSelect = process.env.SELECT_DB;
+
 async function save(tarea) {
   if (dbSelect == "SEQUELIZE") {
     const isCompleted = tarea.status === true ? "C" : "P";
@@ -173,6 +175,13 @@ async function updateTaskById(task) {
   return null;
 }
 
+async function getUserById(id) {
+  if (dbSelect == "SEQUELIZE"){
+    return await user.findOneById(id);
+  }
+  return null;
+}
+
 export default class tareaFunction {
   static save(tarea) {
     return save(tarea);
@@ -200,5 +209,8 @@ export default class tareaFunction {
   }
   static updateTaskById(task) {
     return updateTaskById(task);
+  }
+  static getUserById(id) {
+    return getUserById(id);
   }
 }

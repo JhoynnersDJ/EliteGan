@@ -296,12 +296,12 @@ export const updateEmail = async (req, res) => {
 };
 
 export const getByRol = async (req, res) => {
-  console.log(req.user)
+  //console.log(req.user)
   //busca al usuario por el id
-  const userFound = await user.findOneById(req.user.id_usuario);
+  /*const userFound = await user.findOneById(req.user.id_usuario);
 
   //si no encuentra al usurio da el mensaje de error
-  if (!userFound) return res.status(202).json({ message: "usuario no encontrado" });
+  if (!userFound) return res.status(202).json({ message: "usuario no encontrado" });*/
 
     const userTecnico = await user.getByRol();
 

@@ -334,10 +334,10 @@ class ProyectoController {
         <body>
             <div class="flex flex-col justify-between my-8 mx-8">
                 <!-- Encabezado -->
-                <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl px-4">
+                <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl my-6 px-4">
                     <!-- Logo -->
                     <div class="flex p-4">
-                <img src="public/images/bytescolor.png" alt="Logo" class="w-full h-14">
+                <h2 class="text-2xl font-bold text-center">Hormi<span class="text-sky-500">Watch</span></h2>
                     </div>
                     <!-- Titulo -->
                     <div class="p-4">
@@ -421,6 +421,12 @@ class ProyectoController {
                         Fecha de Inicio:
                         <span class="font-normal">
                         ${project.fecha_inicio}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Pool de Horas Asignadas
+                        <span class="font-normal">
+                        300
                         </span>
                     </p>
                     <p class="text-sm font-bold text-gray-800 px-2 border-b-[1px] border-gray-600">
@@ -526,7 +532,7 @@ class ProyectoController {
                         <p class="text-sm font-bold text-gray-800 px-2">
                             Firma: 
                             <span class="font-normal">
-                                ________
+                                __
                             </span>
                         </p>
                     </div>
@@ -537,22 +543,35 @@ class ProyectoController {
                         <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
                             Nombre del Tecnico: 
                             <span class="font-normal">
-                            ${
-                              project.usuarios[0].nombre
-                            }
+                                <!-- Muestra todos los usuarios del array -->
+                                ${project.usuarios
+                                  .map(
+                                    (usuario) =>`
+                                      ${usuario.nombre} ${usuario.apellido}
+                                      `)
+                                  .join(", ")}
                             </span>
                         </p>
                         <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
                             C.I:
                             <span class="font-normal">
-                                123456
+                               <!-- Muestra todos las cedulas de los usuarios -->
+                                ${project.usuarios
+                                  .map((usuario) =>` ${usuario.cedula}`)
+                                  .join(", ")}
                             </span>
-                        <p class="text-sm font-bold text-gray-800 px-2">
-                            Firma: 
-                            <span class="font-normal">
-                                ________
-                            </span>
-                        </p>
+                        </p>  
+                                                            <!-- Genera espacio de firmas por cada usuario -->
+                                                            ${
+                                    project.usuarios.map((usuario) => {`
+                                        <p class="text-sm font-bold text-gray-800 px-2">
+                                        Firma: 
+                                        <span class="font-normal">
+                                           _____
+                                        </span>
+                                        </p>
+                                        `})
+                                }
                     </div>
                 </div>
                 <!-- Cierre -->

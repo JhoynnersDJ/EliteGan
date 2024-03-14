@@ -4,7 +4,7 @@ import {authRequired, authRequired2} from '../../../middlewares/validateToken.js
 
 const router = Router();
 
-router.post('/crear',authRequired2,register)
+router.post('/crear',register)
 
 router.get('/proyecto/:id',getByProject)
 
