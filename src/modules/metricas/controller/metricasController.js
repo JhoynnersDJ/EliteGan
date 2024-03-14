@@ -28,6 +28,31 @@ class MetricasController {
             res.status(500).json({ message: error.message });
         }
     }
+    // devuelve los 2 proyectos mas recientes
+    static async proyectosRecientes(req, res){
+        try {
+            // capturar datos
+            const { id_usuario } = req.params
+            // comprobar si existe el usuario
+            const userFound = await user.findOneById(id_usuario);
+            if (!userFound) {
+                return res.status(404).json({
+                code: "Recurso no encontrado",
+                message: "Usuario no encontrado",
+                details:
+                    "Usuario con el id " + id_usuario + " no se encuentra en la base de datos",
+                timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+                requestID: id_usuario,
+                });
+            }
+            // buscar los proyectos recientes
+            const proyectos = await Metricas.proyectosRecientes(id_usuario)
+            // devuelve una respuesta
+            res.status(200).json(proyectos);  
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
     // devuelve la cantidad de tareas segun el id_usuario
     static async tareasByTecnico(req, res){
         try {

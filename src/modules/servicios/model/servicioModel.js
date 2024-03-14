@@ -45,9 +45,6 @@ export class Servicio {
             // funcion para las bases de datos de sequelize
             if (database === "SEQUELIZE") {
                 const filas = await Servicios.count({
-                    attributes:[
-                        ['id_servicio', 'id']
-                    ],
                     where: {
                         id_servicio:{
                             [Op.like]: id

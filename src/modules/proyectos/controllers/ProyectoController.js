@@ -177,6 +177,32 @@ class ProyectoController {
     }
   }
 
+  // concretar un proyecto
+  static async concretarProyecto(req, res) {
+    try {
+      // capturar id de proyecto
+      const { id } = req.params
+      // cambiar status a completado
+      const status = 1
+      // comprobar si existe el proyecto
+      const proyectoExistente = await Proyecto.findByPk()
+      if (!proyectoExistente) {
+        return res.status(404).json({
+          code: "Recurso no encontrado",
+          message: "Proyecto no encontrado",
+          details: "Proyecto con el id " + id + " no se encuentra en la base de datos",
+          timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+          requestID: id,
+          });
+      }
+      // actualiza el status del proyecto a completado
+      await Proyecto.concretarProyecto(id)
+      res.status(200).json({ message: "Proyecto concretado correctamente" })
+    } catch (error) {
+      res.status(500).json({ message: error.message })
+    }
+  }
+
   // eliminar un proyecto
   static async delete(req, res) {
     try {

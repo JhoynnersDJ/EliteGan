@@ -1,3 +1,4 @@
+import { where } from 'sequelize';
 import {
   Proyectos,
   ResponsablesClienteR,
@@ -226,49 +227,42 @@ export class Proyecto {
     }
   }
 
-  // registra en la base de datos
-  static async create(proyecto) {
-    try {
-      // funcion para las bases de datos de sequelize
-      if (database === "SEQUELIZE") {
-        // guardar en la base de datos
-        const proyectoCreado = await Proyectos.create(
-          {
-            tarifa: proyecto.tarifa,
-            nombre_proyecto: proyecto.nombre,
-            status: proyecto.status,
-            fecha_inicio: proyecto.fecha_inicio,
-            id_responsable_cliente: proyecto.responsable_cliente,
-            pool_horas: proyecto.pool_horas,
-            fecha_fin: proyecto.fecha_fin,
-            pool_horas_contratadas: proyecto.pool_horas,
-          },
-          {
-            fields: [
-              "tarifa",
-              "nombre_proyecto",
-              "status",
-              "fecha_inicio",
-              "id_responsable_cliente",
-              "pool_horas",
-              "fecha_fin",
-              "pool_horas_contratadas",
-            ],
-          }
-        );
-        // Asocia los usuarios al proyecto en la tabla asignaciones
-        for (const tecnico of proyecto.tecnicos) {
-          const usuario = await Usuarios.findByPk(tecnico.id_usuario);
-          if (usuario) {
-            await proyectoCreado.addUsuario(usuario);
-          }
+    // registra en la base de datos
+    static async create(proyecto){
+        try {
+            // funcion para las bases de datos de sequelize
+            if (database === "SEQUELIZE") {
+                // guardar en la base de datos
+                const proyectoCreado = await Proyectos.create({ 
+                    tarifa: proyecto.tarifa,
+                    nombre_proyecto: proyecto.nombre,
+                    status: proyecto.status,
+                    fecha_inicio: proyecto.fecha_inicio,
+                    id_responsable_cliente: proyecto.responsable_cliente,
+                    pool_horas: proyecto.pool_horas,
+                    fecha_fin: proyecto.fecha_fin,
+                }, { fields: [
+                    'tarifa',
+                    'nombre_proyecto',
+                    'status',
+                    'fecha_inicio',
+                    'id_responsable_cliente',
+                    'pool_horas',
+                    'fecha_fin',]
+                })
+                // Asocia los usuarios al proyecto en la tabla asignaciones
+                for (const tecnico of proyecto.tecnicos) {
+                    const usuario = await Usuarios.findByPk(tecnico.id_usuario);
+                    if (usuario) {
+                        await proyectoCreado.addUsuario(usuario);
+                    }
+                }
+                return proyectoCreado
+            }
+        } catch (error) {
+            console.log(error.message)
         }
-        return proyectoCreado;
-      }
-    } catch (error) {
-      console.log(error.message);
     }
-  }
 
   // elimina un registro en la base de datos
   static async delete(id) {
