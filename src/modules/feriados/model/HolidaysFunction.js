@@ -1,5 +1,5 @@
 import holidays from './HolidaysModel.js';
-import { Feriados } from '../../../database/hormiwatch/Feriados.js'
+import { Feriados } from '../../../database/hormiwatch/feriados.js'
 import { v4 } from "uuid";
 import ibmdb from "ibm_db";
 import "dotenv/config";

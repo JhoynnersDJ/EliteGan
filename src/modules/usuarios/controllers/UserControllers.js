@@ -1,4 +1,4 @@
-import { user} from "../model/UserModel.js";
+import { user } from "../model/UserModel.js";
 import bcrypt from "bcryptjs";
 import { createAccessToken } from "../libs/jwt.js";
 import jwt from "jsonwebtoken";
@@ -50,8 +50,8 @@ export const register = async (req, res) => {
 
     //se guarda el usuario
     const userSaved = await user.save(newuser);
-      //console.log(userSaved)
-    if(!userSaved) res.status(202).json({ message: "ERROR AL CREAR USUARIO" });
+    //console.log(userSaved)
+    if (!userSaved) res.status(202).json({ message: "ERROR AL CREAR USUARIO" });
     //se genera el token para ser manejado por la cookie
     const authToken = await createAccessToken({
       id_usuario: newuser.getUserId(),
@@ -118,7 +118,7 @@ export const login = async (req, res) => {
       nombre: userFound.getUserName(),
       email: userFound.getUserEmail(),
       authToken: authToken,
-      id_rol: userFound.getUserRol()
+      id_rol: userFound.getUserRol(),
     });
     console.log(`El usuario ${userFound.getUserName()} a iniciado sesion`);
     //userFound = null;
@@ -140,12 +140,13 @@ export const logout = (req, res) => {
 
 //obtener datos del usuario
 export const profile = async (req, res) => {
-  console.log(req.user)
+  console.log(req.user);
   //busca al usuario por el id
   const userFound = await user.findOneById(req.user.id_usuario);
 
   //si no encuentra al usurio da el mensaje de error
-  if (!userFound) return res.status(202).json({ message: "usuario no encontrado" });
+  if (!userFound)
+    return res.status(202).json({ message: "usuario no encontrado" });
 
   //manda una respuesta con los datos del usuario encontrados
   res.status(200).json({
@@ -178,7 +179,8 @@ export const updateRol = async (req, res) => {
     const userFound = await user.findOne(email);
 
     //si no se encuentra el email se da el siguiente mensaje de error
-    if (!userFound) return res.status(202).json({ message: "usuario no encontrado" });
+    if (!userFound)
+      return res.status(202).json({ message: "usuario no encontrado" });
 
     const newuser = await user.updateRol(rol, email);
 
@@ -243,7 +245,7 @@ export const updateEmailToken = async (req, res) => {
 
       const tokenSaved = await user.updateToken(token, userFound.id_usuario);
 
-      await user.updateVerificar(false, userFound.id_usuario);
+      await user.updateVerificar("sin verificar", userFound.id_usuario);
 
       await user.sendEmailToken(token, email, userFound.nombre);
 
@@ -275,19 +277,23 @@ export const updateEmail = async (req, res) => {
 
       if (!userFound) return res.status(401).json({ message: "Unauthorized" });
 
-      await user.updateVerificar('verificado', userFound.id_usuario);
+      if (userFound.token === token) {
+        await user.updateVerificar("verificado", userFound.id_usuario);
 
-      const userSaved = await user.updateEmail(userFound.id_usuario);
-
+        const userSaved = await user.updateEmail(userFound.id_usuario);
+      } else {
+        return res.status(401).json({ message: "Token no coincide" });
+      }
+      const userFound2 = await user.findOneById(user2.id_usuario);
       res.cookie("authToken", "", {
         expires: new Date(0),
       });
 
       return res.json({
-        id_usuario: userFound.id_us,
-        nombre: userFound.nombre,
-        email: userSaved.email,
-        id_rol: userFound.getUserRol(),
+        id_usuario: userFound2.id_us,
+        nombre: userFound2.nombre,
+        email: userFound2.email,
+        id_rol: userFound2.getUserRol(),
       });
     });
   } catch (error) {
@@ -303,7 +309,7 @@ export const getByRol = async (req, res) => {
   //si no encuentra al usurio da el mensaje de error
   if (!userFound) return res.status(202).json({ message: "usuario no encontrado" });*/
 
-    const userTecnico = await user.getByRol();
+  const userTecnico = await user.getByRol();
 
   //manda una respuesta con los datos del usuario encontrados
   res.status(200).json(userTecnico);
@@ -315,7 +321,8 @@ export const suspendUser = async (req, res) => {
   const userAdmin = await user.findOneById(req.user.id_usuario);
 
   //si no encuentra al usurio da el mensaje de error
-  if (!userAdmin) return res.status(202).json({ message: "Usuario no encontrado" });
+  if (!userAdmin)
+    return res.status(202).json({ message: "Usuario no encontrado" });
 
   const { id } = req.params;
 
@@ -324,11 +331,15 @@ export const suspendUser = async (req, res) => {
     const userFound = await user.findOneById(id);
 
     //si no se encuentra el email se da el siguiente mensaje de error
-    if (!userFound) return res.status(202).json({ message: "usuario no encontrado" });
+    if (!userFound)
+      return res.status(202).json({ message: "usuario no encontrado" });
 
     const newuser = await user.updateState("suspendido", id);
 
-    if (!newuser) return res.status(202).json({ message: "estado de usuario no encontrado" });
+    if (!newuser)
+      return res
+        .status(202)
+        .json({ message: "estado de usuario no encontrado" });
     res.status(200).json({
       id_usuario: newuser.getUserId(),
       nombre: newuser.getUserName(),
@@ -338,7 +349,7 @@ export const suspendUser = async (req, res) => {
       telefono: newuser.getUserCellphone(),
       empresa: newuser.getUserEmpress(),
       departamento: newuser.getUserDepartament(),
-      estado_usuario:newuser.id_estado_usuario
+      estado_usuario: newuser.id_estado_usuario,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

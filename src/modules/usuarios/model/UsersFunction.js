@@ -257,7 +257,8 @@ async function findOneById(id) {
       ),
       user1.dataValues.id_usuario,
       user1.dataValues.id_estado_usuario,
-      user1.dataValues.cedula
+      user1.dataValues.cedula,
+      user1.dataValues.token
     );
   }
   //DB2
@@ -399,7 +400,6 @@ async function updateToken(token, id) {
     const userFound = await Usuarios.findByPk(id);
 
     if (!userFound) return null;
-    sendSMSToken(token, userFound.num_tel, userFound.nombre);
     userFound.token = token;
 
     return userFound.save();

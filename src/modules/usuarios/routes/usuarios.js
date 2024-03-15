@@ -46,10 +46,10 @@ router.post(
 router.get("/verificar", verifyToken);
 
 //enviar token por email, verificado = false
-router.post("/actualizar-email", authRequired, updateEmailToken);
+router.post("/actualizar-email", authRequired2, updateEmailToken);
 
 //cambiar email por el nuevo, verificado = true
-router.post("/verificar-email", authRequired, updateEmail);
+router.post("/verificar-email", authRequired2, updateEmail);
 
 router.get("/todos-tecnicos", getByRol);
 
