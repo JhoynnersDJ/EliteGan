@@ -59,14 +59,16 @@ export const createHoliday = async (req, res) => {
     try {      
         
         const { nombre_feriado, fecha_feriado} = req.body;
+
+        const newDate = new Date(fecha_feriado.replace(/-/g, '\/'))
         //busca un feriado por id
-        const holidayFound = await holiday.findOneByDate(new Date(fecha_feriado));
+        const holidayFound = await holiday.findOneByDate(newDate);
 
         //si consigue el feriado lanza un mensaje de feriado con fecha repetida
         if (holidayFound) return res.status(500).json({message: "Holiday Found, repeated date"});
         console.log(holidayFound)
         //se ccrea un nuevo holiday
-        const holidayItem = new holiday(nombre_feriado, new Date(fecha_feriado));
+        const holidayItem = new holiday(nombre_feriado, newDate);
 
         //se guarda el nuevo objeto en el holidaymock
         const newhol = await holiday.save(holidayItem);
