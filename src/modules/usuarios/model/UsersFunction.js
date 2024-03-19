@@ -2,6 +2,7 @@ import { user, userRol } from "./UserModel.js";
 import { Roles } from "../../../database/hormiwatch/asociaciones.js";
 import { Usuarios } from "../../../database/hormiwatch/asociaciones.js";
 import { EstadoUsuarios } from "../../../database/hormiwatch/asociaciones.js";
+import fs from "fs";
 
 import "dotenv/config";
 import nodemailer from "nodemailer";
@@ -224,6 +225,28 @@ async function findOne(email) {
 
   return null;
   //return users.users.find((users) => users.email == email);
+}
+
+async function saveProfilePhoto(){
+  function readImage(file) {
+    const bitmap = fs.readFileSync(file);
+    const buf = Buffer.from(bitmap);
+    return buf
+  }
+  console.log(readImage('image.png'))
+  const userFound = await Usuarios.update({ id_usuario: "4e1d93c8-0dc2-4782-80f1-3f9a1a4211c1" }, {
+    where: {
+      foto_perfil: readImage("image.png"),
+    },
+  });
+  console.log(userFound)
+  
+  const userFound2 = await Usuarios.findByPk("4e1d93c8-0dc2-4782-80f1-3f9a1a4211c1");
+  userFound2.foto_perfil = readImage("image.png");
+  userFound2.save()
+  console.log(userFound2) 
+  const buf2 = Buffer.from(userFound2.foto_perfil, 'binary');
+  fs.writeFileSync("copia.png", buf2)
 }
 
 //devuelve un objeto tipi Usuarios por id

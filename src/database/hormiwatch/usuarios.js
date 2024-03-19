@@ -67,7 +67,11 @@ id_estado_usuario: {
       model: 'estado_usuarios', // Nombre del modelo de la tabla a la que se hace referencia
       key: 'id_estado_usuario', // Clave primaria de la tabla a la que se hace referencia
     },
-  }
+  },
+foto_perfil: {
+   type: DataTypes.BLOB,
+   allowNull: true,
+ },
 }, {
   timestamps: false, // Desactivar las columnas createdAt y updatedAt
 });
