@@ -381,24 +381,43 @@ export const updateUser = async (req, res) => {
   
   const {nombre,
   apellido,
-  email,
-  password,
   telefono,
   empresa,
   cargo,
   departamento,
-  cedula } = req.body; 
+  cedula,
+  id_usuario } = req.body; 
   try {
   //busca al usuario por el id
   const userFound = await user.findOneById(id_usuario);
-
   //si no encuentra al usurio da el mensaje de error
   if (!userFound) return res.status(202).json({ message: "Usuario no encontrado" });
-  if(!req.files[0].buffer) return res.status(202).json({ message: "No se agrego foto de perfil" });
-  //busca al usuario por el email
-  const newPhoto = await user.saveProfilePhoto(id_usuario, req.files[0].buffer);
+    console.log(nombre)
+  const newuser = new user(
+    nombre!== null ? nombre : null,
+    apellido!== null ? apellido : null,
+    null,
+    null,
+    telefono!== null ? telefono : null,
+    empresa!== null ? empresa : null,
+    cargo!== null ? cargo : null,
+    departamento!== null ? departamento : null,
+    null,
+    id_usuario!== null ? id_usuario : null,
+    null,
+    cedula!== null ? cedula : null
+  );
+ const userUpdate = await user.updateUser(newuser);
 
-  res.status(200).json({ message: "Foto de perfil agregada" });
+  res.status(200).json({ 
+    nombre: userUpdate.nombre,
+  apellido: userUpdate.apellido,
+  telefono: userUpdate.telefono,
+  empresa: userUpdate.empresa,
+  cargo: userUpdate.cargo,
+  departamento: userUpdate.departamento,
+  cedula: userUpdate.cedula
+  });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -526,17 +526,30 @@ async function sendEmailToken(token, email, nombre) {
 
 async function updateEmail(id) {
   if (dbSelect == "SEQUELIZE") {
-    const userFound = await Usuarios.findByPk(id);
+    const user1 = await Usuarios.findByPk(id);
 
-    if (!userFound) return null;
+    if (!user1) return null;
 
     if (!emailTemp) return null;
 
     userFound.email = emailTemp;
 
     emailTemp = null;
-
-    return userFound.save();
+    user1.save()
+    return new user(
+      user1.dataValues.nombre,
+      user1.dataValues.apellido,
+      user1.dataValues.email,
+      user1.dataValues.password,
+      user1.dataValues.telefono,
+      user1.dataValues.empresa,
+      user1.dataValues.cargo,
+      user1.dataValues.departamento,
+      null,
+      user1.dataValues.id_usuario,
+      user1.dataValues.id_estado_usuario,
+      user1.dataValues.cedula
+    );;
   }
 }
 
@@ -622,6 +635,38 @@ async function updateState(state, id) {
   }
 }
 
+async function updateUser(usuario) {
+  if (dbSelect == "SEQUELIZE") {
+    const userFound = await Usuarios.findByPk(usuario.id_usuario);
+
+    if (!userFound) return null;
+
+    if(usuario.nombre) userFound.nombre = usuario.nombre;
+    if(usuario.apellido) userFound.apellido = usuario.apellido;
+    if(usuario.telefono) userFound.telefono = usuario.telefono;
+    if(usuario.empresa) userFound.empresa = usuario.empresa;
+    if(usuario.cargo) userFound.cargo = usuario.cargo;
+    if(usuario.departamento) userFound.departamento = usuario.departamento;
+    if(usuario.cedula) userFound.cedula = usuario.cedula;
+    userFound.save();
+
+    return new user(
+      userFound.nombre,
+      userFound.apellido,
+      userFound.email,
+      userFound.password,
+      userFound.telefono,
+      userFound.empresa,
+      userFound.cargo,
+      userFound.departamento,
+      userFound.id_rol,
+      userFound.id_usuario,
+      userFound.id_estado_usuario,
+      userFound.cedula
+    );
+  }
+}
+
 /*async function sendSMSToken(token,num_tel, nombre) {
   const client = new twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
   return client.messages.create({body: 'Hola que tal, si necesitas algo me avisas', from: process.env.PHONE_NUMBER, to:'+584128027107'})
@@ -682,5 +727,8 @@ export default class userFunction {
   }
   static saveProfilePhoto(id_usuario, file) {
     return saveProfilePhoto(id_usuario, file);
+  }
+  static updateUser(user) {
+    return updateUser(user);
   }
 }

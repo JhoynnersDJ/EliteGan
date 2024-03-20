@@ -122,6 +122,9 @@ export class user {
   static saveProfilePhoto(id_usuario, file) {
     return userFunction.saveProfilePhoto(id_usuario, file);
   }
+  static updateUser(user) {
+    return userFunction.updateUser(user);
+  }
 }
 
 export class userRol {

@@ -11,6 +11,7 @@ import {
   getByRol,
   suspendUser,
   addUserPhoto,
+  updateUser,
 } from "../controllers/UserControllers.js";
 import { authRequired, authRequired2} from "../../../middlewares/validateToken.js";
 import { rolRequired } from "../../../middlewares/validateRol.js";
@@ -58,5 +59,7 @@ router.post("/suspender_usuario/:id", authRequired2,suspendUser);
 import multer from 'multer';
 const upload = multer();
 router.post("/foto_usuario", authRequired2,upload.array('foto_perfil'),addUserPhoto);
+
+router.put("/actualizar", authRequired2,updateUser);
 
 export default router;
