@@ -1,4 +1,5 @@
 import { Proyectos, Usuarios, Asignaciones, Tareas, ResponsablesClienteR } from '../../../database/hormiwatch/asociaciones.js'
+import { sequelize } from "../../../database/sequelize.js";
 import { formatearMinutos } from "../../proyectos/libs/pool_horas.js";
 import { sumTareaTiempoTotal } from "../libs/sumTareaTiempoTotal.js"
 
@@ -126,6 +127,35 @@ export class Metricas {
             const total = formatearMinutos(sumTareaTiempoTotal(filas))
             return total
         }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    // horas individuales y cantidad de tareas de cada tecnico en un proyecto
+    static async tareasPorTecnicoByProyecto(id_proyecto){
+        try {
+            // funcion para las bases de datos de sequelize
+            if (database === "SEQUELIZE") {
+                const tareasPorTecnico = await Tareas.findAll({
+                    attributes: [
+                        'id_usuario',
+                        [sequelize.fn('SUM', sequelize.col('tiempo_total')), 'tiempo_total'],
+                        [sequelize.fn('COUNT', sequelize.col('*')), 'cantidad_tareas']
+                    ],
+                    where: {
+                        id_proyecto
+                    },
+                    group: ['id_usuario']
+                })
+                // formato de los datos
+                const formatedTareasPorTecnico = tareasPorTecnico.map(tarea => ({
+                    id_usuario: tarea.id_usuario,
+                    tiempo_total: formatearMinutos(tarea.tiempo_total),
+                    cantidad_tareas: tarea.dataValues.cantidad_tareas
+                }))
+                return formatedTareasPorTecnico
+            }
         } catch (error) {
             console.log(error.message)
         }

@@ -158,7 +158,7 @@ class ProyectoController {
           }
         );
       }
-      // instanciar un objeto de la clase Servicio
+      // instanciar un objeto de la clase proyecto
       const proyecto = new Proyecto(
         nombre,
         tarifa,

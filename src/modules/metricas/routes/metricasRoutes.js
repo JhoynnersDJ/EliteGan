@@ -8,5 +8,6 @@ MetricasRouter.get('/proyectos-completados/:id_usuario', MetricasController.proy
 MetricasRouter.get('/proyectos-recientes/:id_usuario', MetricasController.proyectosRecientes)
 MetricasRouter.get('/tareas-registradas/:id_usuario', MetricasController.tareasByTecnico)
 MetricasRouter.get('/tareas-tiempo-total/:id_usuario', MetricasController.tareasFactorTotalByUser)
+MetricasRouter.get('/tareas-por-tecnico-proyecto/:id_proyecto', MetricasController.tareasPorTecnicoByProyecto)
 
 export default MetricasRouter

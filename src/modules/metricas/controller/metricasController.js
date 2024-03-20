@@ -1,5 +1,6 @@
 import { Metricas } from "../model/metricasModel.js";
 import { user } from "../../usuarios/model/UserModel.js";
+import { Proyecto } from "../../proyectos/model/ProyectoModel.js";
 import date from "date-and-time"
 
 class MetricasController {
@@ -102,6 +103,30 @@ class MetricasController {
             const total = await Metricas.totalFactorByUser(id_usuario)
             // devuelve una respuesta
             res.status(200).json(total);  
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+    // devuelve las horas individuales y cantidad de tareas de cada tecnico en un proyecto
+    static async tareasPorTecnicoByProyecto(req, res){
+        try {
+            // capturar datos
+            const { id_proyecto } = req.params
+            // comprobar si existe el usuario
+            const proyectoFound = await Proyecto.findByPk(id_proyecto);
+            if (!proyectoFound) {
+                return res.status(404).json({
+                code: "Recurso no encontrado",
+                message: "Proyecto no encontrado",
+                details: "Proyecto con el id " + id_proyecto + " no se encuentra en la base de datos",
+                timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+                requestID: id_proyecto,
+                });
+            }
+            // buscar horas individuales y cantidad de tareas de cada tecnico en un proyecto
+            const tareas = await Metricas.tareasPorTecnicoByProyecto(id_proyecto)
+            // devuelve una respuesta
+            res.status(200).json(tareas);  
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
