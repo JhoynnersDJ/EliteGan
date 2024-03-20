@@ -72,6 +72,7 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
+          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -139,6 +140,7 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
+          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -193,6 +195,7 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
+          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
