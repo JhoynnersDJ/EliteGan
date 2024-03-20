@@ -3,6 +3,7 @@ import { Roles } from "../../../database/hormiwatch/asociaciones.js";
 import { Usuarios } from "../../../database/hormiwatch/asociaciones.js";
 import { EstadoUsuarios } from "../../../database/hormiwatch/asociaciones.js";
 import fs from "fs";
+import {sendEmail} from "../../../middlewares/sendEmail.js"
 
 import "dotenv/config";
 import nodemailer from "nodemailer";
@@ -227,26 +228,16 @@ async function findOne(email) {
   //return users.users.find((users) => users.email == email);
 }
 
-async function saveProfilePhoto(){
-  function readImage(file) {
-    const bitmap = fs.readFileSync(file);
-    const buf = Buffer.from(bitmap);
-    return buf
-  }
-  console.log(readImage('image.png'))
-  const userFound = await Usuarios.update({ id_usuario: "4e1d93c8-0dc2-4782-80f1-3f9a1a4211c1" }, {
-    where: {
-      foto_perfil: readImage("image.png"),
-    },
-  });
-  console.log(userFound)
-  
-  const userFound2 = await Usuarios.findByPk("4e1d93c8-0dc2-4782-80f1-3f9a1a4211c1");
-  userFound2.foto_perfil = readImage("image.png");
+async function saveProfilePhoto(id_usuario, file){   
+  console.log(file) 
+  //const bitmap = fs.readFileSync(file);
+  const buf = Buffer.from(file);
+  const userFound2 = await Usuarios.findByPk(id_usuario);
+  userFound2.foto_perfil = buf;
   userFound2.save()
-  console.log(userFound2) 
-  const buf2 = Buffer.from(userFound2.foto_perfil, 'binary');
-  fs.writeFileSync("copia.png", buf2)
+  return userFound2;
+  /*const buf2 = Buffer.from(userFound2.foto_perfil, 'binary');
+  fs.writeFileSync("copia.png", buf2)*/
 }
 
 //devuelve un objeto tipi Usuarios por id
@@ -430,14 +421,8 @@ async function updateToken(token, id) {
 }
 
 async function sendEmailToken(token, email, nombre) {
-  emailTemp = email;
-  var transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWD,
-    },
-  });
+  emailTemp = email; 
+  
   const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">
@@ -533,20 +518,10 @@ async function sendEmailToken(token, email, nombre) {
       </body>
       </html>    
       `;
-  var mailOptions = {
-    from: process.env.EMAIL,
-    to: email,
-    subject: "Actualización de Correo Electronico",
-    html: htmlContent,
-  };
+  await sendEmail(htmlContent);
+  
 
-  await transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log("Email sent: " + info.response);
-    }
-  });
+  
 }
 
 async function updateEmail(id) {
@@ -704,5 +679,8 @@ export default class userFunction {
   }
   static updateState(state, id) {
     return updateState(state, id);
+  }
+  static saveProfilePhoto(id_usuario, file) {
+    return saveProfilePhoto(id_usuario, file);
   }
 }

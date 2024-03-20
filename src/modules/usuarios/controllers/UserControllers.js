@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { createAccessToken } from "../libs/jwt.js";
 import jwt from "jsonwebtoken";
 import { v4 } from "uuid";
+
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
 //se registra el usuario y genera su id
@@ -351,6 +352,56 @@ export const suspendUser = async (req, res) => {
       departamento: newuser.getUserDepartament(),
       estado_usuario: newuser.id_estado_usuario,
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const addUserPhoto = async (req, res) => {
+  
+  const { id_usuario } = req.body; 
+  const {  foto_perfil } = req.files;
+  console.log(req.files[0].buffer)
+  try {
+  //busca al usuario por el id
+  const userFound = await user.findOneById(id_usuario);
+
+  //si no encuentra al usurio da el mensaje de error
+  if (!userFound) return res.status(202).json({ message: "Usuario no encontrado" });
+  if(!req.files[0].buffer) return res.status(202).json({ message: "No se agrego foto de perfil" });
+  //busca al usuario por el email
+  const newPhoto = await user.saveProfilePhoto(id_usuario, req.files[0].buffer);
+
+  res.status(200).json({ message: "Foto de perfil agregada" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  
+  const {nombre,
+  apellido,
+  email,
+  password,
+  telefono,
+  empresa,
+  cargo,
+  departamento,
+  cedula } = req.body; 
+  const {  foto_perfil } = req.files;
+  console.log(req.files[0].buffer)
+  try {
+  //busca al usuario por el id
+  const userFound = await user.findOneById(id_usuario);
+
+  //si no encuentra al usurio da el mensaje de error
+  if (!userFound) return res.status(202).json({ message: "Usuario no encontrado" });
+  if(!req.files[0].buffer) return res.status(202).json({ message: "No se agrego foto de perfil" });
+  //busca al usuario por el email
+  const newPhoto = await user.saveProfilePhoto(id_usuario, req.files[0].buffer);
+
+  res.status(200).json({ message: "Foto de perfil agregada" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

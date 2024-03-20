@@ -10,6 +10,7 @@ import {
   updateEmail,
   getByRol,
   suspendUser,
+  addUserPhoto,
 } from "../controllers/UserControllers.js";
 import { authRequired, authRequired2} from "../../../middlewares/validateToken.js";
 import { rolRequired } from "../../../middlewares/validateRol.js";
@@ -54,5 +55,8 @@ router.post("/verificar-email", authRequired2, updateEmail);
 router.get("/todos-tecnicos", getByRol);
 
 router.post("/suspender_usuario/:id", authRequired2,suspendUser);
+import multer from 'multer';
+const upload = multer();
+router.post("/foto_usuario", authRequired2,upload.array('foto_perfil'),addUserPhoto);
 
 export default router;

@@ -119,6 +119,9 @@ export class user {
   static updateState(state, id) {
     return userFunction.updateState(state, id);
   }
+  static saveProfilePhoto(id_usuario, file) {
+    return userFunction.saveProfilePhoto(id_usuario, file);
+  }
 }
 
 export class userRol {
