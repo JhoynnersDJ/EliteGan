@@ -518,7 +518,7 @@ async function sendEmailToken(token, email, nombre) {
       </body>
       </html>    
       `;
-  await sendEmail(htmlContent,email);
+  await sendEmail(htmlContent,email, "Actualización de Correo Electronico");
   
 
   

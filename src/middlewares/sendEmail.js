@@ -1,7 +1,7 @@
 import "dotenv/config";
 import nodemailer from "nodemailer";
 
-export async function sendEmail(html, email) {   
+export async function sendEmail(html, email, asunto) {   
     var transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -12,7 +12,7 @@ export async function sendEmail(html, email) {
     var mailOptions = {
       from: process.env.EMAIL,
       to: email,
-      subject: "Actualización de Correo Electronico",
+      subject: asunto,
       html: html,
     };
   
