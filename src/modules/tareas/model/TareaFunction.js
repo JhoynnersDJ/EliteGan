@@ -39,7 +39,7 @@ async function save(tarea) {
         ],
       }
     );
-
+    
   }
   return null;
 }
@@ -113,6 +113,27 @@ async function findTaskByProjectId(id) {
       )
     );
     return newTasks;
+  }
+  return null;
+}
+
+async function completeTaskByProjectId(id) {
+  if (dbSelect == "SEQUELIZE") {
+    const tasks = await Tareas.findAll({
+      where: {
+        id_proyecto: id,
+      },      
+    });
+    console.log(tasks)
+    if (tasks.length === 0 || !tasks) return [];
+    
+    tasks.forEach((task) =>
+      {task.status = "C";
+      task.save()}
+    );
+    
+    tasks.save();
+    return true
   }
   return null;
 }
