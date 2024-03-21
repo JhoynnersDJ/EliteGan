@@ -1,5 +1,6 @@
 import { Proyecto } from "../model/ProyectoModel.js";
 import { user } from "../../usuarios/model/UserModel.js";
+import  tarea  from "../../tareas/model/TareaModel.js";
 import { ResponsableClienteReplica } from "../../responsables_clientes/model/responsable_clienteModel.js";
 import date from "date-and-time";
 import puppeteer from "puppeteer";
@@ -197,6 +198,8 @@ class ProyectoController {
       }
       // actualiza el status del proyecto a completado
       await Proyecto.concretarProyecto(id)
+      // actualiza el status de las tareas asociadas a completado
+      await tarea.concretarProyecto(id)
       res.status(200).json({ message: "Proyecto concretado correctamente" })
     } catch (error) {
       res.status(500).json({ message: error.message })
@@ -228,63 +231,62 @@ class ProyectoController {
     }
   }
 
-  static async pdf(req, res) {
-    try {
-      // capturar datos
-      const { id } = req.params;
-      // buscar el proyecto segun su id junto con el nombre del tecnico responable
-      const project = await Proyecto.findByPk(id, {
-        include: [
-          {
-            model: Tarea,
-            attributes: [
-              "id_tarea",
-              "fecha",
-              "hora_inicio",
-              "hora_fin",
-              "total_hora",
-            ],
-            include: [
-              {
-                model: Servicio,
-                attributes: ["nombre"],
-              },
-            ],
-          },
-          {
-            model: ReplicaResponsableCliente,
-            attributes: ["nombre_responsable_cl"],
-            include: [
-              {
-                model: ClienteReplica, // Incluye la asociación ReplicaResponsableCliente dentro de ClienteReplica
-                attributes: ["nombre_cliente"], // Selecciona los atributos deseados de ReplicaResponsableCliente
-              },
-            ],
-          },
-          {
-            model: Usuario,
-            attributes: ["nombre", "apellido"],
-          },
-        ],
-      });
-      // comprobar si existe el proyecto
-      // comprobar si existe el proyecto
-      if (project == null) {
-        return res.status(404).json({ message: "Proyecto no Seleccionado" });
-      }
-      if (!project) {
-        return res.status(404).json({ message: "Proyecto no encontrado" });
-      }
-      // Generar el PDF y obtener la ruta del archivo
-      const pdfPath = await crearPDF(id, project);
+  // static async pdf(req, res) {
+  //   try {
+  //     // capturar datos
+  //     const { id } = req.params;
+  //     // buscar el proyecto segun su id junto con el nombre del tecnico responable
+  //     const project = await Proyecto.findByPk(id, {
+  //       include: [
+  //         {
+  //           model: Tarea,
+  //           attributes: [
+  //             "id_tarea",
+  //             "fecha",
+  //             "hora_inicio",
+  //             "hora_fin",
+  //             "total_hora",
+  //           ],
+  //           include: [
+  //             {
+  //               model: Servicio,
+  //               attributes: ["nombre"],
+  //             },
+  //           ],
+  //         },
+  //         {
+  //           model: ReplicaResponsableCliente,
+  //           attributes: ["nombre_responsable_cl"],
+  //           include: [
+  //             {
+  //               model: ClienteReplica, // Incluye la asociación ReplicaResponsableCliente dentro de ClienteReplica
+  //               attributes: ["nombre_cliente"], // Selecciona los atributos deseados de ReplicaResponsableCliente
+  //             },
+  //           ],
+  //         },
+  //         {
+  //           model: Usuario,
+  //           attributes: ["nombre", "apellido"],
+  //         },
+  //       ],
+  //     });
+  //     // comprobar si existe el proyecto
+  //     if (project == null) {
+  //       return res.status(404).json({ message: "Proyecto no Seleccionado" });
+  //     }
+  //     if (!project) {
+  //       return res.status(404).json({ message: "Proyecto no encontrado" });
+  //     }
+  //     // Generar el PDF y obtener la ruta del archivo
+  //     const pdfPath = await crearPDF(id, project);
 
-      const pdfContent = fs.readFileSync(pdfPath);
-      res.contentType("application/pdf");
-      res.send(pdfContent);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  }
+  //     const pdfContent = fs.readFileSync(pdfPath);
+  //     res.contentType("application/pdf");
+  //     res.send(pdfContent);
+  //   } catch (error) {
+  //     res.status(500).json({ message: error.message });
+  //   }
+  // }
 
   static async generarPDFProyectoSimple(req, res) {
     try {

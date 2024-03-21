@@ -234,4 +234,7 @@ export default class tareaFunction {
   static getUserById(id) {
     return getUserById(id);
   }
+  static completeTaskByProjectId(id) {
+    return completeTaskByProjectId(id);
+  }
 }

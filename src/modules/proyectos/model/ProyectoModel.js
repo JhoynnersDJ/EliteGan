@@ -383,4 +383,21 @@ export class Proyecto {
       console.log(error.message);
     }
   }
+  // actualizar el status de un proyecto a completado en la base de datos
+  static async concretarProyecto(id) {
+    try {
+      // funcion para las bases de datos de sequelize
+      if (database === "SEQUELIZE") {
+        // actualizar un proyecto en la base de datos
+        const proyecto = await Proyectos.update({
+          status: 1
+        },{
+          where: { id_proyecto: id },
+        });
+        return proyecto;
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
 }

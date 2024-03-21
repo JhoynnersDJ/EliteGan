@@ -58,4 +58,7 @@ export default class tarea {
   static getUserById(id) {
     return tareaFunction.getUserById(id);
   }
+  static completeTaskByProjectId(id) {
+    return tareaFunction.completeTaskByProjectId(id);
+  }
 }
