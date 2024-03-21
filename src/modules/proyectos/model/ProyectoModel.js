@@ -1,4 +1,3 @@
-import { where } from 'sequelize';
 import {
   Proyectos,
   ResponsablesClienteR,
@@ -10,6 +9,8 @@ import {
 } from "../../../database/hormiwatch/asociaciones.js";
 // import { user } from '../../usuarios/model/UserModel.js';
 import { formatearMinutos } from "../libs/pool_horas.js";
+import { sendEmail } from "../../../middlewares/sendEmail.js";
+
 const database = process.env.SELECT_DB;
 
 export class Proyecto {
@@ -396,6 +397,16 @@ export class Proyecto {
         });
         return proyecto;
       }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+  // enviar correo a un tecnico al momento de crear un proyecto
+  static async sendEmailCreate(usuario) {
+    try {
+      const asunto = 'Nuevo Proyecto'
+      const htmlContent = `Hola ${usuario.nombre}`
+      await sendEmail(htmlContent,usuario.email, asunto);
     } catch (error) {
       console.log(error.message);
     }

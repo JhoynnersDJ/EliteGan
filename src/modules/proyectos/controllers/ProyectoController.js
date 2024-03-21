@@ -2,9 +2,9 @@ import { Proyecto } from "../model/ProyectoModel.js";
 import { user } from "../../usuarios/model/UserModel.js";
 import  tarea  from "../../tareas/model/TareaModel.js";
 import { ResponsableClienteReplica } from "../../responsables_clientes/model/responsable_clienteModel.js";
+import { calcularDiferenciaDeTiempo } from "../../tareas/libs/Tarifa.js";
 import date from "date-and-time";
 import puppeteer from "puppeteer";
-import { calcularDiferenciaDeTiempo } from "../../tareas/libs/Tarifa.js";
 
 class ProyectoController {
   // devuelve todos los registros
@@ -140,7 +140,7 @@ class ProyectoController {
       // fecha de inicio
       const now = new Date();
       const fecha_inicio = date.format(now, "YYYY-MM-DD");
-      // fecha_fin
+      // verificar que la fecha de finalizacion sea posterior a la fecha de inicio
       let fin = new Date(fecha_fin);
       fin = date.format(fin, "YYYY-MM-DD");
       if (fin < fecha_inicio) {
@@ -172,7 +172,14 @@ class ProyectoController {
       );
       // guardar en la base de datos y actualiza la tabla asignaciones
       await Proyecto.create(proyecto);
+      // devolver respuesta
       res.status(201).json({ message: "Proyecto creado correctamente" });
+      // enviar correo a los tecnicos
+      for (const tecnico of tecnicos) {
+        const usuario = await user.findOneById(tecnico.id_usuario);
+        Proyecto.sendEmailCreate(usuario)
+        console.log('Correo enviado a: ' + usuario.usuario)
+      }
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -183,8 +190,6 @@ class ProyectoController {
     try {
       // capturar id de proyecto
       const { id } = req.params
-      // cambiar status a completado
-      const status = 1
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk()
       if (!proyectoExistente) {
