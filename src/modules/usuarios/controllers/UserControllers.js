@@ -361,7 +361,6 @@ export const addUserPhoto = async (req, res) => {
   
   const { id_usuario } = req.body; 
   const {  foto_perfil } = req.files;
-  console.log(req.files[0].buffer)
   try {
   //busca al usuario por el id
   const userFound = await user.findOneById(id_usuario);
@@ -389,8 +388,6 @@ export const updateUser = async (req, res) => {
   cargo,
   departamento,
   cedula } = req.body; 
-  const {  foto_perfil } = req.files;
-  console.log(req.files[0].buffer)
   try {
   //busca al usuario por el id
   const userFound = await user.findOneById(id_usuario);
