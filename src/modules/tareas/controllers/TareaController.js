@@ -10,7 +10,7 @@ import {
 import holidayFunction from "../../feriados/model/HolidaysFunction.js";
 const holidays = await holidayFunction.getHolidaysDate();
 
-export const register = async (req, res) => {
+export const register = async (req, res) => {console.log('holaa')
   const {
     fecha,
     hora_inicio,

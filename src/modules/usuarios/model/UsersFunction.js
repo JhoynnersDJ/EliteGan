@@ -667,6 +667,33 @@ async function updateUser(usuario) {
   }
 }
 
+async function updatePassword(id, password) {
+  if (dbSelect == "SEQUELIZE") {
+    const user1 = await Usuarios.findByPk(id);
+
+    if (!user1) return null;
+
+    userFound.password = password;
+
+    user1.save()
+
+    return new user(
+      user1.dataValues.nombre,
+      user1.dataValues.apellido,
+      user1.dataValues.email,
+      user1.dataValues.password,
+      user1.dataValues.telefono,
+      user1.dataValues.empresa,
+      user1.dataValues.cargo,
+      user1.dataValues.departamento,
+      null,
+      user1.dataValues.id_usuario,
+      user1.dataValues.id_estado_usuario,
+      user1.dataValues.cedula
+    );;
+  }
+}
+
 /*async function sendSMSToken(token,num_tel, nombre) {
   const client = new twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
   return client.messages.create({body: 'Hola que tal, si necesitas algo me avisas', from: process.env.PHONE_NUMBER, to:'+584128027107'})
@@ -730,5 +757,9 @@ export default class userFunction {
   }
   static updateUser(user) {
     return updateUser(user);
+  }
+
+  static updatePassword(id, password) {
+    return updatePassword(id, password);
   }
 }

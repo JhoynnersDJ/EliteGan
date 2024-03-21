@@ -39,12 +39,10 @@ export function formatHour(date1, date2) {
     period2 = "AM";
   }
 
-  const tiempo_formateado1 = `${horasInicio}:${
-    minutoInicio < 10 ? "0" : ""
-  }${minutoInicio}${period1}`;
-  const tiempo_formateado2 = `${horasFin}:${
-    minutoFin < 10 ? "0" : ""
-  }${minutoFin}${period2}`;
+  const tiempo_formateado1 = `${horasInicio}:${minutoInicio < 10 ? "0" : ""
+    }${minutoInicio}${period1}`;
+  const tiempo_formateado2 = `${horasFin}:${minutoFin < 10 ? "0" : ""
+    }${minutoFin}${period2}`;
   return { tiempo_formateado1, tiempo_formateado2 };
 }
 
@@ -199,7 +197,9 @@ export function esDiaActualOAnterior(fecha, date1, date2) {
   const fechaDada = new Date(fecha);
   // Obtener la fecha actual
   const fechaInicio = new Date(date1);
-  const fechaFin = new Date(date2);  
+  const fechaFin = new Date(date2);
+  console.log(Date.parse(fechaDada) <= Date.parse(new Date()))
   // Comparar si la fecha dada es igual a la fecha actual o a la fecha anterior
-  return Date.parse(fechaDada)<=Date.parse(fechaFin) && Date.parse(fechaDada)>=Date.parse(fechaInicio);
+  return Date.parse(fechaDada) <= Date.parse(fechaFin) && Date.parse(fechaDada) >= Date.parse(fechaInicio)
+    && Date.parse(fechaDada) <= Date.parse(new Date());
 }

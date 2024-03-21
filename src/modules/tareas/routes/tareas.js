@@ -1,10 +1,12 @@
 import { Router } from "express";
 import  {register, getByProject, deleteById, updateTask} from "../controllers/TareaController.js";
-import {authRequired, authRequired2} from '../../../middlewares/validateToken.js'
+import {authRequired, authRequired2} from '../../../middlewares/validateToken.js';
+import {validateSchema} from "../../../middlewares/ValidatorSchema.js";
+import {createTarea} from "../schemas/TareaSchema.js"
 
 const router = Router();
 
-router.post('/crear',register)
+router.post('/crear',validateSchema(createTarea),register)
 
 router.get('/proyecto/:id',getByProject)
 

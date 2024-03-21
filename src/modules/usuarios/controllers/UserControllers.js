@@ -358,66 +358,101 @@ export const suspendUser = async (req, res) => {
 };
 
 export const addUserPhoto = async (req, res) => {
-  
-  const { id_usuario } = req.body; 
-  const {  foto_perfil } = req.files;
+
+  const { id_usuario } = req.body;
+  const { foto_perfil } = req.files;
   try {
-  //busca al usuario por el id
-  const userFound = await user.findOneById(id_usuario);
+    //busca al usuario por el id
+    const userFound = await user.findOneById(id_usuario);
 
-  //si no encuentra al usurio da el mensaje de error
-  if (!userFound) return res.status(202).json({ message: "Usuario no encontrado" });
-  if(!req.files[0].buffer) return res.status(202).json({ message: "No se agrego foto de perfil" });
-  //busca al usuario por el email
-  const newPhoto = await user.saveProfilePhoto(id_usuario, req.files[0].buffer);
+    //si no encuentra al usurio da el mensaje de error
+    if (!userFound) return res.status(202).json({ message: "Usuario no encontrado" });
+    if (!req.files[0].buffer) return res.status(202).json({ message: "No se agrego foto de perfil" });
+    //busca al usuario por el email
+    const newPhoto = await user.saveProfilePhoto(id_usuario, req.files[0].buffer);
 
-  res.status(200).json({ message: "Foto de perfil agregada" });
+    res.status(200).json({ message: "Foto de perfil agregada" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
 export const updateUser = async (req, res) => {
-  
-  const {nombre,
-  apellido,
-  telefono,
-  empresa,
-  cargo,
-  departamento,
-  cedula,
-  id_usuario } = req.body; 
-  try {
-  //busca al usuario por el id
-  const userFound = await user.findOneById(id_usuario);
-  //si no encuentra al usurio da el mensaje de error
-  if (!userFound) return res.status(202).json({ message: "Usuario no encontrado" });
-    console.log(nombre)
-  const newuser = new user(
-    nombre!== null ? nombre : null,
-    apellido!== null ? apellido : null,
-    null,
-    null,
-    telefono!== null ? telefono : null,
-    empresa!== null ? empresa : null,
-    cargo!== null ? cargo : null,
-    departamento!== null ? departamento : null,
-    null,
-    id_usuario!== null ? id_usuario : null,
-    null,
-    cedula!== null ? cedula : null
-  );
- const userUpdate = await user.updateUser(newuser);
 
-  res.status(200).json({ 
-    nombre: userUpdate.nombre,
-  apellido: userUpdate.apellido,
-  telefono: userUpdate.telefono,
-  empresa: userUpdate.empresa,
-  cargo: userUpdate.cargo,
-  departamento: userUpdate.departamento,
-  cedula: userUpdate.cedula
-  });
+  const { nombre,
+    apellido,
+    telefono,
+    empresa,
+    cargo,
+    departamento,
+    cedula,
+    id_usuario } = req.body;
+  try {
+    //busca al usuario por el id
+    const userFound = await user.findOneById(id_usuario);
+    //si no encuentra al usurio da el mensaje de error
+    if (!userFound) return res.status(202).json({ message: "Usuario no encontrado" });
+    console.log(nombre)
+    const newuser = new user(
+      nombre !== null ? nombre : null,
+      apellido !== null ? apellido : null,
+      null,
+      null,
+      telefono !== null ? telefono : null,
+      empresa !== null ? empresa : null,
+      cargo !== null ? cargo : null,
+      departamento !== null ? departamento : null,
+      null,
+      id_usuario !== null ? id_usuario : null,
+      null,
+      cedula !== null ? cedula : null
+    );
+    const userUpdate = await user.updateUser(newuser);
+
+    res.status(200).json({
+      nombre: userUpdate.nombre,
+      apellido: userUpdate.apellido,
+      telefono: userUpdate.telefono,
+      empresa: userUpdate.empresa,
+      cargo: userUpdate.cargo,
+      departamento: userUpdate.departamento,
+      cedula: userUpdate.cedula
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updatePassword = async (req, res) => {
+  const { authToken } = req.cookies;
+
+  const { password, new_pasword, id_usuario } = req.body;
+  try {
+    const userFound = await user.findOneById(id_usuario);
+
+    if (!userFound) return res.status(401).json({ message: "Unauthorized" });
+
+    //se decifra la contrase;a y se compara
+    const isMatch = await bcrypt.compare(password, userFound.password);
+
+    //si no son iguales da el mensaje de error
+    if (!isMatch)
+      return res.status(202).json({ message: "Incorrect password" });
+
+    await userFound.updatePassword(id_usuario, new_pasword);
+    
+    res.cookie("authToken", "", {
+      expires: new Date(0),
+    });
+
+    return res.json({
+      id_usuario: userFound.id_us,
+      nombre: userFound.nombre,
+      email: userFound.email,
+      id_rol: userFound.getUserRol(),
+    });
+
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

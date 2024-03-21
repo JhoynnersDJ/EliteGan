@@ -125,6 +125,9 @@ export class user {
   static updateUser(user) {
     return userFunction.updateUser(user);
   }
+  static updatePassword(id, password) {
+    return userFunction.updatePassword(id, password);
+  }
 }
 
 export class userRol {
