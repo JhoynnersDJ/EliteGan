@@ -483,7 +483,7 @@ export class Proyecto {
         <body style="padding: 20px;">
             <div class="container">
                 <header>
-                    <h1>Hormiwatch<span class="span1">400</span>
+                    <h1>Hormiwatch<h1>
                 </header>
                 <h2>¡Tienes un nuevo proyecto!</h2>
                 <p>Hola <span class="span1">${usuario.nombre} ${usuario.apellido}</span>!</p>
