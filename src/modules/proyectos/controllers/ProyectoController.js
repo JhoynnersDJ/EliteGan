@@ -177,8 +177,7 @@ class ProyectoController {
       // enviar correo a los tecnicos
       for (const tecnico of tecnicos) {
         const usuario = await user.findOneById(tecnico.id_usuario);
-        Proyecto.sendEmailCreate(usuario)
-        console.log('Correo enviado a: ' + usuario.usuario)
+        Proyecto.sendEmailCreate(usuario, proyecto)
       }
     } catch (error) {
       res.status(500).json({ message: error.message });
