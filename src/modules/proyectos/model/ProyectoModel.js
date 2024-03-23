@@ -1,4 +1,4 @@
-import { where } from 'sequelize';
+import { where } from "sequelize";
 import {
   Proyectos,
   ResponsablesClienteR,
@@ -72,7 +72,9 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
-          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+          pool_horas_contratadas: formatearMinutos(
+            proyecto.pool_horas_contratadas
+          ),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -140,7 +142,9 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
-          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+          pool_horas_contratadas: formatearMinutos(
+            proyecto.pool_horas_contratadas
+          ),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -195,7 +199,9 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
-          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+          pool_horas_contratadas: formatearMinutos(
+            proyecto.pool_horas_contratadas
+          ),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -230,45 +236,49 @@ export class Proyecto {
     }
   }
 
-    // registra en la base de datos
-    static async create(proyecto){
-        try {
-            // funcion para las bases de datos de sequelize
-            if (database === "SEQUELIZE") {
-                // guardar en la base de datos
-                const proyectoCreado = await Proyectos.create({ 
-                    tarifa: proyecto.tarifa,
-                    nombre_proyecto: proyecto.nombre,
-                    status: proyecto.status,
-                    fecha_inicio: proyecto.fecha_inicio,
-                    id_responsable_cliente: proyecto.responsable_cliente,
-                    pool_horas: proyecto.pool_horas,
-                    fecha_fin: proyecto.fecha_fin,
-                    pool_horas_contratadas:proyecto.pool_horas,
-                }, { fields: [
-                    'tarifa',
-                    'nombre_proyecto',
-                    'status',
-                    'fecha_inicio',
-                    'id_responsable_cliente',
-                    'pool_horas',
-                    'fecha_fin',
-                    'pool_horas_contratadas'
-                ]
-                })
-                // Asocia los usuarios al proyecto en la tabla asignaciones
-                for (const tecnico of proyecto.tecnicos) {
-                    const usuario = await Usuarios.findByPk(tecnico.id_usuario);
-                    if (usuario) {
-                        await proyectoCreado.addUsuario(usuario);
-                    }
-                }
-                return proyectoCreado
-            }
-        } catch (error) {
-            console.log(error.message)
+  // registra en la base de datos
+  static async create(proyecto) {
+    try {
+      // funcion para las bases de datos de sequelize
+      if (database === "SEQUELIZE") {
+        // guardar en la base de datos
+        const proyectoCreado = await Proyectos.create(
+          {
+            tarifa: proyecto.tarifa,
+            nombre_proyecto: proyecto.nombre,
+            status: proyecto.status,
+            fecha_inicio: proyecto.fecha_inicio,
+            id_responsable_cliente: proyecto.responsable_cliente,
+            pool_horas: proyecto.pool_horas,
+            fecha_fin: proyecto.fecha_fin,
+            pool_horas_contratadas: proyecto.pool_horas,
+          },
+          {
+            fields: [
+              "tarifa",
+              "nombre_proyecto",
+              "status",
+              "fecha_inicio",
+              "id_responsable_cliente",
+              "pool_horas",
+              "fecha_fin",
+              "pool_horas_contratadas",
+            ],
+          }
+        );
+        // Asocia los usuarios al proyecto en la tabla asignaciones
+        for (const tecnico of proyecto.tecnicos) {
+          const usuario = await Usuarios.findByPk(tecnico.id_usuario);
+          if (usuario) {
+            await proyectoCreado.addUsuario(usuario);
+          }
         }
+        return proyectoCreado;
+      }
+    } catch (error) {
+      console.log(error.message);
     }
+  }
 
   // elimina un registro en la base de datos
   static async delete(id) {
@@ -318,6 +328,7 @@ export class Proyecto {
                 ["cargo", "cargo"],
                 ["departamento", "departamento"],
                 ["telefono", "telefono"],
+                ["cedula", "cedula"],
               ],
               include: [
                 {
@@ -351,6 +362,27 @@ export class Proyecto {
             sumaFactor += tarea.factor_tiempo_total;
           });
         }
+          const total_tareas = proyecto.tareas.reduce((accumulator, tarea) => {
+            // Verificar si la tarea ya existe en total_tareas
+            const existingTaskIndex = accumulator.findIndex(
+              (item) => item.nombre_servicio === tarea.servicio.nombre_servicio
+            );
+            if (existingTaskIndex !== -1) {
+              // Si la tarea ya existe, sumar las horas
+              accumulator[existingTaskIndex].tiempo_total += tarea.tiempo_total;
+            } else {
+              // Si la tarea no existe, agregarla al array
+              accumulator.push({
+                nombre_servicio: tarea.servicio.nombre_servicio,
+                tiempo_total: tarea.tiempo_total,
+              });
+            }
+
+            return accumulator;
+          }, []);
+
+          
+        
         // formato de los datos
         const formattedProyecto = {
           id_proyecto: proyecto.id_proyecto,
@@ -359,7 +391,8 @@ export class Proyecto {
           status: proyecto.status,
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
-          pool_horas: formatearMinutos(proyecto.pool_horas_contratadas),
+          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+          pool_horas:formatearMinutos(proyecto.pool_horas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -372,11 +405,13 @@ export class Proyecto {
           id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
           nombre_cliente:
             proyecto.responsables_cliente.cliente.dataValues.nombre_cliente,
+          cedula_responsable_cliente:
+            proyecto.responsables_cliente.dataValues.cedula,
           usuarios: proyecto.usuarios,
           tareas: proyecto.tareas,
           total_horas_tareas: sumaFactor,
+          total_tareas: total_tareas,
         };
-
         return formattedProyecto;
       }
     } catch (error) {

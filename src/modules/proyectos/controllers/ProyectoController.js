@@ -4,6 +4,8 @@ import { ResponsableClienteReplica } from "../../responsables_clientes/model/res
 import date from "date-and-time";
 import puppeteer from "puppeteer";
 import { calcularDiferenciaDeTiempo } from "../../tareas/libs/Tarifa.js";
+import { Chart } from "chart.js";
+import { formatearMinutos } from "../libs/pool_horas.js";
 
 class ProyectoController {
   // devuelve todos los registros
@@ -181,25 +183,26 @@ class ProyectoController {
   static async concretarProyecto(req, res) {
     try {
       // capturar id de proyecto
-      const { id } = req.params
+      const { id } = req.params;
       // cambiar status a completado
-      const status = 1
+      const status = 1;
       // comprobar si existe el proyecto
-      const proyectoExistente = await Proyecto.findByPk()
+      const proyectoExistente = await Proyecto.findByPk();
       if (!proyectoExistente) {
         return res.status(404).json({
           code: "Recurso no encontrado",
           message: "Proyecto no encontrado",
-          details: "Proyecto con el id " + id + " no se encuentra en la base de datos",
+          details:
+            "Proyecto con el id " + id + " no se encuentra en la base de datos",
           timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
           requestID: id,
-          });
+        });
       }
       // actualiza el status del proyecto a completado
-      await Proyecto.concretarProyecto(id)
-      res.status(200).json({ message: "Proyecto concretado correctamente" })
+      await Proyecto.concretarProyecto(id);
+      res.status(200).json({ message: "Proyecto concretado correctamente" });
     } catch (error) {
-      res.status(500).json({ message: error.message })
+      res.status(500).json({ message: error.message });
     }
   }
 
@@ -340,12 +343,15 @@ class ProyectoController {
                         <p class="text-sm font-bold text-gray-800">
                             Codigo Proyecto:
                             <span class="font-normal">
-                            ${project.id_proyecto.split('-')[0]}
+                            ${project.id_proyecto.split("-")[0]}
                             </span>
                         </p>
                     </div>
                 </div>
                 <!-- Datos del Cliente -->
+                <h6 class="text-left font-bold">
+                    2. Datos del Cliente
+                </h6>
                 <h6 class="text-left font-bold">
                 <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl">
                 <div class="flex flex-col w-1/2 gap-y-2 py-2">
@@ -360,7 +366,7 @@ class ProyectoController {
                         <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
                             Codigo Cliente:
                             <span class="font-normal">
-                            ${project.id_cliente.split('-')[0]}
+                            ${project.id_cliente.split("-")[0]}
                             </span>
                         </p>
                         <p class="text-sm font-bold text-gray-800 px-2">
@@ -423,9 +429,9 @@ class ProyectoController {
                     <p class="text-sm font-bold text-gray-800 px-2">
                         Tecnico Asignado:
                         <span class="font-normal">
-                        ${project.usuarios[0].nombre} ${
-        project.usuarios[0].apellido
-      }
+                        ${project.usuarios.map(
+                          (usuario) => ` ${usuario.nombre} ${usuario.apellido}`
+                        )}
                         </span>
                     </p>
                 </div>
@@ -510,7 +516,9 @@ class ProyectoController {
                               <th scope="col" class="px-2 py-3 "></th>
                               <th scope="col" class="px-2 py-3 "></th>
                               <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border-2  border-sky-500 bg-sky-500 text-sky-100">Total de Horas</th>
-                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">${project.total_horas_tareas}</th>
+                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">${
+                                project.total_horas_tareas
+                              }</th>
                             </tr>
                         </table>
                       </div>
@@ -594,6 +602,246 @@ class ProyectoController {
         
         </html>
         `;
+      // Crear una instancia del navegador con Puppeteer
+      const browser = await puppeteer.launch();
+
+      // Abrir una nueva página
+      const page = await browser.newPage();
+
+      // Establecer el contenido HTML de la página
+      await page.setContent(content);
+      // Generar el PDF en formato A4
+      const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+
+      // Cerrar el navegador
+      await browser.close();
+
+      // Enviar el PDF como respuesta HTTP
+      res.contentType("application/pdf");
+      res.send(pdfBuffer);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  static async generarPDFProyectoGrafico(req, res) {
+    try {
+      // Capturar el id_proyecto de los parámetros de la solicitud
+      const { id } = req.params;
+
+      // Verificar si se proporcionó el id_proyecto
+      if (!id) {
+        return res
+          .status(400)
+          .json({ message: "Falta el parámetro id_proyecto" });
+      }
+      const project = await Proyecto.findByPkPDF(id);
+
+      // Comprobar si el proyecto existe
+      if (!project) {
+        return res.status(404).json({ message: "Proyecto no encontrado" });
+      }
+
+          
+      // Estructura HTML con un lienzo para el gráfico
+      const content = `
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<title>Reporte</title>
+    <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>
+    <script>
+        // Esperar a que se cargue la ventana antes de ejecutar el código JavaScript
+        window.onload = async function() {
+          var dataSource = [
+            ${project.total_tareas
+              .map(
+                (tarea) =>
+                  `{ 'x': '${tarea.nombre_servicio}', y: ${tarea.tiempo_total}, 
+                  'label' : '${tarea.nombre_servicio}: ${formatearMinutos(tarea.tiempo_total)}'}`
+              )
+              .join(",\n")}
+        ];
+            var pie = new ej.charts.AccumulationChart({
+                //Inicializando la Serie
+                series: [{
+                    dataSource: dataSource,                 
+                    dataLabel: {
+                        visible: true,
+                        position: 'Outside', 
+                        name: 'label',
+                        font: {
+                          size: '15px' // Tamaño de la fuente de las etiquetas de datos
+                      }
+                    },
+                    xName: 'x',
+                    yName: 'y'
+                }],
+            });
+            pie.appendTo('#container');
+            // Notificar a Node.js cuando la página esté completamente cargada
+            window._pageLoaded = true;
+        };
+    </script>
+    <style>
+        .container {
+            max-width: 600px; /* Ancho máximo para el contenedor principal */
+            margin: 0 auto; /* Margen automático para centrar el contenedor */
+            overflow: hidden; /* Ocultar el desbordamiento del contenido */
+        }
+
+        .graph-container {
+            width: 100%; /* Asegurar que el contenedor del gráfico tenga el ancho completo */
+            overflow: auto; /* Permitir el desplazamiento horizontal si el gráfico excede el ancho */
+        }
+    </style>
+</head>
+
+<body>
+            <div class="flex flex-col justify-between my-8 mx-8">
+                <!-- Encabezado -->
+                <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl my-6 px-4">
+                    <!-- Logo -->
+                    <div class="flex p-4">
+                <h2 class="text-2xl font-bold text-center">Hormi<span class="text-sky-500">Watch</span></h2>
+                    </div>
+                    <!-- Titulo -->
+                    <div class="p-4">
+                        <h1 class="text-xl font-bold text-center text-gray-800">Reporte de Atencion al Cliente</h1>
+                    </div>
+                    <!-- Datos Solicitud -->
+                    <div class="text-right border-l-2 h-24 border-sky-500 flex flex-col p-4 justify-center">
+                        <p
+                        class="text-sm font-bold text-gray-800"
+                        >Fecha:
+                            <span class="font-normal">
+                            ${new Date().toLocaleDateString()}
+                            </span>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800">
+                            Codigo Proyecto:
+                            <span class="font-normal">
+                            ${project.id_proyecto.split("-")[0]}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <!-- Datos del Cliente -->
+                <h6 class="text-left font-bold">
+                <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl">
+                <div class="flex flex-col w-1/2 gap-y-2 py-2">
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Nombre: 
+                        <span class="font-normal">${
+                          project.nombre_cliente
+                        }</span>
+    
+                    </p>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                            Codigo Cliente:
+                            <span class="font-normal">
+                            ${project.id_cliente.split("-")[0]}
+                            </span>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800 px-2">
+                            Departamento:
+                            <span class="font-normal">
+                            ${project.departamento_responsable_cliente}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="flex flex-col border-l-2 w-1/2 border-sky-500 gap-y-2 py-2">
+                       <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                            Responsable Cliente:
+                            <span class="font-normal">
+                            ${project.nombre_responsable_cliente}
+                            </span>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                            Cargo:
+                            <span class="font-normal">
+                            ${project.cargo_responsable_cliente}
+                            </span>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800 px-2">
+                            Telefono:
+                            <span class="font-normal">
+                            ${project.telefono_responsable_cliente}
+                            </span>
+                       </p> 
+                    </div>
+                </div>
+                <!-- Datos del Proyecto  -->
+                <h6 class="text-left font-bold">
+                    2. Datos del Proyecto
+                </h6>
+                <div class="flex flex-col gap-y-2 py-2 border-2 border-sky-500 rounded-2xl">
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Nombre del Proyecto:
+                        <span class="font-normal">
+                        ${project.nombre_proyecto}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Fecha de Inicio:
+                        <span class="font-normal">
+                        ${project.fecha_inicio}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Pool de Horas Asignadas
+                        <span class="font-normal">
+                        ${project.pool_horas_contratadas}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Pool de Horas Restantes
+                        <span class="font-normal">
+                        ${project.pool_horas}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 px-2 border-b-[1px] border-gray-600">
+                        Tarifa por Hora:
+                        <span class="font-normal">
+                        ${project.tarifa}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 px-2">
+                        Tecnico Asignado:
+                        <span class="font-normal">
+                        ${project.usuarios.map(
+                          (usuario) => ` ${usuario.nombre} ${usuario.apellido}`
+                        )}
+                        </span>
+                    </p>
+                </div>
+                <!-- Detalles del Proyecto -->
+                <h6 class="text-left font-bold">
+                    3. Graficas del Proyecto
+                </h6>
+                <div class="flex flex-col gap-y-2 py-2 border-2 border-sky-500 rounded-2xl">
+        <div class="container">
+            <div class="graph-container" id="container">
+            <div id="container"></div>
+            </div>
+        </div>
+    </div>
+                
+               
+                
+                
+                
+            </div>
+        </div>
+        </body>
+
+</html>
+`;
 
       // Crear una instancia del navegador con Puppeteer
       const browser = await puppeteer.launch();
@@ -604,6 +852,9 @@ class ProyectoController {
       // Establecer el contenido HTML de la página
       await page.setContent(content);
 
+      // Esperar a que la página esté completamente cargada
+      await page.waitForFunction("window._pageLoaded");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       // Generar el PDF en formato A4
       const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
 
