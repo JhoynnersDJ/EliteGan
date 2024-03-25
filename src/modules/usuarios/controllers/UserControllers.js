@@ -93,18 +93,18 @@ export const login = async (req, res) => {
 
     //si no se encuentra el email se da el siguiente mensaje de error
     if (!userFound)
-      return res.status(202).json({ message: "Usuario no encontrado" });
+      return res.status(511).json({ message: "Usuario no encontrado" });
     const verificado = await user.verificado(email);
     //si no se encuentra el email se da el siguiente mensaje de error
     if (!verificado)
-      return res.status(202).json({ message: "Usuario no verificado" });
+      return res.status(511).json({ message: "Usuario no verificado" });
 
     //se decifra la contrase;a y se compara
     const isMatch = await bcrypt.compare(password, userFound.password);
 
     //si no son iguales da el mensaje de error
     if (!isMatch)
-      return res.status(202).json({ message: "Incorrect password" });
+      return res.status(406).json({ message: "Incorrect password" });
 
     //se genera un token para ser manejado como una cookie
     const authToken = await createAccessToken({
