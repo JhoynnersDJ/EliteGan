@@ -1,4 +1,4 @@
-import { Proyectos } from "../../../database/hormiwatch/asociaciones.js";
+import { Proyectos, Usuarios } from "../../../database/hormiwatch/asociaciones.js";
 import { Servicios } from "../../../database/hormiwatch/asociaciones.js";
 import { Tareas } from "../../../database/hormiwatch/asociaciones.js";
 import tarea from "./TareaModel.js";
@@ -90,27 +90,32 @@ async function findTaskByProjectId(id) {
           model: Servicios,
           attributes: ["nombre_servicio"],
         },
+        {
+          model: Usuarios,
+          attributes: ["nombre", "apellido"],
+        },
       ],
-    });
+    });console.log(tasks)
 
     if (tasks.length === 0 || !tasks) return [];
     let newTasks = [];
-    tasks.forEach((task) =>
-      newTasks.push(
-        new tarea(
-          task.dataValues.id_tarea,
-          task.dataValues.fecha,
-          task.dataValues.hora_inicio,
-          task.dataValues.hora_fin,
-          calcularDiferenciaDeTiempo(task.hora_inicio, task.hora_fin).tiempo_formateado,
-          task.dataValues.factor_tiempo_total,
-          task.dataValues.id_proyecto,
-          task.dataValues.id_servicio,
-          task.dataValues.total_tarifa,
-          task.dataValues.status,
-          task.dataValues.servicio.dataValues.nombre_servicio
-        )
-      )
+    tasks.forEach((task) =>{
+      var formattedTask = {
+        id_tarea:task.dataValues.id_tarea,
+        fecha:task.dataValues.fecha,
+        hora_inicio:  task.dataValues.hora_inicio,
+        hora_fin:  task.dataValues.hora_fin,
+        tiempo_total:  calcularDiferenciaDeTiempo(task.hora_inicio, task.hora_fin).tiempo_formateado,
+        factor_tiempo_total:  task.dataValues.factor_tiempo_total,
+        id_proyecto:  task.dataValues.id_proyecto,
+        id_servicio:  task.dataValues.id_servicio,
+        total_tarifa:  task.dataValues.total_tarifa,
+        status:  task.dataValues.status,
+        nombre_servicio:  task.dataValues.servicio.dataValues.nombre_servicio,
+        nombre_tecnico: `${task.dataValues.usuario.nombre} ${task.dataValues.usuario.apellido}`
+      }
+      console.log(formattedTask)
+      newTasks.push(formattedTask)}
     );
     return newTasks;
   }

@@ -11,7 +11,7 @@ import nodemailer from "nodemailer";
 import ibmdb from "ibm_db";
 
 const dbSelect = process.env.SELECT_DB;
-var emailTemp;
+var emailTemp = null;
 let connStr =
   "DATABASE=" +
   process.env.DATABASE +
@@ -260,7 +260,7 @@ async function findOneById(id) {
       user1.dataValues.apellido,
       user1.dataValues.email,
       user1.dataValues.password,
-      user1.dataValues.num_tel,
+      user1.dataValues.telefono,
       user1.dataValues.empresa,
       user1.dataValues.cargo,
       user1.dataValues.departamento,
@@ -422,7 +422,7 @@ async function updateToken(token, id) {
 
 async function sendEmailToken(token, email, nombre) {
   emailTemp = email; 
-  
+  console.log(email)
   const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">
@@ -501,9 +501,9 @@ async function sendEmailToken(token, email, nombre) {
       <body style="padding: 20px;">
           <div class="container">
               <header>
-                  <h1>SYSSOPGAN<span class="span1">400</span>
+                  <h1>Hormi<span class="span1">Watch</span>
               </header>
-              <h2>Bienvenido a SYSSOPGAN</h2>
+              <h2>Bienvenido a HormiWatch</h2>
               <p>Hola <span class="span1">${nombre}</span>!</p>
              
               <p>
@@ -532,8 +532,7 @@ async function updateEmail(id) {
 
     if (!emailTemp) return null;
 
-    userFound.email = emailTemp;
-
+    user1.email = emailTemp;
     emailTemp = null;
     user1.save()
     return new user(
@@ -566,8 +565,8 @@ async function updateVerificar(ver, id) {
     if (!estado) return null;
 
     userFound.id_estado_usuario = estado.id_estado_usuario;
-
-    return userFound.save();
+    userFound.save();
+    return userFound;
   }
 }
 
@@ -669,15 +668,14 @@ async function updateUser(usuario) {
 
 async function updatePassword(id, password) {
   if (dbSelect == "SEQUELIZE") {
+    
     const user1 = await Usuarios.findByPk(id);
-
+    
     if (!user1) return null;
 
-    userFound.password = password;
-
-    user1.save()
-
-    return new user(
+    user1.password = password;    
+    
+    const newUser = new user(
       user1.dataValues.nombre,
       user1.dataValues.apellido,
       user1.dataValues.email,
@@ -690,7 +688,9 @@ async function updatePassword(id, password) {
       user1.dataValues.id_usuario,
       user1.dataValues.id_estado_usuario,
       user1.dataValues.cedula
-    );;
+    );
+    user1.save()
+    return newUser;
   }
 }
 

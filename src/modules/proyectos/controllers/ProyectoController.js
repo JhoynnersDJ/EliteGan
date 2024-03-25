@@ -668,7 +668,7 @@ class ProyectoController {
               .map(
                 (tarea) =>
                   `{ 'x': '${tarea.nombre_servicio}', y: ${tarea.tiempo_total}, 
-                  'label' : '${tarea.nombre_servicio}: ${formatearMinutos(tarea.tiempo_total)}'}`
+                  'label' : '${tarea.id_servicio}: ${formatearMinutos(tarea.tiempo_total)}'}`
               )
               .join(",\n")}
         ];
@@ -687,6 +687,14 @@ class ProyectoController {
                     xName: 'x',
                     yName: 'y'
                 }],
+                legendSettings: {
+                  visible: true,
+                  position: 'Bottom',
+                  height: '20%',
+                  width: '64%',
+                  textWrap:'Wrap',
+                  maximumLabelWidth:60,
+              }
             });
             pie.appendTo('#container');
             // Notificar a Node.js cuando la página esté completamente cargada

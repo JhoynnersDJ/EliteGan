@@ -141,9 +141,9 @@ export const logout = (req, res) => {
 
 //obtener datos del usuario
 export const profile = async (req, res) => {
-  console.log(req.user);
+  const {id_usuario} = req.params
   //busca al usuario por el id
-  const userFound = await user.findOneById(req.user.id_usuario);
+  const userFound = await user.findOneById(id_usuario);
 
   //si no encuentra al usurio da el mensaje de error
   if (!userFound)
@@ -154,11 +154,11 @@ export const profile = async (req, res) => {
     id_usuario: userFound.getUserId(),
     nombre: userFound.getUserName(),
     apellido: userFound.getUserLastName(),
-    email: userFound.getUserEmail(),
-    password: userFound.getUserPassword(),
-    telefono: userFound.getUserCellphone(),
+    telefono: userFound.telefono,
     empresa: userFound.getUserEmpress(),
     departamento: userFound.getUserDepartament(),
+    cargo: userFound.cargo,
+    cedula: userFound.cedula,
     id_rol: userFound.getUserRol(),
   });
   //userFound = null;
@@ -231,14 +231,14 @@ export const verifyToken = async (req, res) => {
 export const updateEmailToken = async (req, res) => {
   const { authToken } = req.cookies;
 
-  const { email } = req.body;
+  const { email, id_usuario } = req.body;
 
-  if (!authToken) return res.status(401).json({ message: "Invalid token" });
+  //if (!authToken) return res.status(401).json({ message: "Invalid token" });
   try {
-    jwt.verify(authToken, TOKEN_SECRET, async (err, user2) => {
-      if (err) return res.status(401).json({ message: "Invalid token" });
+    
+      
 
-      const userFound = await user.findOneById(user2.id_usuario);
+      const userFound = await user.findOneById(id_usuario);
 
       if (!userFound) return res.status(401).json({ message: "Unauthorized" });
 
@@ -247,7 +247,6 @@ export const updateEmailToken = async (req, res) => {
       const tokenSaved = await user.updateToken(token, userFound.id_usuario);
 
       await user.updateVerificar("sin verificar", userFound.id_usuario);
-
       await user.sendEmailToken(token, email, userFound.nombre);
 
       return res.json({
@@ -257,7 +256,7 @@ export const updateEmailToken = async (req, res) => {
         id_rol: userFound.getUserRol(),
         token: token,
       });
-    });
+    
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -267,14 +266,12 @@ export const updateEmailToken = async (req, res) => {
 export const updateEmail = async (req, res) => {
   const { authToken } = req.cookies;
 
-  const { token } = req.body;
+  const { token , id_usuario } = req.body;
 
-  if (!authToken) return res.status(401).json({ message: "Invalid token" });
+  //if (!authToken) return res.status(401).json({ message: "Invalid token" });
   try {
-    jwt.verify(authToken, TOKEN_SECRET, async (err, user2) => {
-      if (err) return res.status(401).json({ message: "Invalid token" });
 
-      const userFound = await user.findOneById(user2.id_usuario);
+      const userFound = await user.findOneById(id_usuario);
 
       if (!userFound) return res.status(401).json({ message: "Unauthorized" });
 
@@ -285,7 +282,7 @@ export const updateEmail = async (req, res) => {
       } else {
         return res.status(401).json({ message: "Token no coincide" });
       }
-      const userFound2 = await user.findOneById(user2.id_usuario);
+      const userFound2 = await user.findOneById(id_usuario);
       res.cookie("authToken", "", {
         expires: new Date(0),
       });
@@ -296,7 +293,6 @@ export const updateEmail = async (req, res) => {
         email: userFound2.email,
         id_rol: userFound2.getUserRol(),
       });
-    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -360,7 +356,7 @@ export const suspendUser = async (req, res) => {
 export const addUserPhoto = async (req, res) => {
 
   const { id_usuario } = req.body;
-  const { foto_perfil } = req.files;
+  //const { foto_perfil } = req.files;
   try {
     //busca al usuario por el id
     const userFound = await user.findOneById(id_usuario);
@@ -424,29 +420,30 @@ export const updateUser = async (req, res) => {
 };
 
 export const updatePassword = async (req, res) => {
-  const { authToken } = req.cookies;
+  //const { authToken } = req.cookies;
 
-  const { password, new_pasword, id_usuario } = req.body;
+  const { password, new_password, id_usuario } = req.body;
   try {
     const userFound = await user.findOneById(id_usuario);
-
+    
     if (!userFound) return res.status(401).json({ message: "Unauthorized" });
 
     //se decifra la contrase;a y se compara
     const isMatch = await bcrypt.compare(password, userFound.password);
-
+    
     //si no son iguales da el mensaje de error
     if (!isMatch)
-      return res.status(202).json({ message: "Incorrect password" });
-
-    await userFound.updatePassword(id_usuario, new_pasword);
-    
+      return res.status(202).json({ message: "Clave antigua invalida" });
+    const passwordHash = await bcrypt.hash(new_password, 10);
+    const userFound2 = await user.updatePassword(id_usuario, passwordHash);
+    //console.log(passwordHash)
     res.cookie("authToken", "", {
       expires: new Date(0),
     });
 
+
     return res.json({
-      id_usuario: userFound.id_us,
+      id_usuario: userFound.id_usuario,
       nombre: userFound.nombre,
       email: userFound.email,
       id_rol: userFound.getUserRol(),

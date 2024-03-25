@@ -59,6 +59,22 @@ class ClientesController {
             res.status(500).json({ message: error.message });
         }
     }
+
+    // devuelve todos los registros 
+    static async getAll (req, res) {
+        try {
+            // buscar todos los registros
+            const clientes = await ClienteReplica.getAllClient()
+            // si no se encuentran registros en la base de datos
+            if (!clientes) {
+                return res.status(204).json({message: 'No hay clientes registrados en la base de datos', data: []})
+            }
+            // enviar respuesta
+            res.status(200).json(clientes)
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
 }
 
 export default ClientesController

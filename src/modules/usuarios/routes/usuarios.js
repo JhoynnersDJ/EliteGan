@@ -12,6 +12,7 @@ import {
   suspendUser,
   addUserPhoto,
   updateUser,
+  updatePassword,
 } from "../controllers/UserControllers.js";
 import { authRequired, authRequired2} from "../../../middlewares/validateToken.js";
 import { rolRequired } from "../../../middlewares/validateRol.js";
@@ -33,7 +34,7 @@ router.post("/login", validateSchema(loginSchema), login);
 router.post("/logout", authRequired, logout);
 
 //obtener datos del usuario
-router.get("/perfil", authRequired, profile);
+router.get("/perfil/:id_usuario", profile);
 
 //actualizar rol del usuario
 router.post(
@@ -48,10 +49,10 @@ router.post(
 router.get("/verificar", verifyToken);
 
 //enviar token por email, verificado = false
-router.post("/actualizar-email", authRequired2, updateEmailToken);
+router.post("/actualizar-email", updateEmailToken);
 
 //cambiar email por el nuevo, verificado = true
-router.post("/verificar-email", authRequired2, updateEmail);
+router.post("/verificar-email", updateEmail);
 
 router.get("/todos-tecnicos", getByRol);
 
@@ -60,8 +61,8 @@ import multer from 'multer';
 const upload = multer();
 router.post("/foto-usuario", authRequired2,upload.array('foto_perfil'),addUserPhoto);
 
-router.put("/actualizar", authRequired2,updateUser);
+router.put("/actualizar",updateUser);
 
-router.post("/actualizar-password", authRequired2,addUserPhoto);
+router.put("/actualizar-password",updatePassword);
 
 export default router;

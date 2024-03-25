@@ -321,7 +321,7 @@ export class Proyecto {
               include: [
                 {
                   model: Servicios,
-                  attributes: ["nombre_servicio"],
+                  attributes: ["nombre_servicio","id_servicio"],
                 },
               ],
             },
@@ -379,6 +379,7 @@ export class Proyecto {
               accumulator.push({
                 nombre_servicio: tarea.servicio.nombre_servicio,
                 tiempo_total: tarea.tiempo_total,
+                id_servicio: tarea.servicio.id_servicio
               });
             }
 
