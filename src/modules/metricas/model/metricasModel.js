@@ -146,13 +146,24 @@ export class Metricas {
                     where: {
                         id_proyecto
                     },
-                    group: ['id_usuario']
+                    group: ['id_usuario'],
+                    include:[
+                        {
+                            model: Usuarios,
+                            attributes: [
+                                'nombre',
+                                'apellido'
+                            ]
+                        }
+                    ]
                 })
                 // formato de los datos
                 const formatedTareasPorTecnico = tareasPorTecnico.map(tarea => ({
                     id_usuario: tarea.id_usuario,
                     tiempo_total: formatearMinutos(tarea.tiempo_total),
-                    cantidad_tareas: tarea.dataValues.cantidad_tareas
+                    cantidad_tareas: tarea.dataValues.cantidad_tareas,
+                    nombre_usuario: tarea.usuario.nombre,
+                    apellido_usuario: tarea.usuario.apellido
                 }))
                 return formatedTareasPorTecnico
             }

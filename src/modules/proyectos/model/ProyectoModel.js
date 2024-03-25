@@ -1,4 +1,3 @@
-import { where } from "sequelize";
 import {
   Proyectos,
   ResponsablesClienteR,
@@ -10,6 +9,11 @@ import {
 } from "../../../database/hormiwatch/asociaciones.js";
 // import { user } from '../../usuarios/model/UserModel.js';
 import { formatearMinutos } from "../libs/pool_horas.js";
+import { sendEmail } from "../../../middlewares/sendEmail.js";
+import { ResponsableClienteReplica } from "../../responsables_clientes/model/responsable_clienteModel.js";
+import date from "date-and-time";
+import { DATE } from "sequelize";
+
 const database = process.env.SELECT_DB;
 
 export class Proyecto {
@@ -414,6 +418,120 @@ export class Proyecto {
         };
         return formattedProyecto;
       }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+  // actualizar el status de un proyecto a completado en la base de datos
+  static async concretarProyecto(id) {
+    try {
+      // funcion para las bases de datos de sequelize
+      if (database === "SEQUELIZE") {
+        // actualizar un proyecto en la base de datos
+        const proyecto = await Proyectos.update({
+          status: 1
+        },{
+          where: { id_proyecto: id },
+        });
+        return proyecto;
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+  // enviar correo a un tecnico al momento de crear un proyecto
+  static async sendEmailCreate(usuario, proyecto) {
+    try {
+      const responsable = await ResponsableClienteReplica.findByPk(proyecto.responsable_cliente)
+      const asunto = `Nuevo proyecto: ${proyecto.nombre}`
+      // formatear fecha
+      let fecha_fin = new Date(proyecto.fecha_fin)
+      fecha_fin = date.format(fecha_fin, 'DD/MM/YYYY');  
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Título de la Página</title>
+            <style>
+                body {
+                    margin: 0;
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f4;
+                }
+        
+                header {
+                    background-color: #333;
+                    padding-left: 4vh;
+                    padding-right: 10vh;
+                    padding-top: 2%;
+                    padding-bottom: 2%;
+                }
+        
+                h1 {
+                    color: white;
+                    font-size: 5vh;
+                }
+        
+                h2 {
+                    font-weight: bold;
+                    margin-left: 5%;
+                    margin-top: 10px;
+                    font-size: 24px;
+                    margin-right: 5%;
+                }
+        
+                p {
+                    margin-left: 5%;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin-right: 5%;
+                    margin-top: 20px;
+                    font-size: 18px;
+                    color: #333;
+                    line-height: 1.5;
+                    text-align: justify;
+                }
+        
+                .token-container {
+                    background-color: #666;
+                    color: #fff;
+                    padding: 10px;
+                    border-radius: 5px;
+                    font-size: 18px;
+                    margin-top: 10px;
+                    text-align: center;
+                }        
+                .container {
+                      max-width: 900px;
+                      margin: 0 auto;
+                      background-color: #fff;
+                      border-radius: 5px;
+                      box-shadow: 0 0 10px #f2f2f2;
+                    }
+                .span1 {
+                    color: orange
+                }
+            </style>
+        </head>
+        <body style="padding: 20px;">
+            <div class="container">
+                <header>
+                    <h1>Hormiwatch<h1>
+                </header>
+                <h2>¡Tienes un nuevo proyecto!</h2>
+                <p>Hola <span class="span1">${usuario.nombre} ${usuario.apellido}</span>!</p>
+                <p>
+                    Ha sido agregado al proyecto <span class="span1">${proyecto.nombre}</span> del cliente <span class="span1">${responsable.nombre_cliente}</span>, cuyo responsable es <span class="span1">${responsable.nombre}</span>. Finaliza el <span class="span1">${fecha_fin}</span>.       
+                </p>
+            </div>
+            <p>pie de pagina</p>
+        </body>
+        </html>   
+      `
+      await sendEmail(htmlContent,usuario.email, asunto);
+      console.log('Correo enviado a: ' + usuario.nombre + " " +usuario.apellido)
     } catch (error) {
       console.log(error.message);
     }
