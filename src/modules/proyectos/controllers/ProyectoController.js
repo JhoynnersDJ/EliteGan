@@ -350,7 +350,7 @@ class ProyectoController {
                 </div>
                 <!-- Datos del Cliente -->
                 <h6 class="text-left font-bold">
-                    2. Datos del Cliente
+                    1. Datos del Cliente
                 </h6>
                 <h6 class="text-left font-bold">
                 <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl">
@@ -535,18 +535,18 @@ class ProyectoController {
                         <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
                             Nombre del Cliente: 
                             <span class="font-normal">
-                            ${project.nombre_cliente}
+                            ${project.nombre_responsable_cliente}
                             </span>
                         </p>
                         <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
                             C.I:
                             <span class="font-normal">
-                                123456
+                            ${project.cedula_responsable_cliente}
                             </span>
                         <p class="text-sm font-bold text-gray-800 px-2">
                             Firma: 
                             <span class="font-normal">
-                                _________
+                                __________________
                             </span>
                         </p>
                     </div>
@@ -731,6 +731,9 @@ class ProyectoController {
                     </div>
                 </div>
                 <!-- Datos del Cliente -->
+                <h6 class="text-left font-bold">
+                    1. Datos del Cliente
+                </h6>
                 <h6 class="text-left font-bold">
                 <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl">
                 <div class="flex flex-col w-1/2 gap-y-2 py-2">
