@@ -25,7 +25,7 @@ export const register = async (req, res) => {
     const userFound = await user.findOne(email);
 
     //si se encuentra el email se da el siguiente mensaje de error
-    if (userFound) return res.status(202).json(["The email alredy exists"]);
+    if (userFound) return res.status(511).json(["The email alredy exists"]);
 
     //se cifra la contraseña
     const passwordHash = await bcrypt.hash(password, 10);
@@ -52,7 +52,7 @@ export const register = async (req, res) => {
     //se guarda el usuario
     const userSaved = await user.save(newuser);
     //console.log(userSaved)
-    if (!userSaved) res.status(202).json({ message: "ERROR AL CREAR USUARIO" });
+    if (!userSaved) res.status(406).json({ message: "ERROR AL CREAR USUARIO" });
     //se genera el token para ser manejado por la cookie
     const authToken = await createAccessToken({
       id_usuario: newuser.getUserId(),
@@ -117,9 +117,11 @@ export const login = async (req, res) => {
     res.status(200).json({
       id: userFound.getUserId(),
       nombre: userFound.getUserName(),
+      apellido: userFound.apellido,
       email: userFound.getUserEmail(),
       authToken: authToken,
       id_rol: userFound.getUserRol(),
+      foto_perfil: userFound.foto_perfil
     });
     console.log(`El usuario ${userFound.getUserName()} a iniciado sesion`);
     //userFound = null;
@@ -131,7 +133,7 @@ export const login = async (req, res) => {
 //finalizar sesion del usuario
 export const logout = (req, res) => {
   if (!req.cookies.authToken)
-    return res.status(202).json({ message: "No has iniciado sesion" });
+    return res.status(511).json({ message: "No has iniciado sesion" });
   //se le agota el tiempo de vida de la cookie
   res.cookie("authToken", "", {
     expires: new Date(0),
@@ -147,7 +149,7 @@ export const profile = async (req, res) => {
 
   //si no encuentra al usurio da el mensaje de error
   if (!userFound)
-    return res.status(202).json({ message: "usuario no encontrado" });
+    return res.status(511).json({ message: "usuario no encontrado" });
 
   //manda una respuesta con los datos del usuario encontrados
   res.status(200).json({
@@ -181,11 +183,11 @@ export const updateRol = async (req, res) => {
 
     //si no se encuentra el email se da el siguiente mensaje de error
     if (!userFound)
-      return res.status(202).json({ message: "usuario no encontrado" });
+      return res.status(404).json({ message: "usuario no encontrado" });
 
     const newuser = await user.updateRol(rol, email);
 
-    if (!newuser) return res.status(202).json({ message: "rol no encontrado" });
+    if (!newuser) return res.status(404).json({ message: "rol no encontrado" });
     res.status(200).json({
       id_usuario: newuser.getUserId(),
       nombre: newuser.getUserName(),
@@ -319,7 +321,7 @@ export const suspendUser = async (req, res) => {
 
   //si no encuentra al usurio da el mensaje de error
   if (!userAdmin)
-    return res.status(202).json({ message: "Usuario no encontrado" });
+    return res.status(401).json({ message: "Usuario no encontrado" });
 
   const { id } = req.params;
 
@@ -329,7 +331,7 @@ export const suspendUser = async (req, res) => {
 
     //si no se encuentra el email se da el siguiente mensaje de error
     if (!userFound)
-      return res.status(202).json({ message: "usuario no encontrado" });
+      return res.status(404).json({ message: "usuario no encontrado" });
 
     const newuser = await user.updateState("suspendido", id);
 
@@ -360,10 +362,9 @@ export const addUserPhoto = async (req, res) => {
   try {
     //busca al usuario por el id
     const userFound = await user.findOneById(id_usuario);
-
     //si no encuentra al usurio da el mensaje de error
-    if (!userFound) return res.status(202).json({ message: "Usuario no encontrado" });
-    if (!req.files[0].buffer) return res.status(202).json({ message: "No se agrego foto de perfil" });
+    if (!userFound) return res.status(404).json({ message: "Usuario no encontrado" });
+    if (!req.files[0].buffer) return res.status(406).json({ message: "No se agrego foto de perfil" });
     //busca al usuario por el email
     const newPhoto = await user.saveProfilePhoto(id_usuario, req.files[0].buffer);
 
@@ -387,7 +388,7 @@ export const updateUser = async (req, res) => {
     //busca al usuario por el id
     const userFound = await user.findOneById(id_usuario);
     //si no encuentra al usurio da el mensaje de error
-    if (!userFound) return res.status(202).json({ message: "Usuario no encontrado" });
+    if (!userFound) return res.status(404).json({ message: "Usuario no encontrado" });
     console.log(nombre)
     const newuser = new user(
       nombre !== null ? nombre : null,
@@ -433,7 +434,7 @@ export const updatePassword = async (req, res) => {
     
     //si no son iguales da el mensaje de error
     if (!isMatch)
-      return res.status(202).json({ message: "Clave antigua invalida" });
+      return res.status(511).json({ message: "Clave antigua invalida" });
     const passwordHash = await bcrypt.hash(new_password, 10);
     const userFound2 = await user.updatePassword(id_usuario, passwordHash);
     //console.log(passwordHash)

@@ -59,7 +59,7 @@ router.get("/todos-tecnicos", getByRol);
 router.post("/suspender_usuario/:id", authRequired2,suspendUser);
 import multer from 'multer';
 const upload = multer();
-router.post("/foto-usuario", authRequired2,upload.array('foto_perfil'),addUserPhoto);
+router.post("/foto-perfil",upload.array('foto_perfil'),addUserPhoto);
 
 router.put("/actualizar",updateUser);
 

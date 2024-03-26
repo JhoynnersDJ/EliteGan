@@ -180,7 +180,9 @@ async function findOne(email) {
       ),
       user1.dataValues.id_usuario,
       user1.dataValues.id_estado_usuario,
-      user1.dataValues.cedula
+      user1.dataValues.cedula,
+      null,
+      user1.dataValues.foto_perfil
     );
   }
 
