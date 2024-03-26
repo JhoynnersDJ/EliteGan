@@ -25,7 +25,7 @@ fecha_inicio: {
     allowNull: false
   },
 fecha_fin: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
     allowNull: false
   },
 pool_horas: {

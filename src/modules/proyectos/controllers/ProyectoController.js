@@ -206,7 +206,7 @@ class ProyectoController {
       // actualiza el status del proyecto a completado
       await Proyecto.concretarProyecto(id)
       // actualiza el status de las tareas asociadas a completado
-      await tarea.concretarProyecto(id)
+      await tarea.completeTaskByProjectId(id)
       res.status(200).json({ message: "Proyecto concretado correctamente" })
     } catch (error) {
       res.status(500).json({ message: error.message });

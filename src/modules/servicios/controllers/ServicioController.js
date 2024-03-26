@@ -60,6 +60,15 @@ class ServicioController {
             }else{
                 tipo = tipo.trim()
             }
+            // comprobar si ya existe el servicio con el mismo nombre, tipo, categoria, plataforma
+            const servicios = await Servicio.findServicioExist(nombre, tipo, categoria, plataforma)
+            // console.log(servicios.dataValues.nombre_servicio)
+            if (servicios) {
+                return res.status(400).json({
+                    message: 'Ya existe este servicio',
+                    details: `El Servicio con los siguientes datos ya existe: nombre: ${servicios.nombre_servicio}, tipo: ${servicios.tipo_servicio}, categoria: ${servicios.categoria_servicio}, plataforma: ${servicios.plataforma_servicio}`,
+                });
+            }
             // primera letra plataforma
             const primera_letra_plataforma = plataforma.charAt(0)
             // primera letra categoria
@@ -76,7 +85,7 @@ class ServicioController {
             let id = primera_letra_plataforma + primera_letra_categoria + letra_tipo + '-'
             // cantidad de filas con ese patron
             let filas = await Servicio.findPatronId(id)
-            console.log(filas)
+            // console.log(filas)
             filas = filas + 1
             // si supera el limite
             if (filas > 999) return res.status(500).json({ message: 'Se ha alcanzado el limite para esta categoria'})  

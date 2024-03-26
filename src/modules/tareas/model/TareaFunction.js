@@ -137,7 +137,6 @@ async function completeTaskByProjectId(id) {
       task.save()}
     );
     
-    tasks.save();
     return true
   }
   return null;

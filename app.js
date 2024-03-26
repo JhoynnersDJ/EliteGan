@@ -21,6 +21,9 @@ import FeriadosRouter from './src/modules/feriados/routes/feriados.js'
 //tareas
 import TareasRouter from './src/modules/tareas/routes/tareas.js'
 
+// tareas programadas de node-cron
+import { proyectoFin } from "./src/services/tareasProgramadas.js";
+
 const port = process.env.PORT || 3000;
 const host = process.env.HOST;
 const corsOrigin = process.env.CORS_ORIGIN;
@@ -67,6 +70,10 @@ app.use('/servicios', ServicioRouter);
 app.use('/proyectos', ProyectoRouter);
 //Middleware para proyectos
 app.use('/metricas', MetricasRouter);
+
+
+// tareas programadas
+proyectoFin.start();
 
 app.use(express.static('public'));
 

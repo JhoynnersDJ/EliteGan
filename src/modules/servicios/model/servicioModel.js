@@ -101,6 +101,25 @@ export class Servicio {
             console.log(error.message)
         }
     }
+    // devuelve los registros que contienen un nombre, tipo, categoria y plataforma
+    static async findServicioExist(nombre, tipo, categoria, plataforma){
+        try {
+            // funcion para las bases de datos de sequelize
+            if (database === "SEQUELIZE") {
+                const servicio = await Servicios.findOne({
+                    where:{
+                        nombre_servicio: nombre,
+                        plataforma_servicio: plataforma,
+                        categoria_servicio:categoria,
+                        tipo_servicio: tipo
+                    }
+                })
+                return servicio
+            }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
 }
 
 

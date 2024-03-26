@@ -240,6 +240,25 @@ export class Proyecto {
     }
   }
 
+  // buscar los proyectos segun una fecha de finalizacion
+  static async findProyectoByFechaFin(fecha_fin) {
+    try {
+      // funcion para las bases de datos de sequelize
+      if (database === "SEQUELIZE") {
+        // buscar todos los proyectos en la base de datos segun su fecha de finalizacion
+        const proyectos = await Proyectos.findAll({
+          attributes: [
+            "id_proyecto",
+            "fecha_fin"
+          ],
+          where: { fecha_fin },
+        });
+        return proyectos;
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
   // registra en la base de datos
   static async create(proyecto) {
     try {
