@@ -15,7 +15,8 @@ export class user {
     id_usuario,
     id_estado_usuario,
     cedula,
-    token
+    token,
+    foto_perfil
   ) {
     this.nombre = nombre;
     this.apellido = apellido;
@@ -30,6 +31,7 @@ export class user {
     this.id_estado_usuario = id_estado_usuario;
     this.cedula = cedula;
     this.token = token;
+    this.foto_perfil = foto_perfil;
   }
 
   //gets de los atributos de user
