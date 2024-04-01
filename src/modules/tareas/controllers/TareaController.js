@@ -38,7 +38,7 @@ export const register = async (req, res) => {console.log('holaa')
         proyectFound.fecha_fin
       )
     ) {
-      return res.status(404).json({ message: "Fecha Invalida" });
+      return res.status(403).json({ message: "Fecha Invalida" });
     }
 
     const serviceFound = await tarea.findServiceById(id_servicio);
@@ -189,7 +189,7 @@ export const updateTask = async (req, res) => {
         proyectFound.fecha_fin
       )
     ) {
-      return res.status(404).json({ message: "Fecha Invalida" });
+      return res.status(403).json({ message: "Fecha Invalida" });
     }
 
     if (id_servicio) {

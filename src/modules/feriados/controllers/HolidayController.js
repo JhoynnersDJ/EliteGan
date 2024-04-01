@@ -44,7 +44,7 @@ export const getHolidays = async (req,res) => {
         //busca los feriados
         const all = await holiday.getHolidays();
 
-        if (!all) return res.status(500).json({message: 'No hay feriados'});
+        if (!all) return res.status(404).json({message: 'No hay feriados'});
         
         //devuelve un json de los feriados como response
         res.status(200).json(all);
@@ -66,7 +66,7 @@ export const createHoliday = async (req, res) => {
         const holidayFound = await holiday.findOneByDate(newDate);
 
         //si consigue el feriado lanza un mensaje de feriado con fecha repetida
-        if (holidayFound) return res.status(500).json({message: "Holiday Found, repeated date"});
+        if (holidayFound) return res.status(406).json({message: "Feriado encontrado, fecha repetida"});
         console.log(holidayFound)
         //se ccrea un nuevo holiday
         const holidayItem = new holiday(nombre_feriado, newDate);
@@ -90,7 +90,7 @@ export const updateHoliday = async (req, res) => {
         const holidayFound = await holiday.findOne(req.params.id);
 
         //si no consigue el feriado lanza un mensaje de feriado no encontrado
-        if (!holidayFound) return res.status(202).json({message: "Holiday not Found"});
+        if (!holidayFound) return res.status(404).json({message: "feriado no encontrado"});
 
         //si se introdujo un nombre se actualiza
         if (nombre_feriado) holidayFound.setHolidayName(nombre_feriado,req.params.id);
@@ -114,7 +114,7 @@ export const getHoliday = async (req, res) => {
         const holidayFound = await holiday.findOne(req.params.id);
 
         //si no consigue el feriado lanza un mensaje de feriado no encontrado
-        if (!holidayFound) return res.status(202).json({message: "Holiday not Found"});   
+        if (!holidayFound) return res.status(404).json({message: "feriado no encontrado"});  
         
         //se devuelve como respuesta el feriado encontrado
         res.status(200).json(holidayFound);
@@ -137,7 +137,7 @@ export const getHolidayByDate = async (req, res) => {
         const holidayFound2 = await holiday.findOneByDate(new Date(fecha_feriado));
 
         //si no consigue el feriado lanza un mensaje de feriado no encontrado
-        if (!holidayFound2) return res.status(202).json({message: "Holiday not Found"});
+        if (!holidayFound2) return res.status(404).json({message: "feriado no encontrado"});
         
         //se devuelve como respuesta el feriado encontrado
         res.status(200).json(holidayFound2);
@@ -154,7 +154,7 @@ export const deleteHoliday = async (req, res) => {
         const holidayFound = await holiday.findOne(req.params.id);
         
         //si no consigue el feriado lanza un mensaje de feriado no encontrado
-        if (!holidayFound) return res.status(202).json({message: "Holiday not Found"});
+        if (!holidayFound) return res.status(404).json({message: "feriado no encontrado"});
 
         //se elimina el dia feriado por id
         holiday.deleteOne(req.params.id);

@@ -443,7 +443,7 @@ export const updatePassword = async (req, res) => {
     });
 
 
-    return res.json({
+    return res.status(200).json({
       id_usuario: userFound.id_usuario,
       nombre: userFound.nombre,
       email: userFound.email,
