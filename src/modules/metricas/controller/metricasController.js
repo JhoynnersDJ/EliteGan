@@ -29,8 +29,27 @@ class MetricasController {
             res.status(500).json({ message: error.message });
         }
     }
-    // devuelve los 2 proyectos mas recientes
+    // devuelve los 2 proyectos para todos los usuarios
     static async proyectosRecientes(req, res){
+        try {
+            // buscar los proyectos recientes
+            const proyectos = await Metricas.proyectosRecientes()
+            // si no existen proyectos
+            if (proyectos.length === 0) {
+                return res.status(204).json({message: 'No hay proyectos'});  
+            }
+            for (const proyecto of proyectos) {
+                const tareas = await Metricas.tareasPorTecnicoByProyecto(proyecto.id_proyecto)
+                proyecto.tareas = tareas
+            }
+            // devuelve una respuesta
+            res.status(200).json(proyectos);  
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+    // devuelve los 2 proyectos mas recientes por un usuario
+    static async proyectosRecientesByUser(req, res){
         try {
             // capturar datos
             const { id_usuario } = req.params
@@ -47,7 +66,7 @@ class MetricasController {
                 });
             }
             // buscar los proyectos recientes
-            const proyectos = await Metricas.proyectosRecientes(id_usuario)
+            const proyectos = await Metricas.proyectosRecientesByUser(id_usuario)
             // devuelve una respuesta
             if (proyectos.length === 0) {
                 return res.status(204).json({message: 'Este usuario no tiene proyectos en los que aparezca'});  

@@ -12,7 +12,6 @@ import { formatearMinutos } from "../libs/pool_horas.js";
 import { sendEmail } from "../../../middlewares/sendEmail.js";
 import { ResponsableClienteReplica } from "../../responsables_clientes/model/responsable_clienteModel.js";
 import date from "date-and-time";
-import { DATE } from "sequelize";
 
 const database = process.env.SELECT_DB;
 
@@ -274,7 +273,7 @@ export class Proyecto {
             id_responsable_cliente: proyecto.responsable_cliente,
             pool_horas: proyecto.pool_horas,
             fecha_fin: proyecto.fecha_fin,
-            pool_horas_contratadas: proyecto.pool_horas,
+            pool_horas_contratadas: proyecto.pool_horas
           },
           {
             fields: [
