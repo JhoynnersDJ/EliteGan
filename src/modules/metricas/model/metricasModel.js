@@ -42,7 +42,7 @@ export class Metricas {
     }
 
     // 2 proyectos mas recientes
-    static async proyectosRecientes(id_usuario){
+    static async proyectosRecientes(){
         try {
           // funcion para las bases de datos de sequelize
           if (database === "SEQUELIZE") {
@@ -50,10 +50,54 @@ export class Metricas {
                 attributes:[
                     'id_proyecto',
                     'nombre_proyecto',
-                    'fecha_inicio'
+                    'fecha_inicio',
+                    'createdAt',
+                    'pool_horas',
+                    'pool_horas_contratadas'
                 ],
                 limit:2, 
-                order: [['fecha_inicio', 'DESC']],
+                order: [['createdAt', 'DESC']],
+                include: [
+                    {
+                        model: ResponsablesClienteR,
+                        attributes:[
+                            'id_responsable_cliente',
+                            ['nombre_responsable_cliente', 'nombre']
+                        ]
+                    }
+                ]
+            })
+            // formato de los datos
+            const formattedProyectos = proyectos.map(proyecto => ({
+                id_proyecto: proyecto.id_proyecto,
+                nombre_proyecto: proyecto.nombre_proyecto,
+                fecha_inicio: proyecto.fecha_inicio,
+                pool_horas: formatearMinutos(proyecto.pool_horas),
+                pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+                id_responsable_cliente: proyecto.responsables_cliente.dataValues.id_responsable_cliente,
+                nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre
+            }))
+            return formattedProyectos
+        }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
+    // 2 proyectos mas recientes por usuario
+    static async proyectosRecientesByUser(id_usuario){
+        try {
+          // funcion para las bases de datos de sequelize
+          if (database === "SEQUELIZE") {
+            const proyectos = await Proyectos.findAll({
+                attributes:[
+                    'id_proyecto',
+                    'nombre_proyecto',
+                    'fecha_inicio',
+                    'createdAt'
+                ],
+                limit:2, 
+                order: [['createdAt', 'DESC']],
                 include: [
                     {
                         model: Tareas,

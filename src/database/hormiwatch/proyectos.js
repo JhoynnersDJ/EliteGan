@@ -45,7 +45,9 @@ id_responsable_cliente: {
     },
   },
 }, {
-  timestamps: false, // Desactivar las columnas createdAt y updatedAt
+  timestamps: true,
+  createdAt: true,
+  updatedAt: false
 });
 
 export { Proyectos } ;
