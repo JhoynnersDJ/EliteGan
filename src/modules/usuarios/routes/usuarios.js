@@ -13,6 +13,8 @@ import {
   addUserPhoto,
   updateUser,
   updatePassword,
+  updatePasswordToken,
+  forgotPassword
 } from "../controllers/UserControllers.js";
 import { authRequired, authRequired2} from "../../../middlewares/validateToken.js";
 import { rolRequired } from "../../../middlewares/validateRol.js";
@@ -64,5 +66,11 @@ router.post("/foto-perfil",upload.array('foto_perfil'),addUserPhoto);
 router.put("/actualizar",updateUser);
 
 router.put("/actualizar-password",updatePassword);
+
+//enviar token por email, verificado = false
+router.post("/actualizar-password", updatePasswordToken);
+
+//cambiar email por el nuevo, verificado = true
+router.put("/verificar-password", forgotPassword);
 
 export default router;

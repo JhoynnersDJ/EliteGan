@@ -3,10 +3,10 @@ import nodemailer from "nodemailer";
 
 export async function sendEmail(html, email, asunto) {   
     var transporter = nodemailer.createTransport({
-      service: "gmail",
-      // host: "smtp.ethereal.email",
-      // port: 587,
-      // secure: false, // Use `true` for port 465, `false` for all other ports
+      //service: "gmail",
+       host: process.env.HOST_EMAIL,
+       port: process.env.PORT_EMAIL,
+       secure: true, 
       auth: {
         user: process.env.EMAIL,
         pass: process.env.PASSWD,

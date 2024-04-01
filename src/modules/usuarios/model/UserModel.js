@@ -108,8 +108,8 @@ export class user {
     return userFunction.sendEmailToken(token, email, nombre);
   }
 
-  static updateEmail(email, id) {
-    return userFunction.updateEmail(email, id);
+  static updateEmail(id, email) {
+    return userFunction.updateEmail(id, email);
   }
 
   static updateVerificar(ver, id) {
@@ -129,6 +129,9 @@ export class user {
   }
   static updatePassword(id, password) {
     return userFunction.updatePassword(id, password);
+  }
+  static sendEmailTokenPassword(token, email, nombre) {
+    return userFunction.sendEmailTokenPassword(token, email, nombre);
   }
 }
 

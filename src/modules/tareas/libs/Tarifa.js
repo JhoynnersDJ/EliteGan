@@ -192,7 +192,7 @@ export async function isHoliday(holidays, fecha) {
   return holidays.includes(fecha);
 }
 
-export function esDiaActualOAnterior(fecha, date1, date2) {
+export function esDiaActualOAnterior(fecha, date1, date2, hora_inicio, hora_fin) {
   // Convertir la fecha dada a un objeto Date
   const fechaDada = new Date(fecha);
   // Obtener la fecha actual

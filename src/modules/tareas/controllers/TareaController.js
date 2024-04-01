@@ -35,7 +35,9 @@ export const register = async (req, res) => {console.log('holaa')
       !esDiaActualOAnterior(
         fecha,
         proyectFound.fecha_inicio,
-        proyectFound.fecha_fin
+        proyectFound.fecha_fin,
+        hora_inicio,
+        hora_fin
       )
     ) {
       return res.status(403).json({ message: "Fecha Invalida" });

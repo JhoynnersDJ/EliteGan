@@ -181,7 +181,7 @@ async function findOne(email) {
       user1.dataValues.id_usuario,
       user1.dataValues.id_estado_usuario,
       user1.dataValues.cedula,
-      null,
+      user1.dataValues.token,
       user1.dataValues.foto_perfil
     );
   }
@@ -526,15 +526,13 @@ async function sendEmailToken(token, email, nombre) {
   
 }
 
-async function updateEmail(id) {
+async function updateEmail(id, email) {
   if (dbSelect == "SEQUELIZE") {
     const user1 = await Usuarios.findByPk(id);
 
-    if (!user1) return null;
+    if (!user1) return null;    
 
-    if (!emailTemp) return null;
-
-    user1.email = emailTemp;
+    user1.email = email;
     emailTemp = null;
     user1.save()
     return new user(
@@ -696,6 +694,109 @@ async function updatePassword(id, password) {
   }
 }
 
+async function sendEmailTokenPassword(token, email, nombre) {
+  emailTemp = email; 
+  console.log(email)
+  const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Título de la Página</title>
+          <style>
+              body {
+                  margin: 0;
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+              }
+      
+              header {
+                  background-color: #333;
+                  padding-left: 4vh;
+                  padding-right: 10vh;
+                  padding-top: 2%;
+                  padding-bottom: 2%;
+              }
+      
+              h1 {
+                  color: white;
+                  font-size: 5vh;
+              }
+      
+              h2 {
+                  font-weight: bold;
+                  margin-left: 5%;
+                  margin-top: 10px;
+                  font-size: 24px;
+                  margin-right: 5%;
+              }
+      
+              p {
+                  margin-left: 5%;
+                  font-size: 16px;
+                  line-height: 1.5;
+                  margin-right: 5%;
+                  margin-top: 20px;
+                  font-size: 18px;
+                  color: #333;
+                  line-height: 1.5;
+                  text-align: justify;
+              }
+      
+              .token-container {
+                  background-color: #666;
+                  color: #fff;
+                  padding: 10px;
+                  border-radius: 5px;
+                  font-size: 18px;
+                  margin-top: 10px;
+                  text-align: center;
+              }
+      
+              .token {
+                  font-size: 24px;
+                  font-weight: bold;
+                  color: orange;
+              }
+      
+              .container {
+                    max-width: 900px;
+                    margin: 0 auto;
+                    background-color: #fff;
+                    border-radius: 5px;
+                    box-shadow: 0 0 10px #f2f2f2;
+                  }
+              .span1 {
+                  color: orange
+              }
+          </style>
+      </head>
+      <body style="padding: 20px;">
+          <div class="container">
+              <header>
+                  <h1>Hormi<span class="span1">Watch</span>
+              </header>
+              <h2>Bienvenido a HormiWatch</h2>
+              <p>Hola <span class="span1">${nombre}</span>!</p>
+             
+              <p>
+                  El siguiente correo es para la recuperacion de la contraseña de su cuenta.
+                  Ingrese el siguiente Código de Verificación, en la aplicación para validar el cambio.                  
+              </p>
+              <div class="token-container">
+                  <span class="token">${token}</span>
+              </div>
+              <hr>  
+          </div>
+      </body>
+      </html>    
+      `;
+  await sendEmail(htmlContent,email, "Actualización de Contraseña");
+  
+
+  
+}
 /*async function sendSMSToken(token,num_tel, nombre) {
   const client = new twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
   return client.messages.create({body: 'Hola que tal, si necesitas algo me avisas', from: process.env.PHONE_NUMBER, to:'+584128027107'})
@@ -741,8 +842,8 @@ export default class userFunction {
     return sendEmailToken(token, email, nombre);
   }
 
-  static updateEmail(id) {
-    return updateEmail(id);
+  static updateEmail(id, email) {
+    return updateEmail(id, email);
   }
 
   static updateVerificar(ver, id) {
@@ -763,5 +864,9 @@ export default class userFunction {
 
   static updatePassword(id, password) {
     return updatePassword(id, password);
+  }
+
+  static sendEmailTokenPassword(token, email, nombre) {
+    return sendEmailTokenPassword(token, email, nombre);
   }
 }
