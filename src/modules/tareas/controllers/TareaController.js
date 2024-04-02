@@ -6,6 +6,7 @@ import {
   calculartarifa,
   formatHour,
   esDiaActualOAnterior,
+  comprobarHorario
 } from "../libs/Tarifa.js";
 import holidayFunction from "../../feriados/model/HolidaysFunction.js";
 const holidays = await holidayFunction.getHolidaysDate();
@@ -41,6 +42,13 @@ export const register = async (req, res) => {console.log('holaa')
       )
     ) {
       return res.status(403).json({ message: "Fecha Invalida" });
+    }
+    const tasks = await tarea.findTaskByProjectId(id_proyecto);
+
+    if (tasks.length > 0){
+      if (!comprobarHorario(tasks,fecha,hora_inicio) && !comprobarHorario(tasks,fecha,hora_fin)){
+        return res.status(406).json({ message: "Hora invalida" });
+      }
     }
 
     const serviceFound = await tarea.findServiceById(id_servicio);
