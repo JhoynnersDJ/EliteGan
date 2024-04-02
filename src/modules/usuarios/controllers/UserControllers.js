@@ -395,7 +395,7 @@ export const updatePassword = async (req, res) => {
   try {
     const userFound = await user.findOneById(id_usuario);
 
-    if (!userFound) return res.status(401).json({ message: "Unauthorized" });
+    if (!userFound) return res.status(511).json({ message: "Usuario no encontrado" });
 
     //se decifra la contrase;a y se compara
     const isMatch = await bcrypt.compare(password, userFound.password);
@@ -424,14 +424,14 @@ export const updatePasswordToken = async (req, res) => {
   try {
     const userFound = await user.findOne(email);
 
-    if (!userFound) return res.status(404).json({ message: "No se encontro email" });
+    if (!userFound) return res.status(511).json({ message: "Correo electronico no encontrado" });
 
     const token = v4().split("-")[0];
 
     const tokenSaved = await user.updateToken(token, userFound.id_usuario);
 
     await user.updateVerificar("sin verificar", userFound.id_usuario);
-    await user.sendEmailToken(token, email, userFound.nombre);
+    await user.sendEmailTokenPassword(token, email, userFound.nombre);
 
     return res.status(200).json({
       message: "Token enviado al email exitosamente" 
@@ -448,7 +448,7 @@ export const forgotPassword = async (req, res) => {
   try {
     const userFound = await user.findOne(email);
     
-    if (!userFound) return res.status(401).json({ message: "No Autorizado" });
+    if (!userFound) return res.status(511).json({ message: "Correo electronico no encontrado" });
 
     if (userFound.token === token) {
       await user.updateVerificar("verificado", userFound.id_usuario);

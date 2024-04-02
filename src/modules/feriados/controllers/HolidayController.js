@@ -75,7 +75,7 @@ export const createHoliday = async (req, res) => {
         const newhol = await holiday.save(holidayItem);
 
         //se devuelve como respuesta el feriado creado
-        res.status(200).json(newhol);
+        res.status(200).json({message: "Feriado creado exitosamente"});
     } catch (error) {
         return res.status(500).json({message: error.message});
     }
@@ -160,7 +160,7 @@ export const deleteHoliday = async (req, res) => {
         holiday.deleteOne(req.params.id);
 
         //se devuelve como respuesta el feriado eliminado
-        res.json(holidayFound);
+        res.json({message: "Feriado eliminado exitosamente"});
     } catch (error) {
         return res.status(500).json({message: error.message});
     }

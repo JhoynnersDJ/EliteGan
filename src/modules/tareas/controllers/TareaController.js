@@ -11,7 +11,7 @@ import {
 import holidayFunction from "../../feriados/model/HolidaysFunction.js";
 const holidays = await holidayFunction.getHolidaysDate();
 
-export const register = async (req, res) => {console.log('holaa')
+export const register = async (req, res) => {
   const {
     fecha,
     hora_inicio,
@@ -43,13 +43,9 @@ export const register = async (req, res) => {console.log('holaa')
     ) {
       return res.status(403).json({ message: "Fecha Invalida" });
     }
-    const tasks = await tarea.findTaskByProjectId(id_proyecto);
-
-    if (tasks.length > 0){
-      if (!comprobarHorario(tasks,fecha,hora_inicio) && !comprobarHorario(tasks,fecha,hora_fin)){
-        return res.status(406).json({ message: "Hora invalida" });
-      }
-    }
+    
+    //console.log(tasks)
+    
 
     const serviceFound = await tarea.findServiceById(id_servicio);
 
@@ -63,11 +59,32 @@ export const register = async (req, res) => {console.log('holaa')
     if (time2.fin) {
       const horas1 = formatHour(hora_inicio, hora_fin);
 
+      const horas2 = formatHour(hora_inicio, hora_fin);
+
       const tiempo_total_dia1 = calcularDiferenciaDeTiempo(
         hora_inicio,
         "00:00AM"
       ).tiempo_minutos;
+      const tasks = await tarea.findTaskByProjectId(id_proyecto);
+      console.log(horas1.tiempo_formateado1)
+      console.log(horas2.tiempo_formateado2)
 
+      console.log(comprobarHorario(tasks,fecha,horas1.tiempo_formateado1))
+      console.log(comprobarHorario(tasks,fecha,"00:00AM"))
+      console.log(comprobarHorario(tasks,time2.fin,"00:00AM"))
+      console.log(comprobarHorario(tasks,time2.fin,horas2.tiempo_formateado2))
+      
+      if (tasks.length !== 0){
+        if (!comprobarHorario(tasks,fecha,horas1.tiempo_formateado1) || !comprobarHorario(tasks,fecha,"00:00AM")){
+          return res.status(406).json({ message: "Hora invalida" });
+        }
+      }
+
+      if (tasks.length !== 0){
+        if (!comprobarHorario(tasks,time2.fin,"00:00AM") || !comprobarHorario(tasks,time2.fin,horas2.tiempo_formateado2)){
+          return res.status(406).json({ message: "Hora invalida" });
+        }
+      }
       const tareaSaved_dia1 = new tarea(
         null,
         fecha,
@@ -87,7 +104,7 @@ export const register = async (req, res) => {console.log('holaa')
 
       await tarea.save(tareaSaved_dia1);
 
-      const horas2 = formatHour(hora_inicio, hora_fin);
+      
 
       const tiempo_total_dia2 = calcularDiferenciaDeTiempo(
         "00:00AM",
@@ -114,6 +131,16 @@ export const register = async (req, res) => {console.log('holaa')
       await tarea.restPoolProjectById(id_proyecto, tiempo_total_dia2);
     } else {
       const horas = formatHour(hora_inicio, hora_fin);
+      const tasks = await tarea.findTaskByProjectId(id_proyecto);
+      console.log(comprobarHorario(tasks,fecha,horas.tiempo_formateado1))
+      console.log(comprobarHorario(tasks,fecha,horas.tiempo_formateado2))
+      if (tasks.length !== 0){
+        if (!comprobarHorario(tasks,fecha,horas.tiempo_formateado1) || !comprobarHorario(tasks,fecha,horas.tiempo_formateado2)){
+          return res.status(406).json({ message: "Hora invalida" });
+        }
+      }
+      console.log(hora_inicio)
+      console.log(horas.tiempo_formateado2)
       const tareaSaved = new tarea(
         null,
         fecha,
@@ -179,11 +206,9 @@ export const deleteById = async (req, res) => {
 };
 
 export const updateTask = async (req, res) => {
-  var { fecha, hora_inicio, hora_fin, id_servicio, status } = req.body;
+  var { id_servicio, status } = req.body;
   const { id } = req.params;
   try {
-    if (!esDiaActualOAnterior(fecha))
-      return res.status(404).json({ message: "Fecha Invalida" });
 
     const taskFound = await tarea.getTasksById(id);
 
@@ -192,15 +217,7 @@ export const updateTask = async (req, res) => {
     if (!proyectFound)
       return res.status(404).json({ message: "Proyecto no encontrado" });
 
-    if (
-      !esDiaActualOAnterior(
-        fecha,
-        proyectFound.fecha_inicio,
-        proyectFound.fecha_fin
-      )
-    ) {
-      return res.status(403).json({ message: "Fecha Invalida" });
-    }
+  
 
     if (id_servicio) {
       const serviceFound = await tarea.findServiceById(id_servicio);
@@ -211,38 +228,23 @@ export const updateTask = async (req, res) => {
       id_servicio = taskFound.id_servicio;
     }
 
-    if (!hora_inicio) {
-      hora_inicio = taskFound.hora_inicio;
-    }
-
-    if (!hora_fin) {
-      hora_fin = taskFound.hora_fin;
-    }
-
-    if (!fecha) {
-      fecha = taskFound.fecha;
-    }
-
     if (typeof status === "undefined") {
       status = taskFound.status;
     }
 
-    const horas = formatHour(hora_inicio, hora_fin);
 
-    var time = calcularDiferenciaDeTiempo(hora_inicio, hora_fin);
-
-    var time2 = calculartarifa(hora_inicio, hora_fin, fecha, holidays);
+    
 
     const tareaSaved = new tarea(
       taskFound.id_tarea,
-      fecha,
-      horas.tiempo_formateado1,
-      horas.tiempo_formateado2,
-      time.tiempo_minutos,
-      time2.tarifa1,
+      null,
+      null,
+      null,
+      null,
+      null,
       taskFound.id_proyecto,
       id_servicio,
-      time2.tarifa1 * proyectFound.tarifa,
+      null,
       status,
       null,
       taskFound.id_usuario

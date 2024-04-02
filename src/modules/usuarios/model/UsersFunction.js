@@ -533,7 +533,7 @@ async function updateEmail(id, email) {
     if (!user1) return null;    
 
     user1.email = email;
-    emailTemp = null;
+    user1.token = token;
     user1.save()
     return new user(
       user1.dataValues.nombre,
@@ -673,7 +673,8 @@ async function updatePassword(id, password) {
     
     if (!user1) return null;
 
-    user1.password = password;    
+    user1.password = password;  
+    user1.token = null;  
     
     const newUser = new user(
       user1.dataValues.nombre,
@@ -694,8 +695,7 @@ async function updatePassword(id, password) {
   }
 }
 
-async function sendEmailTokenPassword(token, email, nombre) {
-  emailTemp = email; 
+async function sendEmailTokenPassword(token, email, nombre) {  
   console.log(email)
   const htmlContent = `
       <!DOCTYPE html>
