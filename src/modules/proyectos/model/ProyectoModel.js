@@ -12,6 +12,7 @@ import { formatearMinutos } from "../libs/pool_horas.js";
 import { sendEmail } from "../../../middlewares/sendEmail.js";
 import { ResponsableClienteReplica } from "../../responsables_clientes/model/responsable_clienteModel.js";
 import date from "date-and-time";
+import { Op } from "sequelize";
 
 const database = process.env.SELECT_DB;
 
@@ -62,6 +63,13 @@ export class Proyecto {
               through: {
                 model: Asignaciones,
                 attributes: [],
+                where: {
+                  [Op.or]:[
+                    {status: null},
+                    {status: 1},
+                    {status: true}
+                  ]
+                }
               },
             },
           ],
@@ -347,7 +355,7 @@ export class Proyecto {
             if (!existeEnActualizados) {
               // Si ya no esta en este proyecto
               await Asignaciones.update({
-                status: 1
+                status: 0
               },{
                 fields:[
                   'status'
@@ -356,8 +364,8 @@ export class Proyecto {
             } 
             }
           }
+          return proyectoActualizado;
         }
-        return proyectoActualizado;
     } catch (error) {
       console.log(error.message);
     }

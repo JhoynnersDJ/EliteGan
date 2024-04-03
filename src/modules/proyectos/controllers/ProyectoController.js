@@ -6,7 +6,7 @@ import { calcularDiferenciaDeTiempo } from "../../tareas/libs/Tarifa.js";
 import date from "date-and-time";
 import puppeteer from "puppeteer";
 import { Chart } from "chart.js";
-import { formatearMinutos } from "../libs/pool_horas.js";
+import { formatearMinutos, convertirMinutos } from "../libs/pool_horas.js";
 
 class ProyectoController {
   // devuelve todos los registros
@@ -229,8 +229,6 @@ class ProyectoController {
       const { id } = req.params
       const { tarifa, fecha_fin, id_responsable_cliente, tecnicos} = req.body;
       let { nombre, pool_horas_contratadas } = req.body;
-      // eliminar espacios en blanco del string
-      nombre = nombre.trim();
       // conversion de pool_horas de horas a minutos
       pool_horas_contratadas = pool_horas_contratadas*60
       // comprobar si existe el proyecto
@@ -245,8 +243,6 @@ class ProyectoController {
           requestID: id,
         });
       }
-      // declarar pool de horas
-      let pool_horas = proyectoExistente.pool_horas
       // verificar que no exista otro proyecto con el mismo nombre para el mismo cliente
       const proyectoNombre = await Proyecto.findOneName(
         nombre,
@@ -276,8 +272,7 @@ class ProyectoController {
         );
       }
       // verificar las tareas dentro del rango de fecha de finalizacion
-      const tasks = tarea.findTaskByProjectId(id)
-      console.log(tasks)
+      const tasks = await tarea.findTaskByProjectId(id)
       for (const task of tasks) {
         let fechaTarea = new Date(tarea.fecha)
         fechaTarea = date.format(fechaTarea, "YYYY-MM-DD")
@@ -285,22 +280,20 @@ class ProyectoController {
           await task.completeTasksById(task.id_tarea)
         }
       }
-      // diferencia del pool de horas entre el proyecto en la base de datos y el cambio entrante
-      let diferencia = proyectoExistente.pool_horas_contratadas-pool_horas_contratadas
+      // declarar pool de horas ya existente en la base de datos
+      let pool_horas = convertirMinutos(proyectoExistente.pool_horas)
+      // diferencia del pool de horas contratados entre el proyecto en la base de datos y el cambio entrante
+      const pool_bd = convertirMinutos(proyectoExistente.pool_horas_contratadas)
+      let diferencia = pool_bd-pool_horas_contratadas
       diferencia = Math.abs(diferencia)
-      console.log(diferencia)
-      console.log (pool_horas)
       // si la diferencia es 0, entonces es igual
       if (diferencia !== 0) {
         if (proyectoExistente.pool_horas_contratadas < pool_horas_contratadas) {
-          pool_horas += diferencia
-        } else {
           pool_horas -= diferencia
+        }else {
+          pool_horas += diferencia
         }
       }
-      console.log (pool_horas)
-      // verificar que exista al menos 1 tecnico
-
       // instanciar un objeto de la clase proyecto
       const proyecto = new Proyecto(
         nombre,
@@ -314,7 +307,7 @@ class ProyectoController {
       );
       // actualiza el proyecto
       await Proyecto.editar(proyecto, pool_horas, id)
-      res.status(200).json({ message: "PLACEHOLDER" })
+      res.status(200).json({ message: "Proyecto actualizado correctamente" })
     } catch (error) {
       res.status(500).json({ message: error.message });
     }

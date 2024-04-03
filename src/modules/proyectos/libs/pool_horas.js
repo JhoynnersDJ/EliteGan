@@ -13,3 +13,12 @@ export function formatearMinutos(minutos) {
         return result
     }
 }
+
+export function convertirMinutos(horas) {
+    let tiempo = horas;
+    let partes = tiempo.split(":");
+    let horasEnMinutos = parseInt(partes[0]) * 60;
+    let minutos = parseInt(partes[1]);
+    let totalEnMinutos = horasEnMinutos + minutos;
+    return totalEnMinutos
+}

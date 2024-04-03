@@ -1,7 +1,7 @@
 import { Router } from "express";
 import ProyectoController  from "../controllers/ProyectoController.js";
 import { validateSchema } from "../../../middlewares/ValidatorSchema.js";
-import { createEschema } from "../schemas/ProyectoEschema.js";
+import { createEschema, updateEschema } from "../schemas/ProyectoEschema.js";
 
 const ProyectoRouter = Router()
 
@@ -11,7 +11,7 @@ ProyectoRouter.get('/seleccionar/:id', ProyectoController.getById)
 ProyectoRouter.get('/usuario/:id', ProyectoController.getByUser)
 ProyectoRouter.post('/crear', validateSchema(createEschema), ProyectoController.create)
 ProyectoRouter.post('/concretar/:id', ProyectoController.concretarProyecto)
-// ProyectoRouter.post('/actualizar/:id', /*validateSchema(updateEschema)*/ ProyectoController.update)
+ProyectoRouter.post('/actualizar/:id', validateSchema(updateEschema), ProyectoController.editarProyecto)
 ProyectoRouter.delete('/eliminar/:id', ProyectoController.delete)
 
 //ProyectoRouter.get('/reporte/:id', pdf)
