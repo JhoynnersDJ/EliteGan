@@ -5,7 +5,6 @@ import {
   calcularDiferenciaDeTiempo,
   calculartarifa,
   formatHour,
-  esDiaActualOAnterior,
   esDiaAnterior,
   esDiaDespuesFechaFinal,
   esDiaAntesFechaInicial,
@@ -97,13 +96,13 @@ export const register = async (req, res) => {
       
       if (tasks.length !== 0){
         if (!comprobarHorario(tasks,fecha,horas1.tiempo_formateado1) || !comprobarHorario(tasks,fecha,"00:00AM")){
-          return res.status(406).json({ message: "Hora invalida" });
+          return res.status(406).json({ message: "No se puede agrear tareas en tiempo ya ocupado" });
         }
       }
 
       if (tasks.length !== 0){
         if (!comprobarHorario(tasks,time2.fin,"00:00AM") || !comprobarHorario(tasks,time2.fin,horas2.tiempo_formateado2)){
-          return res.status(406).json({ message: "Hora invalida" });
+          return res.status(406).json({ message: "No se puede agrear tareas en tiempo ya ocupado" });
         }
       }
       const tareaSaved_dia1 = new tarea(
@@ -157,7 +156,7 @@ export const register = async (req, res) => {
       console.log(comprobarHorario(tasks,fecha,horas.tiempo_formateado2))
       if (tasks.length !== 0){
         if (!comprobarHorario(tasks,fecha,horas.tiempo_formateado1) || !comprobarHorario(tasks,fecha,horas.tiempo_formateado2)){
-          return res.status(406).json({ message: "Hora invalida" });
+          return res.status(406).json({ message: "No se puede agrear tareas en tiempo ya ocupado" });
         }
       }
       console.log(hora_inicio)
@@ -230,16 +229,8 @@ export const updateTask = async (req, res) => {
   var { id_servicio, status } = req.body;
   const { id } = req.params;
   try {
-
-    const taskFound = await tarea.getTasksById(id);
-
-    const proyectFound = await tarea.findProjectById(taskFound.id_proyecto);
-
-    if (!proyectFound)
-      return res.status(404).json({ message: "Proyecto no encontrado" });
-
-  
-
+    
+    const taskFound = await tarea.getTasksById(id);  
     if (id_servicio) {
       const serviceFound = await tarea.findServiceById(id_servicio);
 
@@ -248,13 +239,18 @@ export const updateTask = async (req, res) => {
     } else {
       id_servicio = taskFound.id_servicio;
     }
-
+    console.log(typeof status)
+    if (status && (typeof status === "boolean")){
+      console.log("holaaaaaa")
+      status = "C";
+    }else{
+      console.log("holaaaaaa1111111111")
+      status = "P";
+    }
+    
     if (typeof status === "undefined") {
       status = taskFound.status;
-    }
-
-
-    
+    } 
 
     const tareaSaved = new tarea(
       taskFound.id_tarea,
@@ -263,17 +259,19 @@ export const updateTask = async (req, res) => {
       null,
       null,
       null,
-      taskFound.id_proyecto,
+      null,
       id_servicio,
       null,
       status,
       null,
-      taskFound.id_usuario
+      null
     );
 
     const updateTask = await tarea.updateTaskById(tareaSaved);
 
-    res.status(200).json(updateTask);
+    if(!updateTask) return res.status(200).json({ message: "Tarea no pudo ser editada" });
+
+    res.status(200).json({ message: "Tarea editada exitosamente" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -183,14 +183,24 @@ async function getTasksById(id) {
 
 async function updateTaskById(task) {
   if (dbSelect == "SEQUELIZE") {
-    return await Tareas.update(
+    const taskFound = await Tareas.findByPk(task.id_tarea);
+    /*if (task.status){
+      taskFound.status = "C";
+    }else{
+      taskFound.status = "P";
+    }*/
+    taskFound.status = task.status;
+    taskFound.id_servicio = task.id_servicio;
+    taskFound.save()
+    return taskFound;
+    /*return await Tareas.update(
       {        
         id_servicio: task.id_service, status: task.status        
       },
       {
         fields: [ 'id_servicio', 'status' ],
         where: { id_tarea: task.id_tarea }
-      })
+      })*/
   }
   return null;
 }
