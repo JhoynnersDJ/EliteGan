@@ -75,7 +75,7 @@ app.use('/metricas', MetricasRouter);
 // tareas programadas
 proyectoFin.start();
 
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 app.listen(port, () => {
   console.log(`La aplicación está corriendo en http://${host}:${port}`);
