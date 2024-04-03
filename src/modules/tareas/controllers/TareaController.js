@@ -6,6 +6,9 @@ import {
   calculartarifa,
   formatHour,
   esDiaActualOAnterior,
+  esDiaAnterior,
+  esDiaDespuesFechaFinal,
+  esDiaAntesFechaInicial,
   comprobarHorario
 } from "../libs/Tarifa.js";
 import holidayFunction from "../../feriados/model/HolidaysFunction.js";
@@ -33,15 +36,33 @@ export const register = async (req, res) => {
     if (!proyectFound)
       return res.status(404).json({ message: "Proyecto no encontrado" });
     if (
-      !esDiaActualOAnterior(
+      !esDiaAnterior(
         fecha,
         proyectFound.fecha_inicio,
-        proyectFound.fecha_fin,
-        hora_inicio,
-        hora_fin
+        proyectFound.fecha_fin,        
       )
     ) {
-      return res.status(403).json({ message: "Fecha Invalida" });
+      return res.status(403).json({ message: "No se pueden crear tareas con fechas futuras" });
+    }
+
+    if (
+      !esDiaDespuesFechaFinal(
+        fecha,
+        proyectFound.fecha_inicio,
+        proyectFound.fecha_fin,        
+      )
+    ) {
+      return res.status(403).json({ message: "Fecha ingresada es superior a la fecha final del proyecto" });
+    }
+
+    if (
+      !esDiaAntesFechaInicial(
+        fecha,
+        proyectFound.fecha_inicio,
+        proyectFound.fecha_fin,        
+      )
+    ) {
+      return res.status(403).json({ message: "Fecha ingresada es inferior a la fecha inicial del proyecto" });
     }
     
     //console.log(tasks)

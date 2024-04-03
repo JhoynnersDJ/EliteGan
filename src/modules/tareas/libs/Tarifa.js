@@ -193,12 +193,10 @@ export async function isHoliday(holidays, fecha) {
   return holidays.includes(fecha);
 }
 
-export function esDiaActualOAnterior(
+export function esDiaDespuesFechaFinal(
   fecha,
   date1,
   date2,
-  hora_inicio,
-  hora_fin
 ) {
   // Convertir la fecha dada a un objeto Date
   const fechaDada = new Date(fecha);
@@ -207,50 +205,65 @@ export function esDiaActualOAnterior(
   const fechaFin = new Date(date2);
   // Comparar si la fecha dada es igual a la fecha actual o a la fecha anterior
   return (
-    Date.parse(fechaDada) <= Date.parse(fechaFin) &&
-    Date.parse(fechaDada) >= Date.parse(fechaInicio) &&
+    Date.parse(fechaDada) <= Date.parse(fechaFin) 
+  );
+}
+
+export function esDiaAntesFechaInicial(
+  fecha,
+  date1,
+  date2,
+) {
+  // Convertir la fecha dada a un objeto Date
+  const fechaDada = new Date(fecha);
+  // Obtener la fecha actual
+  const fechaInicio = new Date(date1);
+  const fechaFin = new Date(date2);
+  // Comparar si la fecha dada es igual a la fecha actual o a la fecha anterior
+  return (    
+    Date.parse(fechaDada) >= Date.parse(fechaInicio) 
+  );
+}
+
+export function esDiaAnterior(
+  fecha
+) {
+  // Convertir la fecha dada a un objeto Date
+  const fechaDada = new Date(fecha);
+  // Comparar si la fecha dada es igual a la fecha actual o a la fecha anterior
+  return (
     Date.parse(fechaDada) <= Date.parse(new Date())
   );
 }
 
-export function comprobarHorario(tasks, fecha_inicial, hora_inicial) {
-  
-  // Comprobar si la fecha inicial está presente en el array de tareas
-  /*const tareaFecha = task.find(tarea => tarea.fecha === fecha_inicial);
+export function comprobarHorario(task, fecha_inicial, hora_inicial) {
+  // Filtrar las tareas que corresponden a la fecha inicial
+  const tareasFecha = task.filter(tarea => tarea.fecha === fecha_inicial);
 
-  if (!tareaFecha) {
-      // Si no se encuentra la fecha en las tareas, devolver false
-      return false;
-  }*/
-  
-  var cont = true;
-  tasks.forEach((tareaFecha) => {
-    console.log(tareaFecha.hora_inicio )
-    if (tareaFecha.fecha === fecha_inicial) {
-      console.log(convertirAMinutos(hora_inicial) )
-      console.log(tareaFecha.hora_fin )
-      // Convertir las horas a minutos para facilitar la comparación
-      const horaInicioMinutos = convertirAMinutos(tareaFecha.hora_inicio);
-      const horaFinMinutos = convertirAMinutos(tareaFecha.hora_fin);
-      const horaInicialMinutos = convertirAMinutos(hora_inicial);
-      // Comprobar si la hora inicial está entre la hora de inicio y la hora de fin
-      if (
-        horaInicialMinutos >= horaFinMinutos && horaInicialMinutos <= horaInicioMinutos
-      ) {
-        // Si la hora inicial está dentro del rango, devolver false
-        console.log("aiudaaaaaaaaaaaaaa")
-        console.log(horaInicioMinutos)
-      console.log(horaFinMinutos)
-      console.log(horaInicialMinutos)
-        cont=false;
-        return false;
-        
-      } 
-    }
-  });
-  return cont;
+  // Convertir la hora inicial a minutos
+  const horaInicialMinutos = convertirAMinutos(hora_inicial);
+
+  // Iterar sobre todas las tareas de la fecha inicial
+  for (const tarea of tareasFecha) {
+      // Convertir las horas de inicio y fin de la tarea a minutos
+      let horaInicioMinutos = convertirAMinutos(tarea.hora_inicio);
+      let horaFinMinutos = convertirAMinutos(tarea.hora_fin);
+
+      // Si la hora de fin es 00:00AM, consideramos que es del día siguiente
+      if (horaFinMinutos === 0) {
+          horaFinMinutos = 24 * 60; // Convertir a minutos
+      }
+
+      // Comprobar si la hora inicial está dentro del rango de la tarea actual (incluyendo los límites)
+      if (horaInicialMinutos >= horaInicioMinutos && horaInicialMinutos <= horaFinMinutos) {
+          // Si la hora inicial está dentro del rango de alguna tarea, devolver false
+          return false;
+      }
+  }
+
+  // Si la hora inicial no está en el rango de ninguna tarea, devolver true
+  return true;
 }
-
 // Función para convertir las horas en formato AM/PM a minutos
 function convertirAMinutos(hora) {
 
