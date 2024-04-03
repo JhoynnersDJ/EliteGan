@@ -301,6 +301,67 @@ export class Proyecto {
       console.log(error.message);
     }
   }
+  // actualiza en la base de datos
+  static async editar(proyecto, pool_horas, id) {
+    try {
+      // funcion para las bases de datos de sequelize
+      if (database === "SEQUELIZE") {
+        // guardar en la base de datos
+        const proyectoActualizado = await Proyectos.update(
+          {
+            tarifa: proyecto.tarifa,
+            nombre_proyecto: proyecto.nombre,
+            pool_horas: pool_horas,
+            fecha_fin: proyecto.fecha_fin,
+            pool_horas_contratadas: proyecto.pool_horas
+          },
+          {
+            fields: [
+              "tarifa",
+              "nombre_proyecto",
+              "pool_horas",
+              "fecha_fin",
+              "pool_horas_contratadas",
+            ],
+            where: {
+              id_proyecto: id
+            }
+          }
+        );
+        // buscar los tecnicos que ya estaban asignados
+        const tecnicosBD = await Asignaciones.findAll({
+          attributes: ['id_usuario']
+        },
+        {
+          where: {
+            id_proyecto: id
+          }
+        })
+        const tecnicosActualizados = proyecto.tecnicos
+        // Asocia los usuarios al proyecto en la tabla asignaciones
+        for (const tecnico of proyecto.tecnicos) {
+          const usuario = await Usuarios.findByPk(tecnico.id_usuario);
+          // Comprueba si el tecnico aún existe en el array actualizado
+          const existeEnActualizados = tecnicosActualizados.some(t => t.id_usuario === tecnico.id_usuario);
+          if (usuario) {
+            if (!existeEnActualizados) {
+              // Si ya no esta en este proyecto
+              await Asignaciones.update({
+                status: 1
+              },{
+                fields:[
+                  'status'
+                ]
+              })
+            } 
+            }
+          }
+        }
+        return proyectoActualizado;
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
 
   // elimina un registro en la base de datos
   static async delete(id) {

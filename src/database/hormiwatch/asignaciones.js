@@ -18,13 +18,9 @@ id_usuario: {
       key: 'id_usuario', // Clave primaria de la tabla a la que se hace referencia
     },
   },
-id_proyecto: {
-    type: DataTypes.UUID, // Tipo de datos UUID para la clave externa
-    allowNull: false,
-    references: {
-      model: Proyectos, // Nombre del modelo de la tabla a la que se hace referencia
-      key: 'id_proyecto', // Clave primaria de la tabla a la que se hace referencia
-    },
+status: {
+    type: DataTypes.BOOLEAN, // Tipo de datos UUID para la clave externa
+    allowNull: true
   },
 }, {
   timestamps: false, // Desactivar las columnas createdAt y updatedAt

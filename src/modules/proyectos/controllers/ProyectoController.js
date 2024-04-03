@@ -112,6 +112,19 @@ class ProyectoController {
           });
         }
       }
+      // comprobar que recibo un responsable cliente
+      if (id_responsable_cliente == "") {
+        return res.status(400).json({
+          code: "Recurso no encontrado",
+          message: "Se requiere un responsable cliente para registrar su proyecto",
+          details:
+            "El responsable cliente con el id " +
+            id_responsable_cliente +
+            " no se encuentra en la base de datos",
+          timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+          requestID: id_responsable_cliente,
+        })
+      }
       // comprobar si existe el responsable cliente
       const responsableClienteFound = await ResponsableClienteReplica.findByPk(
         id_responsable_cliente
@@ -265,15 +278,13 @@ class ProyectoController {
       // verificar las tareas dentro del rango de fecha de finalizacion
       const tasks = tarea.findTaskByProjectId(id)
       console.log(tasks)
-      for (const tarea of tasks) {
-        let fecha = new Date(tarea.fecha)
-        fecha = date.format(fecha, "YYYY-MM-DD")
-        
+      for (const task of tasks) {
+        let fechaTarea = new Date(tarea.fecha)
+        fechaTarea = date.format(fechaTarea, "YYYY-MM-DD")
+        if (fechaTarea > fin) {
+          await task.completeTasksById(task.id_tarea)
+        }
       }
-
-
-
-
       // diferencia del pool de horas entre el proyecto en la base de datos y el cambio entrante
       let diferencia = proyectoExistente.pool_horas_contratadas-pool_horas_contratadas
       diferencia = Math.abs(diferencia)
@@ -287,19 +298,22 @@ class ProyectoController {
           pool_horas -= diferencia
         }
       }
+      console.log (pool_horas)
+      // verificar que exista al menos 1 tecnico
 
-
-
-
-
-
-
-
-
-      // actualiza el status del proyecto a completado
-      // await Proyecto.concretarProyecto(id)
-      // actualiza el status de las tareas asociadas a completado
-      // await tarea.completeTaskByProjectId(id)
+      // instanciar un objeto de la clase proyecto
+      const proyecto = new Proyecto(
+        nombre,
+        tarifa,
+        proyectoExistente.status,
+        pool_horas_contratadas,
+        proyectoExistente.fecha_inicio,
+        fin,
+        id_responsable_cliente,
+        tecnicos
+      );
+      // actualiza el proyecto
+      await Proyecto.editar(proyecto, pool_horas, id)
       res.status(200).json({ message: "PLACEHOLDER" })
     } catch (error) {
       res.status(500).json({ message: error.message });

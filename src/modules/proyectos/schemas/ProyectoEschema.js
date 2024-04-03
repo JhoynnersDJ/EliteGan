@@ -1,8 +1,5 @@
 import z from "zod"
 
-// tecnicos
-
-
 //se asegura que los campos ingresados al crear un proyecto sean validos
 export const createEschema = z.object({
     tarifa: z.number({
@@ -20,8 +17,6 @@ export const createEschema = z.object({
     id_responsable_cliente: z.string({
         required_error: 'Id de responsable cliente es requerido',
         invalid_type_error: 'Id de responsable cliente debe ser tipo cadena de carácteres'
-        }).uuid({
-            message: "Id de responsable cliente debe ser tipo UUID"
         }),
     tecnicos: z.array(
         z.object({
