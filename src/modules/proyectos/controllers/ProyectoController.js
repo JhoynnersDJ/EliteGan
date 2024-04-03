@@ -282,8 +282,20 @@ class ProyectoController {
       }
       // declarar pool de horas ya existente en la base de datos
       let pool_horas = convertirMinutos(proyectoExistente.pool_horas)
-      // diferencia del pool de horas contratados entre el proyecto en la base de datos y el cambio entrante
+      // declarar pool de horas contratadas ya existente en la base de datos
       const pool_bd = convertirMinutos(proyectoExistente.pool_horas_contratadas)
+      if (pool_horas_contratadas<pool_bd) {
+        return res.status(400).json(
+          {
+            code: "Bad Request",
+            message: "Solo puede añadir horas al pool",
+            details: "El pool de horas contratadas no puede ser menor al pool original",
+            timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+            requestID: fecha_fin,
+          }
+        );
+      }
+      // diferencia del pool de horas contratados entre el proyecto en la base de datos y el cambio entrante
       let diferencia = pool_bd-pool_horas_contratadas
       diferencia = Math.abs(diferencia)
       // si la diferencia es 0, entonces es igual
