@@ -181,6 +181,30 @@ async function getTasksById(id) {
   return null;
 }
 
+async function completeTasksById(id) {
+  if (dbSelect == "SEQUELIZE") {
+    const task = await Tareas.findByPk(id);
+    task.status = "C";
+    task.save();
+    if (!task) return null;
+    return new tarea(
+      task.id_tarea,
+      task.fecha,
+      task.hora_inicio,
+      task.hora_fin,
+      task.tiempo_total,
+      task.factor_tiempo_total,
+      task.id_proyecto,
+      task.id_servicio,
+      task.total_tarifa,
+      task.status,
+      null,
+      task.id_usuario
+    )
+  }
+  return null;
+}
+
 async function updateTaskById(task) {
   if (dbSelect == "SEQUELIZE") {
     const taskFound = await Tareas.findByPk(task.id_tarea);
@@ -245,5 +269,8 @@ export default class tareaFunction {
   }
   static completeTaskByProjectId(id) {
     return completeTaskByProjectId(id);
+  }
+  static completeTasksById(id) {
+    return completeTasksById(id);
   }
 }
