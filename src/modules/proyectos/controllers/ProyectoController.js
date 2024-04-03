@@ -148,12 +148,8 @@ class ProyectoController {
       if (fin < fecha_inicio) {
         return res.status(400).json(
           {
-            message:
-              "Fecha de fin no válida, verifique que sea posterior a la fecha de creación",
-          },
-          {
             code: "Bad Request",
-            message: "Fecha inválida",
+            message: "Fecha de fin no válida, verifique que sea posterior a la fecha de creación",
             details:
               "La fecha de finalización debe ser posterior a la fecha de creación",
             timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
@@ -192,7 +188,7 @@ class ProyectoController {
       // capturar id de proyecto
       const { id } = req.params
       // comprobar si existe el proyecto
-      const proyectoExistente = await Proyecto.findByPk();
+      const proyectoExistente = await Proyecto.findByPk(id);
       if (!proyectoExistente) {
         return res.status(404).json({
           code: "Recurso no encontrado",
@@ -208,6 +204,103 @@ class ProyectoController {
       // actualiza el status de las tareas asociadas a completado
       await tarea.completeTaskByProjectId(id)
       res.status(200).json({ message: "Proyecto concretado correctamente" })
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  // editar un proyecto
+  static async editarProyecto(req, res) {
+    try {
+      // capturar datos del proyecto
+      const { id } = req.params
+      const { tarifa, fecha_fin, id_responsable_cliente, tecnicos} = req.body;
+      let { nombre, pool_horas_contratadas } = req.body;
+      // eliminar espacios en blanco del string
+      nombre = nombre.trim();
+      // conversion de pool_horas de horas a minutos
+      pool_horas_contratadas = pool_horas_contratadas*60
+      // comprobar si existe el proyecto
+      const proyectoExistente = await Proyecto.findByPk(id);
+      if (!proyectoExistente) {
+        return res.status(404).json({
+          code: "Recurso no encontrado",
+          message: "Proyecto no encontrado",
+          details:
+            "Proyecto con el id " + id + " no se encuentra en la base de datos",
+          timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+          requestID: id,
+        });
+      }
+      // declarar pool de horas
+      let pool_horas = proyectoExistente.pool_horas
+      // verificar que no exista otro proyecto con el mismo nombre para el mismo cliente
+      const proyectoNombre = await Proyecto.findOneName(
+        nombre,
+        id_responsable_cliente
+      );
+      if (proyectoNombre) {
+        return res.status(400).json({
+          message: "El responsable cliente ya tiene un proyecto con el mismo nombre",
+        });
+      }
+      // objeto Date con la fecha de inicio del proyecto
+      let fecha_inicio = new Date(proyectoExistente);
+      fecha_inicio = date.format(fecha_inicio, "YYYY-MM-DD");
+      // verificar que la fecha de finalizacion sea posterior a la fecha de inicio
+      let fin = new Date(fecha_fin);
+      fin = date.format(fin, "YYYY-MM-DD");
+      if (fin < fecha_inicio) {
+        return res.status(400).json(
+          {
+            code: "Bad Request",
+            message: "Fecha de fin no válida, verifique que sea posterior a la fecha de creación",
+            details:
+              "La fecha de finalización debe ser posterior a la fecha de creación",
+            timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+            requestID: fecha_fin,
+          }
+        );
+      }
+      // verificar las tareas dentro del rango de fecha de finalizacion
+      const tasks = tarea.findTaskByProjectId(id)
+      console.log(tasks)
+      for (const tarea of tasks) {
+        let fecha = new Date(tarea.fecha)
+        fecha = date.format(fecha, "YYYY-MM-DD")
+        
+      }
+
+
+
+
+      // diferencia del pool de horas entre el proyecto en la base de datos y el cambio entrante
+      let diferencia = proyectoExistente.pool_horas_contratadas-pool_horas_contratadas
+      diferencia = Math.abs(diferencia)
+      console.log(diferencia)
+      console.log (pool_horas)
+      // si la diferencia es 0, entonces es igual
+      if (diferencia !== 0) {
+        if (proyectoExistente.pool_horas_contratadas < pool_horas_contratadas) {
+          pool_horas += diferencia
+        } else {
+          pool_horas -= diferencia
+        }
+      }
+
+
+
+
+
+
+
+
+
+      // actualiza el status del proyecto a completado
+      // await Proyecto.concretarProyecto(id)
+      // actualiza el status de las tareas asociadas a completado
+      // await tarea.completeTaskByProjectId(id)
+      res.status(200).json({ message: "PLACEHOLDER" })
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -237,63 +330,6 @@ class ProyectoController {
       res.status(500).json({ message: error.message });
     }
   }
-
-  // static async pdf(req, res) {
-  //   try {
-  //     // capturar datos
-  //     const { id } = req.params;
-  //     // buscar el proyecto segun su id junto con el nombre del tecnico responable
-  //     const project = await Proyecto.findByPk(id, {
-  //       include: [
-  //         {
-  //           model: Tarea,
-  //           attributes: [
-  //             "id_tarea",
-  //             "fecha",
-  //             "hora_inicio",
-  //             "hora_fin",
-  //             "total_hora",
-  //           ],
-  //           include: [
-  //             {
-  //               model: Servicio,
-  //               attributes: ["nombre"],
-  //             },
-  //           ],
-  //         },
-  //         {
-  //           model: ReplicaResponsableCliente,
-  //           attributes: ["nombre_responsable_cl"],
-  //           include: [
-  //             {
-  //               model: ClienteReplica, // Incluye la asociación ReplicaResponsableCliente dentro de ClienteReplica
-  //               attributes: ["nombre_cliente"], // Selecciona los atributos deseados de ReplicaResponsableCliente
-  //             },
-  //           ],
-  //         },
-  //         {
-  //           model: Usuario,
-  //           attributes: ["nombre", "apellido"],
-  //         },
-  //       ],
-  //     });
-  //     // comprobar si existe el proyecto
-  //     if (project == null) {
-  //       return res.status(404).json({ message: "Proyecto no Seleccionado" });
-  //     }
-  //     if (!project) {
-  //       return res.status(404).json({ message: "Proyecto no encontrado" });
-  //     }
-  //     // Generar el PDF y obtener la ruta del archivo
-  //     const pdfPath = await crearPDF(id, project);
-
-  //     const pdfContent = fs.readFileSync(pdfPath);
-  //     res.contentType("application/pdf");
-  //     res.send(pdfContent);
-  //   } catch (error) {
-  //     res.status(500).json({ message: error.message });
-  //   }
-  // }
 
   static async generarPDFProyectoSimple(req, res) {
     try {
