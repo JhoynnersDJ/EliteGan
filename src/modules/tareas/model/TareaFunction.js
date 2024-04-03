@@ -95,7 +95,7 @@ async function findTaskByProjectId(id) {
           attributes: ["nombre", "apellido"],
         },
       ],
-    });console.log(tasks)
+    });
 
     if (tasks.length === 0 || !tasks) return [];
     let newTasks = [];
@@ -114,7 +114,6 @@ async function findTaskByProjectId(id) {
         nombre_servicio:  task.dataValues.servicio.dataValues.nombre_servicio,
         nombre_tecnico: `${task.dataValues.usuario.nombre} ${task.dataValues.usuario.apellido}`
       }
-      console.log(formattedTask)
       newTasks.push(formattedTask)}
     );
     return newTasks;
@@ -129,7 +128,6 @@ async function completeTaskByProjectId(id) {
         id_proyecto: id,
       },      
     });
-    console.log(tasks)
     if (tasks.length === 0 || !tasks) return [];
     
     tasks.forEach((task) =>
@@ -185,17 +183,24 @@ async function getTasksById(id) {
 
 async function updateTaskById(task) {
   if (dbSelect == "SEQUELIZE") {
-    return await Tareas.update(
-      {
-        hora_inicio: task.hora_inicio, hora_fin: task.hora_fin, tiempo_total: task.tiempo_total,
-        id_servicio: task.id_service, fecha: task.fecha, status: task.status,
-        factor_tiempo_total: task.factor_tiempo_total, total_tarifa: task.total_tarifa
+    const taskFound = await Tareas.findByPk(task.id_tarea);
+    /*if (task.status){
+      taskFound.status = "C";
+    }else{
+      taskFound.status = "P";
+    }*/
+    taskFound.status = task.status;
+    taskFound.id_servicio = task.id_servicio;
+    taskFound.save()
+    return taskFound;
+    /*return await Tareas.update(
+      {        
+        id_servicio: task.id_service, status: task.status        
       },
       {
-        fields: ['hora_inicio', 'hora_fin', 'tiempo_total', 'id_servicio', 'fecha', 'status',
-          'factor_tiempo_total', 'total_tarifa'],
+        fields: [ 'id_servicio', 'status' ],
         where: { id_tarea: task.id_tarea }
-      })
+      })*/
   }
   return null;
 }

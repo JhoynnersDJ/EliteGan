@@ -39,10 +39,12 @@ export function formatHour(date1, date2) {
     period2 = "AM";
   }
 
-  const tiempo_formateado1 = `${horasInicio}:${minutoInicio < 10 ? "0" : ""
-    }${minutoInicio}${period1}`;
-  const tiempo_formateado2 = `${horasFin}:${minutoFin < 10 ? "0" : ""
-    }${minutoFin}${period2}`;
+  const tiempo_formateado1 = `${horasInicio}:${
+    minutoInicio < 10 ? "0" : ""
+  }${minutoInicio}${period1}`;
+  const tiempo_formateado2 = `${horasFin}:${
+    minutoFin < 10 ? "0" : ""
+  }${minutoFin}${period2}`;
   return { tiempo_formateado1, tiempo_formateado2 };
 }
 
@@ -158,7 +160,6 @@ export function calculartarifa(date1, date2, inicio, holidays) {
       tarifa1 = tarifa;
       date1 = fechaFin;
       date2 = fin;
-      console.log(date2);
     }
     //si es domingo o feriado suma 2
     if (date1.getDay() === 6 || holidays.includes(date2)) {
@@ -192,14 +193,93 @@ export async function isHoliday(holidays, fecha) {
   return holidays.includes(fecha);
 }
 
-export function esDiaActualOAnterior(fecha, date1, date2, hora_inicio, hora_fin) {
+export function esDiaDespuesFechaFinal(
+  fecha,
+  date1,
+  date2,
+) {
   // Convertir la fecha dada a un objeto Date
   const fechaDada = new Date(fecha);
   // Obtener la fecha actual
   const fechaInicio = new Date(date1);
   const fechaFin = new Date(date2);
-  console.log(Date.parse(fechaDada) <= Date.parse(new Date()))
   // Comparar si la fecha dada es igual a la fecha actual o a la fecha anterior
-  return Date.parse(fechaDada) <= Date.parse(fechaFin) && Date.parse(fechaDada) >= Date.parse(fechaInicio)
-    && Date.parse(fechaDada) <= Date.parse(new Date());
+  return (
+    Date.parse(fechaDada) <= Date.parse(fechaFin) 
+  );
+}
+
+export function esDiaAntesFechaInicial(
+  fecha,
+  date1,
+  date2,
+) {
+  // Convertir la fecha dada a un objeto Date
+  const fechaDada = new Date(fecha);
+  // Obtener la fecha actual
+  const fechaInicio = new Date(date1);
+  const fechaFin = new Date(date2);
+  // Comparar si la fecha dada es igual a la fecha actual o a la fecha anterior
+  return (    
+    Date.parse(fechaDada) >= Date.parse(fechaInicio) 
+  );
+}
+
+export function esDiaAnterior(
+  fecha
+) {
+  // Convertir la fecha dada a un objeto Date
+  const fechaDada = new Date(fecha);
+  // Comparar si la fecha dada es igual a la fecha actual o a la fecha anterior
+  return (
+    Date.parse(fechaDada) <= Date.parse(new Date())
+  );
+}
+
+export function comprobarHorario(task, fecha_inicial, hora_inicial) {
+  // Filtrar las tareas que corresponden a la fecha inicial
+  const tareasFecha = task.filter(tarea => tarea.fecha === fecha_inicial);
+
+  // Convertir la hora inicial a minutos
+  const horaInicialMinutos = convertirAMinutos(hora_inicial);
+
+  // Iterar sobre todas las tareas de la fecha inicial
+  for (const tarea of tareasFecha) {
+      // Convertir las horas de inicio y fin de la tarea a minutos
+      let horaInicioMinutos = convertirAMinutos(tarea.hora_inicio);
+      let horaFinMinutos = convertirAMinutos(tarea.hora_fin);
+
+      // Si la hora de fin es 00:00AM, consideramos que es del día siguiente
+      if (horaFinMinutos === 0) {
+          horaFinMinutos = 24 * 60; // Convertir a minutos
+      }
+
+      // Comprobar si la hora inicial está dentro del rango de la tarea actual (incluyendo los límites)
+      if (horaInicialMinutos >= horaInicioMinutos && horaInicialMinutos <= horaFinMinutos) {
+          // Si la hora inicial está dentro del rango de alguna tarea, devolver false
+          return false;
+      }
+  }
+
+  // Si la hora inicial no está en el rango de ninguna tarea, devolver true
+  return true;
+}
+// Función para convertir las horas en formato AM/PM a minutos
+function convertirAMinutos(hora) {
+
+  const [hours1, minutes1, period1] = hora.match(/\d+|AM|PM/g); 
+
+  // Convierte las horas de 12 horas a 24 horas
+  let horasInicio = parseInt(hours1);
+  let minutesInicio = parseInt(minutes1);
+
+  // Si el período es PM y no son las 12 PM, añade 12 horas
+  if (period1 === "PM" && horasInicio !== 12) {
+    horasInicio += 12;
+    //console.log(horasInicio * 60 + minutesInicio)
+  }
+  
+  const minutesTotal = horasInicio * 60 + minutesInicio
+
+  return minutesTotal;
 }
