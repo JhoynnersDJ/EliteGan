@@ -228,7 +228,7 @@ class ProyectoController {
       // capturar datos del proyecto
       const { id } = req.params
       const { tarifa, fecha_fin, id_responsable_cliente, tecnicos} = req.body;
-      let { nombre, pool_horas_contratadas } = req.body;
+      let { nombre_proyecto, pool_horas_contratadas } = req.body;
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk(id);
       if (!proyectoExistente) {
@@ -238,27 +238,27 @@ class ProyectoController {
           details:
             "Proyecto con el id " + id + " no se encuentra en la base de datos",
           timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
-          requestID: id_proyecto,
+          requestID: id,
         });
       }
       // verificar que no exista otro proyecto con el mismo nombre para el mismo cliente
       const proyectoNombre = await Proyecto.findOneName(
-        nombre,
+        nombre_proyecto,
         id_responsable_cliente
       );
-      console.log(proyectoNombre)
-      if (proyectoNombre.nombre_proyecto !== nombre && proyectoNombre) {
+      if (proyectoNombre && proyectoExistente.nombre !== nombre_proyecto) {
         return res.status(400).json({
           message: "El responsable cliente ya tiene un proyecto con dicho nombre",
         });
       }
       // objeto Date con la fecha de inicio del proyecto
-      let fecha_inicio = new Date(proyectoExistente);
+      let fecha_inicio = new Date(proyectoExistente.fecha_inicio);
       fecha_inicio = date.format(fecha_inicio, "YYYY-MM-DD");
       // verificar que la fecha de finalizacion sea posterior a la fecha de inicio
       let fin = new Date(fecha_fin);
+      fin = date.addDays(fin, 1)
       fin = date.format(fin, "YYYY-MM-DD");
-      if (fin < fecha_inicio) {
+      if (fin <= fecha_inicio) {
         return res.status(400).json(
           {
             code: "Bad Request",
@@ -289,7 +289,7 @@ class ProyectoController {
       pool_horas = pool_horas_contratadas-horas_trabajadas
       // instanciar un objeto de la clase proyecto
       const proyecto = new Proyecto(
-        nombre,
+        nombre_proyecto,
         tarifa,
         proyectoExistente.status,
         pool_horas_contratadas,
