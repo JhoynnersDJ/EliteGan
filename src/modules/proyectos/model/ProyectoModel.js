@@ -83,9 +83,8 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
-          pool_horas_contratadas: formatearMinutos(
-            proyecto.pool_horas_contratadas
-          ),
+          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+          horas_trabajadas: formatearMinutos(proyecto.horas_trabajadas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
           id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
@@ -151,9 +150,8 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
-          pool_horas_contratadas: formatearMinutos(
-            proyecto.pool_horas_contratadas
-          ),
+          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+          horas_trabajadas: formatearMinutos(proyecto.horas_trabajadas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -211,6 +209,7 @@ export class Proyecto {
           pool_horas_contratadas: formatearMinutos(
             proyecto.pool_horas_contratadas
           ),
+          horas_trabajadas: formatearMinutos(proyecto.horas_trabajadas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -308,7 +307,7 @@ export class Proyecto {
     }
   }
   // actualiza en la base de datos
-  static async editar(proyecto, pool_horas, id) {
+  static async editar(proyecto, pool_horas, id_proyecto, horas_trabajadas) {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
@@ -319,7 +318,8 @@ export class Proyecto {
             nombre_proyecto: proyecto.nombre,
             pool_horas: pool_horas,
             fecha_fin: proyecto.fecha_fin,
-            pool_horas_contratadas: proyecto.pool_horas
+            pool_horas_contratadas: proyecto.pool_horas,
+            horas_trabajadas: horas_trabajadas
           },
           {
             fields: [
@@ -328,9 +328,10 @@ export class Proyecto {
               "pool_horas",
               "fecha_fin",
               "pool_horas_contratadas",
+              "horas_trabajadas"
             ],
             where: {
-              id_proyecto: id
+              id_proyecto: id_proyecto
             }
           }
         );
@@ -340,7 +341,7 @@ export class Proyecto {
         },
         {
           where: {
-            id_proyecto: id
+            id_proyecto: id_proyecto
           }
         })
         const tecnicosActualizados = proyecto.tecnicos

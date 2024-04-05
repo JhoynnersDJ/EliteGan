@@ -238,19 +238,20 @@ class ProyectoController {
           details:
             "Proyecto con el id " + id + " no se encuentra en la base de datos",
           timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
-          requestID: id,
+          requestID: id_proyecto,
         });
       }
       // verificar que no exista otro proyecto con el mismo nombre para el mismo cliente
-      // const proyectoNombre = await Proyecto.findOneName(
-      //   nombre,
-      //   id_responsable_cliente
-      // );
-      // if (proyectoNombre) {
-      //   return res.status(400).json({
-      //     message: "El responsable cliente ya tiene un proyecto con el mismo nombre",
-      //   });
-      // }
+      const proyectoNombre = await Proyecto.findOneName(
+        nombre,
+        id_responsable_cliente
+      );
+      console.log(proyectoNombre)
+      if (proyectoNombre.nombre_proyecto !== nombre && proyectoNombre) {
+        return res.status(400).json({
+          message: "El responsable cliente ya tiene un proyecto con dicho nombre",
+        });
+      }
       // objeto Date con la fecha de inicio del proyecto
       let fecha_inicio = new Date(proyectoExistente);
       fecha_inicio = date.format(fecha_inicio, "YYYY-MM-DD");
@@ -282,18 +283,10 @@ class ProyectoController {
       pool_horas_contratadas = pool_horas_contratadas*60
       // declarar pool de horas ya existente en la base de datos
       let pool_horas = convertirMinutos(proyectoExistente.pool_horas)
-      // diferencia del pool de horas contratados entre el proyecto en la base de datos y el cambio entrante
-      let diferencia = pool_bd-pool_horas_contratadas
-      diferencia = Math.abs(diferencia)
-      // console.log(diferencia)
-      // si la diferencia es 0, entonces es igual
-      if (diferencia !== 0) {
-        if (proyectoExistente.pool_horas_contratadas < pool_horas_contratadas) {
-          pool_horas -= diferencia
-        }else {
-          pool_horas -= diferencia
-        }
-      }
+      // declarar horas trabajadas ya existente en la base de datos
+      let horas_trabajadas = convertirMinutos(proyectoExistente.horas_trabajadas)
+      // calculo pool de horas
+      pool_horas = pool_horas_contratadas-horas_trabajadas
       // instanciar un objeto de la clase proyecto
       const proyecto = new Proyecto(
         nombre,
@@ -306,7 +299,7 @@ class ProyectoController {
         tecnicos
       );
       // actualiza el proyecto
-      await Proyecto.editar(proyecto, pool_horas, id)
+      await Proyecto.editar(proyecto, pool_horas, id, horas_trabajadas)
       res.status(200).json({ message: "Proyecto actualizado correctamente" })
     } catch (error) {
       res.status(500).json({ message: error.message });
