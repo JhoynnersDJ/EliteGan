@@ -87,11 +87,9 @@ export class Proyecto {
             proyecto.pool_horas_contratadas
           ),
           id_responsable_cliente: proyecto.id_responsable_cliente,
-          nombre_responsable_cliente:
-            proyecto.responsables_cliente.dataValues.nombre,
+          nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
           id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
-          nombre_cliente:
-            proyecto.responsables_cliente.cliente.dataValues.nombre,
+          nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre,
           usuarios: proyecto.usuarios,
         }));
         return formattedProyectos;

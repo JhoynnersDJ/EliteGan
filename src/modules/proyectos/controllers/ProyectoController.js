@@ -229,8 +229,6 @@ class ProyectoController {
       const { id } = req.params
       const { tarifa, fecha_fin, id_responsable_cliente, tecnicos} = req.body;
       let { nombre, pool_horas_contratadas } = req.body;
-      // conversion de pool_horas de horas a minutos
-      pool_horas_contratadas = pool_horas_contratadas*60
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk(id);
       if (!proyectoExistente) {
@@ -244,15 +242,15 @@ class ProyectoController {
         });
       }
       // verificar que no exista otro proyecto con el mismo nombre para el mismo cliente
-      const proyectoNombre = await Proyecto.findOneName(
-        nombre,
-        id_responsable_cliente
-      );
-      if (proyectoNombre) {
-        return res.status(400).json({
-          message: "El responsable cliente ya tiene un proyecto con el mismo nombre",
-        });
-      }
+      // const proyectoNombre = await Proyecto.findOneName(
+      //   nombre,
+      //   id_responsable_cliente
+      // );
+      // if (proyectoNombre) {
+      //   return res.status(400).json({
+      //     message: "El responsable cliente ya tiene un proyecto con el mismo nombre",
+      //   });
+      // }
       // objeto Date con la fecha de inicio del proyecto
       let fecha_inicio = new Date(proyectoExistente);
       fecha_inicio = date.format(fecha_inicio, "YYYY-MM-DD");
@@ -280,30 +278,20 @@ class ProyectoController {
           await task.completeTasksById(task.id_tarea)
         }
       }
+      // conversion de pool_horas de horas a minutos
+      pool_horas_contratadas = pool_horas_contratadas*60
       // declarar pool de horas ya existente en la base de datos
       let pool_horas = convertirMinutos(proyectoExistente.pool_horas)
-      // declarar pool de horas contratadas ya existente en la base de datos
-      const pool_bd = convertirMinutos(proyectoExistente.pool_horas_contratadas)
-      if (pool_horas_contratadas<pool_bd) {
-        return res.status(400).json(
-          {
-            code: "Bad Request",
-            message: "Solo puede añadir horas al pool",
-            details: "El pool de horas contratadas no puede ser menor al pool original",
-            timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
-            requestID: fecha_fin,
-          }
-        );
-      }
       // diferencia del pool de horas contratados entre el proyecto en la base de datos y el cambio entrante
       let diferencia = pool_bd-pool_horas_contratadas
       diferencia = Math.abs(diferencia)
+      // console.log(diferencia)
       // si la diferencia es 0, entonces es igual
       if (diferencia !== 0) {
         if (proyectoExistente.pool_horas_contratadas < pool_horas_contratadas) {
           pool_horas -= diferencia
         }else {
-          pool_horas += diferencia
+          pool_horas -= diferencia
         }
       }
       // instanciar un objeto de la clase proyecto

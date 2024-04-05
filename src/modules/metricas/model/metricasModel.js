@@ -1,4 +1,4 @@
-import { Proyectos, Usuarios, Asignaciones, Tareas, ResponsablesClienteR, EstadoUsuarios } from '../../../database/hormiwatch/asociaciones.js'
+import { Proyectos, Usuarios, Asignaciones, Tareas, ResponsablesClienteR, EstadoUsuarios, ClientesR } from '../../../database/hormiwatch/asociaciones.js'
 import { sequelize } from "../../../database/sequelize.js";
 import { formatearMinutos } from "../../proyectos/libs/pool_horas.js";
 import { sumTareaTiempoTotal } from "../libs/sumTareaTiempoTotal.js"
@@ -51,6 +51,7 @@ export class Metricas {
                     'id_proyecto',
                     'nombre_proyecto',
                     'fecha_inicio',
+                    'fecha_fin',
                     'createdAt',
                     'pool_horas',
                     'pool_horas_contratadas'
@@ -63,19 +64,15 @@ export class Metricas {
                         attributes:[
                             'id_responsable_cliente',
                             ['nombre_responsable_cliente', 'nombre']
+                        ],
+                        include: [
+                            {
+                              model: ClientesR,
+                              attributes: [
+                                "nombre_cliente",
+                              ],
+                            },
                         ]
-                    },
-                    {
-                        model: Usuarios,
-                        attributes: ['id_estado_usuario'],
-                        through:{
-                            model: Asignaciones,
-                            attributes: [],
-                        },
-                        include:[{
-                            model: EstadoUsuarios,
-                            attributes: ['nombre_estado_usuario']
-                        }]
                     }
                 ]
             })
@@ -84,11 +81,12 @@ export class Metricas {
                 id_proyecto: proyecto.id_proyecto,
                 nombre_proyecto: proyecto.nombre_proyecto,
                 fecha_inicio: proyecto.fecha_inicio,
+                fecha_fin: proyecto.fecha_fin,
                 pool_horas: formatearMinutos(proyecto.pool_horas),
                 pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
                 id_responsable_cliente: proyecto.responsables_cliente.dataValues.id_responsable_cliente,
                 nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
-                estado_usuario: proyecto.usuarios[0].estado_usuario.nombre_estado_usuario
+                nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre_cliente,
             }))
             return formattedProyectos
         }
@@ -210,7 +208,11 @@ export class Metricas {
                             attributes: [
                                 'nombre',
                                 'apellido'
-                            ]
+                            ],
+                            include:[{
+                                model: EstadoUsuarios,
+                                attributes: ['nombre_estado_usuario']
+                            }]
                         }
                     ]
                 })
@@ -220,8 +222,10 @@ export class Metricas {
                     tiempo_total: formatearMinutos(tarea.tiempo_total),
                     cantidad_tareas: tarea.dataValues.cantidad_tareas,
                     nombre_usuario: tarea.usuario.nombre,
-                    apellido_usuario: tarea.usuario.apellido
+                    apellido_usuario: tarea.usuario.apellido,
+                    estado_usuario: tarea.usuario.estado_usuario.nombre_estado_usuario
                 }))
+                // return tareasPorTecnico
                 return formatedTareasPorTecnico
             }
         } catch (error) {
