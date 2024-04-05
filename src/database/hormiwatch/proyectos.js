@@ -36,6 +36,10 @@ pool_horas: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  pool_horas_trabajadas: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
 id_responsable_cliente: {
     type: DataTypes.UUID, // Tipo de datos UUID para la clave externa
     allowNull: false,

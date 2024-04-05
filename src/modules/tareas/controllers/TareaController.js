@@ -34,6 +34,9 @@ export const register = async (req, res) => {
 
     if (!proyectFound)
       return res.status(404).json({ message: "Proyecto no encontrado" });
+    
+    if (proyectFound.status)
+      return res.status(406).json({ message: "Proyecto ya esta completado" });
     if (
       !esDiaAnterior(
         fecha,
@@ -86,13 +89,6 @@ export const register = async (req, res) => {
         "00:00AM"
       ).tiempo_minutos;
       const tasks = await tarea.findTaskByProjectId(id_proyecto);
-      console.log(horas1.tiempo_formateado1)
-      console.log(horas2.tiempo_formateado2)
-
-      console.log(comprobarHorario(tasks,fecha,horas1.tiempo_formateado1))
-      console.log(comprobarHorario(tasks,fecha,"00:00AM"))
-      console.log(comprobarHorario(tasks,time2.fin,"00:00AM"))
-      console.log(comprobarHorario(tasks,time2.fin,horas2.tiempo_formateado2))
       
       if (tasks.length !== 0){
         if (!comprobarHorario(tasks,fecha,horas1.tiempo_formateado1) || !comprobarHorario(tasks,fecha,"00:00AM")){
@@ -204,6 +200,22 @@ export const getByProject = async (req, res) => {
       return res.status(404).json({ message: "Proyecto no encontrado" });
 
     const tasks = await tarea.findTaskByProjectId(id);
+    res.status(200).json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getByProjectAndUser = async (req, res) => {
+  const { id } = req.params;
+  const { id_usuario} = req.body;
+  try {
+    const proyectFound = await tarea.findProjectById(id);
+
+    if (!proyectFound)
+      return res.status(404).json({ message: "Proyecto no encontrado" });
+
+    const tasks = await tarea.findTaskByProjectAndUserId(id, id_usuario);
     res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ message: error.message });

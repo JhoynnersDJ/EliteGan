@@ -64,4 +64,7 @@ export default class tarea {
   static completeTasksById(id) {
     return tareaFunction.completeTasksById(id);
   }
+  static findTaskByProjectAndUserId(id, id_user) {
+    return tareaFunction.findTaskByProjectAndUserId(id, id_user);
+  }
 }

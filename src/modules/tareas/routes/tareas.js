@@ -10,6 +10,8 @@ router.post('/crear',validateSchema(createTarea),register)
 
 router.get('/proyecto/:id',getByProject)
 
+router.get('/proyecto-usuario/:id',getByProject)
+
 router.get('/seleccionar/:id',getByProject)
 
 router.delete('/eliminar/:id',deleteById)

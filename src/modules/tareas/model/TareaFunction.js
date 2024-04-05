@@ -58,7 +58,9 @@ async function restPoolProjectById(id, horas) {
     const project = await Proyectos.findByPk(id);
     if (!project) return null;
     const result = project.pool_horas - horas;
+    const resultHour = project.pool_horas_trabajadas + horas;
     project.pool_horas = result;
+    project.pool_horas_trabajadas = resultHour;
     return project.save();
   }
   return null;
@@ -149,7 +151,9 @@ async function deleteTasksById(id) {
     if (!project) return null;
 
     const plus = project.pool_horas + task.tiempo_total;
+    const minus = project.pool_horas_trabajadas - task.tiempo_total;
     project.pool_horas = plus;
+    project.pool_horas_trabajadas = minus;
     project.save();
 
     return await Tareas.destroy({
@@ -229,6 +233,49 @@ async function updateTaskById(task) {
   return null;
 }
 
+async function findTaskByProjectAndUserId(id, id_user) {
+  if (dbSelect == "SEQUELIZE") {
+    const tasks = await Tareas.findAll({
+      where: {
+        id_proyecto: id,
+        id_usuario: id_user,
+      },
+      include: [
+        {
+          model: Servicios,
+          attributes: ["nombre_servicio"],
+        },
+        {
+          model: Usuarios,
+          attributes: ["nombre", "apellido"],
+        },
+      ],
+    });
+
+    if (tasks.length === 0 || !tasks) return [];
+    let newTasks = [];
+    tasks.forEach((task) =>{
+      var formattedTask = {
+        id_tarea:task.dataValues.id_tarea,
+        fecha:task.dataValues.fecha,
+        hora_inicio:  task.dataValues.hora_inicio,
+        hora_fin:  task.dataValues.hora_fin,
+        tiempo_total:  calcularDiferenciaDeTiempo(task.hora_inicio, task.hora_fin).tiempo_formateado,
+        factor_tiempo_total:  task.dataValues.factor_tiempo_total,
+        id_proyecto:  task.dataValues.id_proyecto,
+        id_servicio:  task.dataValues.id_servicio,
+        total_tarifa:  task.dataValues.total_tarifa,
+        status:  task.dataValues.status,
+        nombre_servicio:  task.dataValues.servicio.dataValues.nombre_servicio,
+        nombre_tecnico: `${task.dataValues.usuario.nombre} ${task.dataValues.usuario.apellido}`
+      }
+      newTasks.push(formattedTask)}
+    );
+    return newTasks;
+  }
+  return null;
+}
+
 async function getUserById(id) {
   if (dbSelect == "SEQUELIZE"){
     return await user.findOneById(id);
@@ -272,5 +319,8 @@ export default class tareaFunction {
   }
   static completeTasksById(id) {
     return completeTasksById(id);
+  }
+  static findTaskByProjectAndUserId(id, id_user) {
+    return findTaskByProjectAndUserId(id, id_user);
   }
 }
