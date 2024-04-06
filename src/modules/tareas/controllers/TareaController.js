@@ -34,9 +34,10 @@ export const register = async (req, res) => {
 
     if (!proyectFound)
       return res.status(404).json({ message: "Proyecto no encontrado" });
-    
+
     if (proyectFound.status)
       return res.status(406).json({ message: "Proyecto ya esta completado" });
+    
     if (
       !esDiaAnterior(
         fecha,
@@ -116,7 +117,7 @@ export const register = async (req, res) => {
         id_usuario
       );
 
-      await tarea.restPoolProjectById(id_proyecto, tiempo_total_dia1);
+      await tarea.restPoolProjectById(id_proyecto, time2.tarifa1);
 
       await tarea.save(tareaSaved_dia1);
 
@@ -144,19 +145,15 @@ export const register = async (req, res) => {
 
       await tarea.save(tareaSaved_dia2);
 
-      await tarea.restPoolProjectById(id_proyecto, tiempo_total_dia2);
+      await tarea.restPoolProjectById(id_proyecto, time2.tarifa2);
     } else {
       const horas = formatHour(hora_inicio, hora_fin);
       const tasks = await tarea.findTaskByProjectId(id_proyecto);
-      console.log(comprobarHorario(tasks,fecha,horas.tiempo_formateado1))
-      console.log(comprobarHorario(tasks,fecha,horas.tiempo_formateado2))
       if (tasks.length !== 0){
         if (!comprobarHorario(tasks,fecha,horas.tiempo_formateado1) || !comprobarHorario(tasks,fecha,horas.tiempo_formateado2)){
           return res.status(406).json({ message: "No se puede agrear tareas en tiempo ya ocupado" });
         }
       }
-      console.log(hora_inicio)
-      console.log(horas.tiempo_formateado2)
       const tareaSaved = new tarea(
         null,
         fecha,
@@ -174,7 +171,7 @@ export const register = async (req, res) => {
 
       await tarea.save(tareaSaved);
 
-      await tarea.restPoolProjectById(id_proyecto, time.tiempo_minutos);
+      await tarea.restPoolProjectById(id_proyecto, time2.tarifa1);
     }
     res
       .status(200)
