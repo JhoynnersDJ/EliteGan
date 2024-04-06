@@ -20,6 +20,7 @@ id_usuario: {
   },
 status: {
     type: DataTypes.BOOLEAN, // Tipo de datos UUID para la clave externa
+    defaultValue: true,
     allowNull: true
   },
 }, {

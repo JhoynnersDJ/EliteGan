@@ -58,9 +58,9 @@ async function restPoolProjectById(id, horas) {
     const project = await Proyectos.findByPk(id);
     if (!project) return null;
     const result = project.pool_horas - horas;
-    const resultHour = project.pool_horas_trabajadas + horas;
+    const resultHour = project.horas_trabajadas + horas;
     project.pool_horas = result;
-    project.pool_horas_trabajadas = resultHour;
+    project.horas_trabajadas = resultHour;
     return project.save();
   }
   return null;

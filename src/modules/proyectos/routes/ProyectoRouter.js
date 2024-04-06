@@ -10,7 +10,7 @@ ProyectoRouter.get('/todos', ProyectoController.index)
 ProyectoRouter.get('/seleccionar/:id', ProyectoController.getById)
 ProyectoRouter.get('/usuario/:id', ProyectoController.getByUser)
 ProyectoRouter.post('/crear', validateSchema(createEschema), ProyectoController.create)
-ProyectoRouter.post('/concretar/:id', ProyectoController.concretarProyecto)
+ProyectoRouter.post('/completar/:id', ProyectoController.concretarProyecto)
 ProyectoRouter.post('/actualizar/:id', validateSchema(updateEschema), ProyectoController.editarProyecto)
 ProyectoRouter.delete('/eliminar/:id', ProyectoController.delete)
 

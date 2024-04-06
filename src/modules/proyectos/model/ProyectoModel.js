@@ -59,7 +59,7 @@ export class Proyecto {
             },
             {
               model: Usuarios,
-              attributes: [["id_usuario", "id"], "nombre", "apellido", "email"],
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
               through: {
                 model: Asignaciones,
                 attributes: [],
@@ -83,15 +83,12 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
-          pool_horas_contratadas: formatearMinutos(
-            proyecto.pool_horas_contratadas
-          ),
+          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+          horas_trabajadas: formatearMinutos(proyecto.horas_trabajadas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
-          nombre_responsable_cliente:
-            proyecto.responsables_cliente.dataValues.nombre,
+          nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
           id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
-          nombre_cliente:
-            proyecto.responsables_cliente.cliente.dataValues.nombre,
+          nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre,
           usuarios: proyecto.usuarios,
         }));
         return formattedProyectos;
@@ -136,7 +133,7 @@ export class Proyecto {
             {
               model: Usuarios,
               as: "tecnicos",
-              attributes: [["id_usuario", "id"], "nombre", "apellido", "email"],
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
               through: {
                 model: Asignaciones,
                 attributes: [],
@@ -153,9 +150,8 @@ export class Proyecto {
           fecha_inicio: proyecto.fecha_inicio,
           fecha_fin: proyecto.fecha_fin,
           pool_horas: formatearMinutos(proyecto.pool_horas),
-          pool_horas_contratadas: formatearMinutos(
-            proyecto.pool_horas_contratadas
-          ),
+          pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+          horas_trabajadas: formatearMinutos(proyecto.horas_trabajadas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -193,7 +189,7 @@ export class Proyecto {
             },
             {
               model: Usuarios,
-              attributes: [["id_usuario", "id"], "nombre", "apellido", "email"],
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
               through: {
                 model: Asignaciones,
                 attributes: [],
@@ -213,6 +209,7 @@ export class Proyecto {
           pool_horas_contratadas: formatearMinutos(
             proyecto.pool_horas_contratadas
           ),
+          horas_trabajadas: formatearMinutos(proyecto.horas_trabajadas),
           id_responsable_cliente: proyecto.id_responsable_cliente,
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
@@ -310,7 +307,7 @@ export class Proyecto {
     }
   }
   // actualiza en la base de datos
-  static async editar(proyecto, pool_horas, id) {
+  static async editar(proyecto, pool_horas, id_proyecto, horas_trabajadas) {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
@@ -321,7 +318,8 @@ export class Proyecto {
             nombre_proyecto: proyecto.nombre,
             pool_horas: pool_horas,
             fecha_fin: proyecto.fecha_fin,
-            pool_horas_contratadas: proyecto.pool_horas
+            pool_horas_contratadas: proyecto.pool_horas,
+            horas_trabajadas: horas_trabajadas
           },
           {
             fields: [
@@ -330,42 +328,65 @@ export class Proyecto {
               "pool_horas",
               "fecha_fin",
               "pool_horas_contratadas",
+              "horas_trabajadas"
             ],
             where: {
-              id_proyecto: id
+              id_proyecto: id_proyecto
             }
           }
         );
         // buscar los tecnicos que ya estaban asignados
-        const tecnicosBD = await Asignaciones.findAll({
-          attributes: ['id_usuario']
+        const tecnicosBDSinFormato = await Asignaciones.findAll({
+          attributes: [
+            'id_asignacion',
+            'id_usuario'
+          ]
         },
         {
           where: {
-            id_proyecto: id
+            id_proyecto: id_proyecto
           }
         })
+        // formato de los datos
+        const tecnicosBD = tecnicosBDSinFormato.map((tecnicos) => ({
+          id_asignacion: tecnicos.id_asignacion,
+          id_usuario: tecnicos.id_usuario
+        }));
+        // nuevo array con el valor de los tecnicos actualizados
         const tecnicosActualizados = proyecto.tecnicos
         // Asocia los usuarios al proyecto en la tabla asignaciones
-        for (const tecnico of proyecto.tecnicos) {
+        for (const tecnico of tecnicosActualizados) {
           const usuario = await Usuarios.findByPk(tecnico.id_usuario);
-          // Comprueba si el tecnico aún existe en el array actualizado
-          const existeEnActualizados = tecnicosActualizados.some(t => t.id_usuario === tecnico.id_usuario);
-          if (usuario) {
-            if (!existeEnActualizados) {
-              // Si ya no esta en este proyecto
-              await Asignaciones.update({
-                status: 0
-              },{
-                fields:[
-                  'status'
-                ]
-              })
-            } 
-            }
+          // Comprueba si el tecnico aún existe
+          const existeEnBD = tecnicosBD.some(t => t.id_usuario === tecnico.id_usuario);
+          if (usuario && existeEnBD) {
+            // Si no existe en la base de datos, lo agrega
+            await Asignaciones.create({
+              id_usuario: tecnico.id_usuario,
+              id_proyecto: id_proyecto
+            })
           }
-          return proyectoActualizado;
         }
+      // Desasocia los usuarios que ya no están en el proyecto
+      for (const tecnico of tecnicosBD) {
+        const sigueEnProyecto = tecnicosActualizados.some(t => t.id_usuario === tecnico.id_usuario);
+        if (!sigueEnProyecto) {
+          // Si ya no está en este proyecto
+          await Asignaciones.update({
+            status: false
+          },{
+            where: {
+              id_usuario: tecnico.id_usuario,
+              id_proyecto: id_proyecto
+            },
+            fields:[
+              'status'
+            ]
+          })
+        }
+      }
+        return proyectoActualizado;
+      }
     } catch (error) {
       console.log(error.message);
     }
