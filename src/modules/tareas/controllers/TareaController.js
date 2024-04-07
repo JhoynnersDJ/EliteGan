@@ -117,7 +117,7 @@ export const register = async (req, res) => {
         id_usuario
       );
 
-      await tarea.restPoolProjectById(id_proyecto, time2.tarifa1);
+      await tarea.restPoolProjectById(id_proyecto, time2.tarifa1 * 60);
 
       await tarea.save(tareaSaved_dia1);
 
@@ -145,7 +145,7 @@ export const register = async (req, res) => {
 
       await tarea.save(tareaSaved_dia2);
 
-      await tarea.restPoolProjectById(id_proyecto, time2.tarifa2);
+      await tarea.restPoolProjectById(id_proyecto, time2.tarifa2 * 60);
     } else {
       const horas = formatHour(hora_inicio, hora_fin);
       const tasks = await tarea.findTaskByProjectId(id_proyecto);
@@ -171,7 +171,7 @@ export const register = async (req, res) => {
 
       await tarea.save(tareaSaved);
 
-      await tarea.restPoolProjectById(id_proyecto, time2.tarifa1);
+      await tarea.restPoolProjectById(id_proyecto, time2.tarifa1 * 60);
     }
     res
       .status(200)
