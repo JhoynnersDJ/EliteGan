@@ -228,6 +228,7 @@ class ProyectoController {
       // capturar datos del proyecto
       const { id } = req.params
       const { tarifa, fecha_fin, id_responsable_cliente, tecnicos} = req.body;
+      console.log(tarifa)
       let { nombre_proyecto, pool_horas_contratadas } = req.body;
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk(id);
@@ -270,6 +271,19 @@ class ProyectoController {
           }
         );
       }
+      // verificar que la fecha de finalizacion sea posterior al dia actual
+      const now = date.format(new Date(), "YYYY-MM-DD")
+      if (fin <= now) {
+        return res.status(400).json(
+          {
+            code: "Bad Request",
+            message: "Fecha de fin no válida, verifique que sea posterior a la fecha actual",
+            details: "La fecha de finalización debe ser posterior a la fecha actual",
+            timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+            requestID: fecha_fin,
+          }
+        );
+      }
       // verificar las tareas dentro del rango de fecha de finalizacion
       const tasks = await tarea.findTaskByProjectId(id)
       for (const task of tasks) {
@@ -299,8 +313,14 @@ class ProyectoController {
         tecnicos
       );
       // actualiza el proyecto
-      await Proyecto.editar(proyecto, pool_horas, id, horas_trabajadas)
+      await Proyecto.editar(proyecto, pool_horas, id)
+      // devolver respuesta
       res.status(200).json({ message: "Proyecto actualizado correctamente" })
+      // enviar correo a los tecnicos
+      for (const tecnico of tecnicos) {
+        const usuario = await user.findOneById(tecnico.id_usuario);
+        Proyecto.sendEmailUpdate(usuario, proyecto, pool_horas)
+      }
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
