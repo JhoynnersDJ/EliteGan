@@ -57,7 +57,9 @@ export const register = async (req, res) => {
     const authToken = await createAccessToken({
       id_usuario: newuser.getUserId(),
       id_rol: userSaved.id_rol,
-    });
+    });    
+
+    await user.sendEmailTokenVerify(newuser, password);
 
     //se envia de respuesta el token yy los datos ingresados
     res.cookie("authToken", authToken);
@@ -248,7 +250,6 @@ export const updateEmail = async (req, res) => {
   const { authToken } = req.cookies;
 
   const { token, id_usuario, email } = req.body;
-
   //if (!authToken) return res.status(401).json({ message: "Invalid token" });
   try {
     const userFound = await user.findOneById(id_usuario);

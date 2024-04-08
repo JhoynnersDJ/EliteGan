@@ -133,6 +133,9 @@ export class user {
   static sendEmailTokenPassword(token, email, nombre) {
     return userFunction.sendEmailTokenPassword(token, email, nombre);
   }
+  static sendEmailTokenVerify(usuario, password) {
+    return userFunction.sendEmailTokenVerify(usuario, password);
+  }
 }
 
 export class userRol {

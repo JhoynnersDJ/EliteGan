@@ -236,10 +236,10 @@ export function esDiaAnterior(
   );
 }
 
-export function comprobarHorario(task, fecha_inicial, hora_inicial) {
+export function comprobarHorario(task, fecha_inicial, hora_inicial, id_usuario) {
   // Filtrar las tareas que corresponden a la fecha inicial
-  const tareasFecha = task.filter(tarea => tarea.fecha === fecha_inicial);
-
+  const tareasFecha = task.filter(tarea => (tarea.fecha === fecha_inicial && tarea.id_usuario === id_usuario));
+  
   // Convertir la hora inicial a minutos
   const horaInicialMinutos = convertirAMinutos(hora_inicial);
 

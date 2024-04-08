@@ -57,8 +57,11 @@ async function restPoolProjectById(id, horas) {
   if (dbSelect == "SEQUELIZE") {
     const project = await Proyectos.findByPk(id);
     if (!project) return null;
-    const result = project.pool_horas - horas;
-    const resultHour = project.horas_trabajadas + horas;
+    const result = project.pool_horas - Number(horas);
+    const resultHour = project.horas_trabajadas + Number(horas);
+    console.log(project.horas_trabajadas)
+    console.log(resultHour)
+    console.log(Number(horas))
     project.pool_horas = result;
     project.horas_trabajadas = resultHour;
     return project.save();
@@ -94,7 +97,7 @@ async function findTaskByProjectId(id) {
         },
         {
           model: Usuarios,
-          attributes: ["nombre", "apellido"],
+          attributes: ["id_usuario","nombre", "apellido"],
         },
       ],
     });
@@ -114,7 +117,36 @@ async function findTaskByProjectId(id) {
         total_tarifa:  task.dataValues.total_tarifa,
         status:  task.dataValues.status,
         nombre_servicio:  task.dataValues.servicio.dataValues.nombre_servicio,
-        nombre_tecnico: `${task.dataValues.usuario.nombre} ${task.dataValues.usuario.apellido}`
+        nombre_tecnico: `${task.dataValues.usuario.nombre} ${task.dataValues.usuario.apellido}`,
+        id_usuario: task.dataValues.id_usuario
+      }
+      newTasks.push(formattedTask)}
+    );
+    return newTasks;
+  }
+  return null;
+}
+
+async function findUserByProjectId(id) {
+  if (dbSelect == "SEQUELIZE") {
+    const projects = await Proyectos.findAll({
+      where: {
+        id_proyecto: id,
+      },
+      include: [        
+        {
+          model: Usuarios,
+          attributes: ["id_usuario","nombre", "apellido"],
+        },
+      ],
+    });
+    //console.log(projects)
+    if (projects.length === 0 || !projects) return [];
+    let newTasks = [];
+    projects.forEach((task) =>{
+      console.log(task.usuarios)
+      var formattedTask = {
+        usuarios: task.usuarios
       }
       newTasks.push(formattedTask)}
     );
@@ -322,5 +354,8 @@ export default class tareaFunction {
   }
   static findTaskByProjectAndUserId(id, id_user) {
     return findTaskByProjectAndUserId(id, id_user);
+  }
+  static findUserByProjectId(id) {
+    return findUserByProjectId(id);
   }
 }

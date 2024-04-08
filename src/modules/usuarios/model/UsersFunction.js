@@ -533,7 +533,7 @@ async function updateEmail(id, email) {
     if (!user1) return null;    
 
     user1.email = email;
-    user1.token = token;
+    user1.token = null;
     user1.save()
     return new user(
       user1.dataValues.nombre,
@@ -794,7 +794,147 @@ async function sendEmailTokenPassword(token, email, nombre) {
       `;
   await sendEmail(htmlContent,email, "Actualización de Contraseña");
   
+}
 
+async function sendEmailTokenVerify(usuario, password) {
+  const htmlContent = `
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Título de la Página</title>
+      <style>
+          body {
+              margin: 0;
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+          }
+  
+          header {
+              background-color: #00A4D3;
+              padding-left: 4vh;
+              padding-right: 10vh;
+              padding-top: 2%;
+              padding-bottom: 2%;
+          }
+  
+          h1 {
+              color: white;
+              font-size: 5vh;
+          }
+  
+          h2 {
+              font-weight: bold;
+              margin-left: 5%;
+              margin-top: 10px;
+              font-size: 24px;
+              margin-right: 5%;
+          }
+  
+          p {
+              margin-left: 5%;
+              font-size: 16px;
+              line-height: 1.5;
+              margin-right: 5%;
+              margin-top: 20px;
+              font-size: 18px;
+              color: #333;
+              line-height: 1.5;
+              text-align: justify;
+          }
+  
+          .token-container {
+              background-color: #666;
+              color: #fff;
+              padding: 10px;
+              border-radius: 5px;
+              font-size: 18px;
+              margin-top: 10px;
+              text-align: center;
+          }        
+          .container {
+                max-width: 900px;
+                margin: 0 auto;
+                background-color: #fff;
+                border-radius: 5px;
+                box-shadow: 0 0 10px #f2f2f2;
+              }
+          .span1 {
+              color: #00A4D3
+          }
+
+          .piePagina {
+              background-color: #00A4D3;
+              color: white;
+              padding: 10px;
+              text-align: center;
+          }
+
+          .piePagina p {
+              color: white;
+          }
+
+      li {
+          list-style-type: none;
+      }
+      ul span {
+          font-weight: bold;
+          color : #00A4D3;
+      }
+
+      </style>
+  </head>
+  <body style="padding: 20px;">
+      <div class="container">
+          <header>
+              <h1>Hormiwatch<h1>
+          </header>
+          <h2>¡Bienvenido a HormiWatch!</h2>
+          <p>Hola <span class="span1">${usuario.nombre} ${usuario.apellido}</span>!</p>
+          <p>
+              Ha sido registrado al sistema. 
+          </p>
+          <p style="text-align: center; font-weight: bold;">
+              Datos del Usuario
+              </p> 
+
+              <li>
+                  <ul> <span>-</span> Correo electronico: <span>${usuario.email}</span>
+                  </ul>                  
+                  <ul>
+                      <span>-</span> Contraseña: <span>${password}</span>
+                  </ul>
+                  <ul>
+                      <span>-</span> Telefono: <span>${usuario.telefono}</span>
+                  </ul>
+                  <ul>
+                      <span>-</span> Empresa: <span>${usuario.empresa}</span>
+                  </ul>
+                  <ul>
+                      <span>-</span> Cargo: <span>${usuario.cargo}</span>
+                  </ul>
+                  <ul>
+                      <span>-</span> Departamento: <span>${usuario.departamento}</span>
+                  </ul>
+                  <ul>
+                      <span>-</span> Cedula: <span>${usuario.cedula}</span>
+                  </ul>
+                  <ul>
+                      <span>-</span> Rol: <span>Tecnico</span>
+                  </ul>
+              </li>
+          <p>
+              Por favor recuerde cambiar la contraseña que esta por defecto. 
+          </p>
+          <footer class="piePagina">
+              <p>Este mensaje fue enviado automáticamente por el sistema. Por favor, no responda a este correo.</p>
+      </div>
+
+  </body>
+  </html>
+      `;
+  await sendEmail(htmlContent,usuario.email, "Bienvenido a HormiWatch");
   
 }
 /*async function sendSMSToken(token,num_tel, nombre) {
@@ -868,5 +1008,8 @@ export default class userFunction {
 
   static sendEmailTokenPassword(token, email, nombre) {
     return sendEmailTokenPassword(token, email, nombre);
+  }
+  static sendEmailTokenVerify(usuario, password) {
+    return sendEmailTokenVerify(usuario, password);
   }
 }

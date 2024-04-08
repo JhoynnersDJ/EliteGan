@@ -67,4 +67,7 @@ export default class tarea {
   static findTaskByProjectAndUserId(id, id_user) {
     return tareaFunction.findTaskByProjectAndUserId(id, id_user);
   }
+  static findUserByProjectId(id) {
+    return tareaFunction.findUserByProjectId(id);
+  }
 }

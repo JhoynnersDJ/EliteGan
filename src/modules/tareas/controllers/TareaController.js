@@ -8,7 +8,7 @@ import {
   esDiaAnterior,
   esDiaDespuesFechaFinal,
   esDiaAntesFechaInicial,
-  comprobarHorario
+  comprobarHorario,
 } from "../libs/Tarifa.js";
 import holidayFunction from "../../feriados/model/HolidaysFunction.js";
 const holidays = await holidayFunction.getHolidaysDate();
@@ -37,39 +37,45 @@ export const register = async (req, res) => {
 
     if (proyectFound.status)
       return res.status(406).json({ message: "Proyecto ya esta completado" });
-    
+
     if (
-      !esDiaAnterior(
-        fecha,
-        proyectFound.fecha_inicio,
-        proyectFound.fecha_fin,        
-      )
+      !esDiaAnterior(fecha, proyectFound.fecha_inicio, proyectFound.fecha_fin)
     ) {
-      return res.status(403).json({ message: "No se pueden crear tareas con fechas futuras" });
+      return res
+        .status(403)
+        .json({ message: "No se pueden crear tareas con fechas futuras" });
     }
 
     if (
       !esDiaDespuesFechaFinal(
         fecha,
         proyectFound.fecha_inicio,
-        proyectFound.fecha_fin,        
+        proyectFound.fecha_fin
       )
     ) {
-      return res.status(403).json({ message: "Fecha ingresada es superior a la fecha final del proyecto" });
+      return res
+        .status(403)
+        .json({
+          message: "Fecha ingresada es superior a la fecha final del proyecto",
+        });
     }
 
     if (
       !esDiaAntesFechaInicial(
         fecha,
         proyectFound.fecha_inicio,
-        proyectFound.fecha_fin,        
+        proyectFound.fecha_fin
       )
     ) {
-      return res.status(403).json({ message: "Fecha ingresada es inferior a la fecha inicial del proyecto" });
+      return res
+        .status(403)
+        .json({
+          message:
+            "Fecha ingresada es inferior a la fecha inicial del proyecto",
+        });
     }
-    
+
     //console.log(tasks)
-    
 
     const serviceFound = await tarea.findServiceById(id_servicio);
 
@@ -79,8 +85,7 @@ export const register = async (req, res) => {
     var time = calcularDiferenciaDeTiempo(hora_inicio, hora_fin);
 
     var time2 = calculartarifa(hora_inicio, hora_fin, fecha, holidays);
-
-    if (time2.fin) {
+    if (time2.fin && hora_fin !== "00:00") {
       const horas1 = formatHour(hora_inicio, hora_fin);
 
       const horas2 = formatHour(hora_inicio, hora_fin);
@@ -90,16 +95,30 @@ export const register = async (req, res) => {
         "00:00AM"
       ).tiempo_minutos;
       const tasks = await tarea.findTaskByProjectId(id_proyecto);
-      
-      if (tasks.length !== 0){
-        if (!comprobarHorario(tasks,fecha,horas1.tiempo_formateado1) || !comprobarHorario(tasks,fecha,"00:00AM")){
-          return res.status(406).json({ message: "No se puede agrear tareas en tiempo ya ocupado" });
+
+      if (tasks.length !== 0) {
+        if (
+          !comprobarHorario(tasks, fecha, horas1.tiempo_formateado1) ||
+          !comprobarHorario(tasks, fecha, "00:00AM")
+        ) {
+          return res
+            .status(406)
+            .json({
+              message: "No se puede agrear tareas en tiempo ya ocupado",
+            });
         }
       }
 
-      if (tasks.length !== 0){
-        if (!comprobarHorario(tasks,time2.fin,"00:00AM") || !comprobarHorario(tasks,time2.fin,horas2.tiempo_formateado2)){
-          return res.status(406).json({ message: "No se puede agrear tareas en tiempo ya ocupado" });
+      if (tasks.length !== 0) {
+        if (
+          !comprobarHorario(tasks, time2.fin, "00:00AM") ||
+          !comprobarHorario(tasks, time2.fin, horas2.tiempo_formateado2)
+        ) {
+          return res
+            .status(406)
+            .json({
+              message: "No se puede agrear tareas en tiempo ya ocupado",
+            });
         }
       }
       const tareaSaved_dia1 = new tarea(
@@ -116,12 +135,13 @@ export const register = async (req, res) => {
         null,
         id_usuario
       );
-
-      await tarea.restPoolProjectById(id_proyecto, time2.tarifa1 * 60);
+      let factor_horas1 = time2.tarifa1 * 60;
+      await tarea.restPoolProjectById(
+        id_proyecto,
+        Number(factor_horas1.toFixed(1))
+      );
 
       await tarea.save(tareaSaved_dia1);
-
-      
 
       const tiempo_total_dia2 = calcularDiferenciaDeTiempo(
         "00:00AM",
@@ -142,18 +162,47 @@ export const register = async (req, res) => {
         null,
         id_usuario
       );
-
       await tarea.save(tareaSaved_dia2);
-
-      await tarea.restPoolProjectById(id_proyecto, time2.tarifa2 * 60);
+      let factor_horas2 = time2.tarifa2 * 60;
+      await tarea.restPoolProjectById(
+        id_proyecto,
+        Number(factor_horas2.toFixed(1))
+      );
     } else {
+
+      const tasks2 = await tarea.findUserByProjectId(id_proyecto);
+
+      
+
       const horas = formatHour(hora_inicio, hora_fin);
+
       const tasks = await tarea.findTaskByProjectId(id_proyecto);
-      if (tasks.length !== 0){
-        if (!comprobarHorario(tasks,fecha,horas.tiempo_formateado1) || !comprobarHorario(tasks,fecha,horas.tiempo_formateado2)){
-          return res.status(406).json({ message: "No se puede agrear tareas en tiempo ya ocupado" });
+
+      if (tasks.length !== 0) {
+        for (const tarea of tasks2) {
+          if (
+            !comprobarHorario(
+              tasks,
+              fecha,
+              horas.tiempo_formateado1,
+              tarea.id_usuario
+            ) ||
+            !comprobarHorario(
+              tasks,
+              fecha,
+              horas.tiempo_formateado2,
+              tarea.id_usuario
+            )
+          ) {
+            return res
+              .status(406)
+              .json({
+                message: "No se puede agrear tareas en tiempo ya ocupado",
+              });
+          }
         }
       }
+
       const tareaSaved = new tarea(
         null,
         fecha,
@@ -170,8 +219,11 @@ export const register = async (req, res) => {
       );
 
       await tarea.save(tareaSaved);
-
-      await tarea.restPoolProjectById(id_proyecto, time2.tarifa1 * 60);
+      let factor_horas3 = time2.tarifa1 * 60;
+      await tarea.restPoolProjectById(
+        id_proyecto,
+        Number(factor_horas3.toFixed(1))
+      );
     }
     res
       .status(200)
@@ -205,7 +257,7 @@ export const getByProject = async (req, res) => {
 
 export const getByProjectAndUser = async (req, res) => {
   const { id } = req.params;
-  const { id_usuario} = req.body;
+  const { id_usuario } = req.body;
   try {
     const proyectFound = await tarea.findProjectById(id);
 
@@ -238,8 +290,7 @@ export const updateTask = async (req, res) => {
   var { id_servicio, status } = req.body;
   const { id } = req.params;
   try {
-    
-    const taskFound = await tarea.getTasksById(id);  
+    const taskFound = await tarea.getTasksById(id);
     if (id_servicio) {
       const serviceFound = await tarea.findServiceById(id_servicio);
 
@@ -248,18 +299,18 @@ export const updateTask = async (req, res) => {
     } else {
       id_servicio = taskFound.id_servicio;
     }
-    console.log(typeof status)
-    if (status && (typeof status === "boolean")){
-      console.log("holaaaaaa")
+    console.log(typeof status);
+    if (status && typeof status === "boolean") {
+      console.log("holaaaaaa");
       status = "C";
-    }else{
-      console.log("holaaaaaa1111111111")
+    } else {
+      console.log("holaaaaaa1111111111");
       status = "P";
     }
-    
+
     if (typeof status === "undefined") {
       status = taskFound.status;
-    } 
+    }
 
     const tareaSaved = new tarea(
       taskFound.id_tarea,
@@ -278,7 +329,8 @@ export const updateTask = async (req, res) => {
 
     const updateTask = await tarea.updateTaskById(tareaSaved);
 
-    if(!updateTask) return res.status(200).json({ message: "Tarea no pudo ser editada" });
+    if (!updateTask)
+      return res.status(200).json({ message: "Tarea no pudo ser editada" });
 
     res.status(200).json({ message: "Tarea editada exitosamente" });
   } catch (error) {

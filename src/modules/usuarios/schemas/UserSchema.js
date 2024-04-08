@@ -38,7 +38,7 @@ export const registerSchema = z.object({
         }),
 
 
-})
+});
 
 //se asegura que los campos ingresados al login sean validos
 export const loginSchema = z.object({
@@ -52,7 +52,7 @@ export const loginSchema = z.object({
     }).min(6, {
         message: 'Password must be at least 6 characters'
     })
-})
+});
 
 export const updateRolfromAdmin = z.object({
     email: z.string({
@@ -63,5 +63,69 @@ export const updateRolfromAdmin = z.object({
     nombre_rol: z.string({
         required_error: 'rol is required'
     })
+});
+export const updatePasswordSchema = z.object({
+    id_usuario: z.string({
+        required_error: 'id_usuario es requerido'
+    }),
+    password: z.string({
+        required_error: 'contraseña es requerida'
+    }).min(6, {
+        message: 'Contraseña debe tener al menos 6 caracteres'
+    }),
+    new_password: z.string({
+        required_error: 'contraseña es requerida'
+    }).min(6, {
+        message: 'Contraseña debe tener al menos 6 caracteres'
+    })
+});
+
+export const updateEmailSchema = z.object({
+    id_usuario: z.string({
+        required_error: 'id_usuario es requerido'
+    }),
+    email: z.string({
+        required_error: 'email es requerida'
+    }).email({
+        message: 'email invalido'
+    }),
+    token: z.string({
+        required_error: 'token es requerida'
+    })
+});
+
+export const updateEmailTokenSchema = z.object({
+    id_usuario: z.string({
+        required_error: 'id_usuario es requerido'
+    }),
+    email: z.string({
+        required_error: 'email es requerida'
+    }).email({
+        message: 'email invalido'
+    })
+});
+
+export const forgotUpdatePasswordSchema = z.object({
+    email: z.string({
+        required_error: 'email es requerido'
+    }).email({
+        message: 'email invalido'
+    }),
+    password: z.string({
+        required_error: 'contraseña es requerida'
+    }).min(6, {
+        message: 'Contraseña debe tener al menos 6 caracteres'
+    }),
+    token: z.string({
+        required_error: 'token es requerida'
+    })
+});
+
+export const forgotUpdatePasswordTokenSchema = z.object({
+    email: z.string({
+        required_error: 'email es requerido'
+    }).email({
+        message: 'email invalido'
+    }),
 });
 

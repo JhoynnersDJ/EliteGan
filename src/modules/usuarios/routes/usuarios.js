@@ -23,6 +23,11 @@ import {
   loginSchema,
   registerSchema,
   updateRolfromAdmin,
+  updatePasswordSchema,
+  forgotUpdatePasswordSchema,
+  updateEmailSchema,
+  updateEmailTokenSchema,
+  forgotUpdatePasswordTokenSchema
 } from "../schemas/UserSchema.js";
 
 const router = Router();
@@ -51,10 +56,10 @@ router.post(
 router.get("/verificar", verifyToken);
 
 //enviar token por email, verificado = false
-router.post("/actualizar-email", updateEmailToken);
+router.post("/actualizar-email", validateSchema(updateEmailTokenSchema),updateEmailToken);
 
 //cambiar email por el nuevo, verificado = true
-router.post("/verificar-email", updateEmail);
+router.post("/verificar-email",validateSchema(updateEmailSchema), updateEmail);
 
 router.get("/todos-tecnicos", getByRol);
 
@@ -65,12 +70,12 @@ router.post("/foto-perfil",upload.array('foto_perfil'),addUserPhoto);
 
 router.put("/actualizar",updateUser);
 
-router.put("/actualizar-password",updatePassword);
+router.put("/actualizar-password",validateSchema(updatePasswordSchema),updatePassword);
 
 //enviar token por email, verificado = false
-router.post("/actualizar-password", updatePasswordToken);
+router.post("/actualizar-password",validateSchema(forgotUpdatePasswordTokenSchema), updatePasswordToken);
 
 //cambiar email por el nuevo, verificado = true
-router.put("/verificar-password", forgotPassword);
+router.put("/verificar-password",validateSchema(forgotUpdatePasswordSchema), forgotPassword);
 
 export default router;
