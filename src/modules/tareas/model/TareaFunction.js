@@ -59,9 +59,6 @@ async function restPoolProjectById(id, horas) {
     if (!project) return null;
     const result = project.pool_horas - Number(horas);
     const resultHour = project.horas_trabajadas + Number(horas);
-    console.log(project.horas_trabajadas)
-    console.log(resultHour)
-    console.log(Number(horas))
     project.pool_horas = result;
     project.horas_trabajadas = resultHour;
     return project.save();
@@ -140,13 +137,11 @@ async function findUserByProjectId(id) {
         },
       ],
     });
-    //console.log(projects)
-    if (projects.length === 0 || !projects) return [];
+    if (projects[0].usuarios.length === 0 || !projects[0].usuarios) return [];
     let newTasks = [];
-    projects.forEach((task) =>{
-      console.log(task.usuarios)
+    projects[0].usuarios.forEach((task) =>{
       var formattedTask = {
-        usuarios: task.usuarios
+        id_usuario: task.id_usuario
       }
       newTasks.push(formattedTask)}
     );

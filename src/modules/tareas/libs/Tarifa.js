@@ -237,49 +237,45 @@ export function esDiaAnterior(
 }
 
 export function comprobarHorario(task, fecha_inicial, hora_inicial, id_usuario) {
-  // Filtrar las tareas que corresponden a la fecha inicial
-  const tareasFecha = task.filter(tarea => (tarea.fecha === fecha_inicial && tarea.id_usuario === id_usuario));
-  
+  // Filtrar las tareas que corresponden a la fecha inicial y al usuario específico
+  const tareasUsuario = task.filter(tarea => (tarea.fecha === fecha_inicial) && (tarea.id_usuario === id_usuario));
   // Convertir la hora inicial a minutos
   const horaInicialMinutos = convertirAMinutos(hora_inicial);
-
-  // Iterar sobre todas las tareas de la fecha inicial
-  for (const tarea of tareasFecha) {
+  
+  // Iterar sobre todas las tareas del usuario y fecha inicial
+  for (const tarea of tareasUsuario) {
       // Convertir las horas de inicio y fin de la tarea a minutos
       let horaInicioMinutos = convertirAMinutos(tarea.hora_inicio);
       let horaFinMinutos = convertirAMinutos(tarea.hora_fin);
 
-      // Si la hora de fin es 00:00AM, consideramos que es del día siguiente
-      if (horaFinMinutos === 0) {
+      // Si la hora de fin es 00:00AM, consideramos que es el final del mismo día
+      if (tarea.hora_fin === "00:00AM") {
           horaFinMinutos = 24 * 60; // Convertir a minutos
       }
 
       // Comprobar si la hora inicial está dentro del rango de la tarea actual (incluyendo los límites)
       if (horaInicialMinutos >= horaInicioMinutos && horaInicialMinutos <= horaFinMinutos) {
-          // Si la hora inicial está dentro del rango de alguna tarea, devolver false
+          // Si la hora inicial está dentro del rango de alguna tarea del usuario, devolver false
           return false;
       }
   }
 
-  // Si la hora inicial no está en el rango de ninguna tarea, devolver true
+  // Si la hora inicial no está en el rango de ninguna tarea del usuario, devolver true
   return true;
 }
+
 // Función para convertir las horas en formato AM/PM a minutos
 function convertirAMinutos(hora) {
+  const [hours, minutes, period] = hora.match(/\d+|AM|PM/g); 
 
-  const [hours1, minutes1, period1] = hora.match(/\d+|AM|PM/g); 
+  let horas = parseInt(hours);
+  let minutos = parseInt(minutes);
 
-  // Convierte las horas de 12 horas a 24 horas
-  let horasInicio = parseInt(hours1);
-  let minutesInicio = parseInt(minutes1);
-
-  // Si el período es PM y no son las 12 PM, añade 12 horas
-  if (period1 === "PM" && horasInicio !== 12) {
-    horasInicio += 12;
-    //console.log(horasInicio * 60 + minutesInicio)
+  if (period === "PM" && horas !== 12) {
+      horas += 12;
+  } else if (period === "AM" && horas === 0) {
+      horas = 24;
   }
-  
-  const minutesTotal = horasInicio * 60 + minutesInicio
 
-  return minutesTotal;
+  return horas * 60 + minutos;
 }

@@ -11,6 +11,7 @@ import {
   comprobarHorario,
 } from "../libs/Tarifa.js";
 import holidayFunction from "../../feriados/model/HolidaysFunction.js";
+import { ConnectionRefusedError } from "sequelize";
 const holidays = await holidayFunction.getHolidaysDate();
 
 export const register = async (req, res) => {
@@ -53,11 +54,9 @@ export const register = async (req, res) => {
         proyectFound.fecha_fin
       )
     ) {
-      return res
-        .status(403)
-        .json({
-          message: "Fecha ingresada es superior a la fecha final del proyecto",
-        });
+      return res.status(403).json({
+        message: "Fecha ingresada es superior a la fecha final del proyecto",
+      });
     }
 
     if (
@@ -67,12 +66,9 @@ export const register = async (req, res) => {
         proyectFound.fecha_fin
       )
     ) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Fecha ingresada es inferior a la fecha inicial del proyecto",
-        });
+      return res.status(403).json({
+        message: "Fecha ingresada es inferior a la fecha inicial del proyecto",
+      });
     }
 
     //console.log(tasks)
@@ -101,11 +97,9 @@ export const register = async (req, res) => {
           !comprobarHorario(tasks, fecha, horas1.tiempo_formateado1) ||
           !comprobarHorario(tasks, fecha, "00:00AM")
         ) {
-          return res
-            .status(406)
-            .json({
-              message: "No se puede agrear tareas en tiempo ya ocupado",
-            });
+          return res.status(406).json({
+            message: "No se puede agrear tareas en tiempo ya ocupado",
+          });
         }
       }
 
@@ -114,11 +108,9 @@ export const register = async (req, res) => {
           !comprobarHorario(tasks, time2.fin, "00:00AM") ||
           !comprobarHorario(tasks, time2.fin, horas2.tiempo_formateado2)
         ) {
-          return res
-            .status(406)
-            .json({
-              message: "No se puede agrear tareas en tiempo ya ocupado",
-            });
+          return res.status(406).json({
+            message: "No se puede agrear tareas en tiempo ya ocupado",
+          });
         }
       }
       const tareaSaved_dia1 = new tarea(
@@ -169,37 +161,26 @@ export const register = async (req, res) => {
         Number(factor_horas2.toFixed(1))
       );
     } else {
-
       const tasks2 = await tarea.findUserByProjectId(id_proyecto);
-
-      
+      //console.log(tasks2)
 
       const horas = formatHour(hora_inicio, hora_fin);
 
       const tasks = await tarea.findTaskByProjectId(id_proyecto);
-
+      let algunaHoraLibre = true;
       if (tasks.length !== 0) {
-        for (const tarea of tasks2) {
-          if (
-            !comprobarHorario(
-              tasks,
-              fecha,
-              horas.tiempo_formateado1,
-              tarea.id_usuario
-            ) ||
-            !comprobarHorario(
-              tasks,
-              fecha,
-              horas.tiempo_formateado2,
-              tarea.id_usuario
-            )
-          ) {
-            return res
-              .status(406)
-              .json({
-                message: "No se puede agrear tareas en tiempo ya ocupado",
-              });
-          }
+        if (
+          !comprobarHorario(
+            tasks,
+            fecha,
+            horas.tiempo_formateado1,
+            id_usuario
+          ) ||
+          !comprobarHorario(tasks, fecha, horas.tiempo_formateado2, id_usuario)
+        ) {
+          return res.status(406).json({
+            message: "No se puede agrear tareas en tiempo ya ocupado",
+          });
         }
       }
 
