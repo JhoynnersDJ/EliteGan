@@ -95,6 +95,105 @@ export class Metricas {
         }
     }
 
+    // metricas de un proyecto por id
+    static async metricasProyecto(id_proyecto){
+        try {
+          // funcion para las bases de datos de sequelize
+          if (database === "SEQUELIZE") {
+            // buscar los datos del proyecto
+            const proyecto = await Proyectos.findByPk(id_proyecto, {
+                attributes:[
+                    'id_proyecto',
+                    'nombre_proyecto',
+                    'fecha_inicio',
+                    'fecha_fin',
+                    'pool_horas',
+                    'pool_horas_contratadas',
+                    'horas_trabajadas',
+                    'tarifa'
+                ],
+                include: [
+                    {
+                        model: ResponsablesClienteR,
+                        attributes:[
+                            'id_responsable_cliente',
+                            ['nombre_responsable_cliente', 'nombre']
+                        ],
+                        include: [
+                            {
+                              model: ClientesR,
+                              attributes: [
+                                "nombre_cliente",
+                              ],
+                            },
+                        ]
+                    }
+                ]
+            })
+            // buscar los datos de las tareas de cada tecnico
+            const tareas = await Tareas.findAll({
+                where: {
+                    id_proyecto: id_proyecto
+                },
+                attributes: [
+                    'id_usuario',
+                    [sequelize.fn('sum', sequelize.col('tiempo_total')), 'total_tiempo'],
+                    [sequelize.fn('sum', sequelize.col('total_tarifa')), 'total_tarifa'],
+                    [sequelize.fn('count', sequelize.col('tareas.id_tarea')), 'cantidad_tareas']
+                ],
+                include:[
+                    {
+                        model: Usuarios,
+                        attributes: [
+                            'id_usuario',
+                            'nombre',
+                            'apellido'
+                        ],
+                        include:[{
+                            model: EstadoUsuarios,
+                            attributes: ['nombre_estado_usuario']
+                        }]
+                    }
+                ],
+                group: ['tareas.id_usuario']
+            })
+            // calculo total tarifa del proyecto, sumando los totales tarifa de cada tecnico 
+            let sumaTotalTarifa = 0
+            for (const tarea of tareas) {
+                sumaTotalTarifa += parseFloat(tarea.dataValues.total_tarifa)
+            }
+            // formato de los datos tarea
+            const formatedTarea = tareas.map(tarea => ({
+                id_usuario: tarea.usuario.id_usuario,
+                nombre_usuario: tarea.usuario.nombre,
+                apellido_usuario: tarea.usuario.apellido,
+                estado_usuario: tarea.usuario.estado_usuario.nombre_estado_usuario,
+                total_tiempo_usuario: tarea.total_tiempo,
+                total_tarifa_usuario: tarea.total_tarifa,
+                cantidad_tareas: tarea.dataValues.cantidad_tareas
+            }))
+            // formato de los datos proyecto
+            const formattedProyectos = {
+                id_proyecto: proyecto.id_proyecto,
+                nombre_proyecto: proyecto.nombre_proyecto,
+                fecha_inicio: proyecto.fecha_inicio,
+                fecha_fin: proyecto.fecha_fin,
+                pool_horas: formatearMinutos(proyecto.pool_horas),
+                pool_horas_contratadas: formatearMinutos(proyecto.pool_horas_contratadas),
+                horas_trabajadas: formatearMinutos(proyecto.horas_trabajadas),
+                id_responsable_cliente: proyecto.responsables_cliente.dataValues.id_responsable_cliente,
+                nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
+                nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre_cliente,
+                total_tarifa_proyecto: sumaTotalTarifa,
+                tareas: formatedTarea
+            }
+            return formattedProyectos
+        }
+        } catch (error) {
+            console.log(error.message)
+        }
+    }
+
     // 2 proyectos mas recientes por usuario
     static async proyectosRecientesByUser(id_usuario){
         try {
