@@ -58,7 +58,7 @@ async function restPoolProjectById(id, horas) {
     const project = await Proyectos.findByPk(id);
     if (!project) return null;
     const result = project.pool_horas - Number(horas);
-    const resultHour = project.horas_trabajadas + Number(horas);
+    const resultHour = project.horas_trabajadas + parseFloat(horas);
     project.pool_horas = result;
     project.horas_trabajadas = resultHour;
     return project.save();
@@ -87,6 +87,7 @@ async function findTaskByProjectId(id) {
       where: {
         id_proyecto: id,
       },
+      order: [['fecha', 'DESC']],
       include: [
         {
           model: Servicios,
@@ -177,10 +178,11 @@ async function deleteTasksById(id) {
     const project = await Proyectos.findByPk(task.dataValues.id_proyecto);
     if (!project) return null;
 
-    const plus = project.pool_horas + task.tiempo_total;
-    const minus = project.pool_horas_trabajadas - task.tiempo_total;
+    const plus = project.pool_horas + (Number(task.factor_tiempo_total)*60);
+    const minus = project.horas_trabajadas - (parseFloat(task.factor_tiempo_total)*60);
+    console.log(minus)
     project.pool_horas = plus;
-    project.pool_horas_trabajadas = minus;
+    project.horas_trabajadas = minus;
     project.save();
 
     return await Tareas.destroy({

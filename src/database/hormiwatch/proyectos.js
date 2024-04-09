@@ -37,7 +37,7 @@ pool_horas: {
     allowNull: false,
   },
   horas_trabajadas: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
     defaultValue: 0,
     allowNull: false,
   },

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import  {register, getByProject, deleteById, updateTask} from "../controllers/TareaController.js";
+import  {register, getByProject, deleteById, updateTask, getByProjectAndUser} from "../controllers/TareaController.js";
 import {authRequired, authRequired2} from '../../../middlewares/validateToken.js';
 import {validateSchema} from "../../../middlewares/ValidatorSchema.js";
 import {createTarea} from "../schemas/TareaSchema.js"
@@ -10,7 +10,7 @@ router.post('/crear',validateSchema(createTarea),register)
 
 router.get('/proyecto/:id',getByProject)
 
-router.get('/proyecto-usuario/:id',getByProject)
+router.get('/proyecto-tecnico/:id/:id_usuario',getByProjectAndUser)
 
 router.get('/seleccionar/:id',getByProject)
 

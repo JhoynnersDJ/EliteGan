@@ -81,7 +81,9 @@ export const register = async (req, res) => {
     var time = calcularDiferenciaDeTiempo(hora_inicio, hora_fin);
 
     var time2 = calculartarifa(hora_inicio, hora_fin, fecha, holidays);
+    
     if (time2.fin && hora_fin !== "00:00") {
+      
       const horas1 = formatHour(hora_inicio, hora_fin);
 
       const horas2 = formatHour(hora_inicio, hora_fin);
@@ -90,12 +92,12 @@ export const register = async (req, res) => {
         hora_inicio,
         "00:00AM"
       ).tiempo_minutos;
-      const tasks = await tarea.findTaskByProjectId(id_proyecto);
+      const tasks1 = await tarea.findTaskByProjectId(id_proyecto);
 
-      if (tasks.length !== 0) {
+      if (tasks1.length !== 0) {
         if (
-          !comprobarHorario(tasks, fecha, horas1.tiempo_formateado1) ||
-          !comprobarHorario(tasks, fecha, "00:00AM")
+          !comprobarHorario(tasks1, fecha, horas1.tiempo_formateado1, id_usuario) ||
+          !comprobarHorario(tasks1, fecha, "00:00AM", id_usuario)
         ) {
           return res.status(406).json({
             message: "No se puede agrear tareas en tiempo ya ocupado",
@@ -103,10 +105,10 @@ export const register = async (req, res) => {
         }
       }
 
-      if (tasks.length !== 0) {
+      if (tasks1.length !== 0) {
         if (
-          !comprobarHorario(tasks, time2.fin, "00:00AM") ||
-          !comprobarHorario(tasks, time2.fin, horas2.tiempo_formateado2)
+          !comprobarHorario(tasks1, time2.fin, "00:00AM", id_usuario) ||
+          !comprobarHorario(tasks1, time2.fin, horas2.tiempo_formateado2, id_usuario)
         ) {
           return res.status(406).json({
             message: "No se puede agrear tareas en tiempo ya ocupado",
@@ -127,10 +129,10 @@ export const register = async (req, res) => {
         null,
         id_usuario
       );
-      let factor_horas1 = time2.tarifa1 * 60;
+      let factor_horas1 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,
-        Number(factor_horas1.toFixed(1))
+        Number(factor_horas1.toFixed(2))
       );
 
       await tarea.save(tareaSaved_dia1);
@@ -155,19 +157,15 @@ export const register = async (req, res) => {
         id_usuario
       );
       await tarea.save(tareaSaved_dia2);
-      let factor_horas2 = time2.tarifa2 * 60;
+      let factor_horas2 = parseFloat(time2.tarifa2) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,
-        Number(factor_horas2.toFixed(1))
+        Number(factor_horas2.toFixed(2))
       );
     } else {
-      const tasks2 = await tarea.findUserByProjectId(id_proyecto);
-      //console.log(tasks2)
-
       const horas = formatHour(hora_inicio, hora_fin);
-
+      
       const tasks = await tarea.findTaskByProjectId(id_proyecto);
-      let algunaHoraLibre = true;
       if (tasks.length !== 0) {
         if (
           !comprobarHorario(
@@ -198,12 +196,15 @@ export const register = async (req, res) => {
         null,
         id_usuario
       );
-
+      console.log(time2)
+      console.log(tareaSaved)
+      console.log(time2)
       await tarea.save(tareaSaved);
-      let factor_horas3 = time2.tarifa1 * 60;
+      let factor_horas3 = parseFloat(time2.tarifa1) * 60;
+      console.log()
       await tarea.restPoolProjectById(
         id_proyecto,
-        Number(factor_horas3.toFixed(1))
+        Number(factor_horas3.toFixed(2))
       );
     }
     res
@@ -237,16 +238,21 @@ export const getByProject = async (req, res) => {
 };
 
 export const getByProjectAndUser = async (req, res) => {
-  const { id } = req.params;
-  const { id_usuario } = req.body;
+  const { id, id_usuario } = req.params;
+  //const { id_usuario } = req.body;
   try {
     const proyectFound = await tarea.findProjectById(id);
 
     if (!proyectFound)
       return res.status(404).json({ message: "Proyecto no encontrado" });
 
+    const userFound = await tarea.getUserById(id_usuario);
+
+    if (!userFound)
+      return res.status(404).json({ message: "Usuario no encontrado" });
+
     const tasks = await tarea.findTaskByProjectAndUserId(id, id_usuario);
-    res.status(200).json(tasks);
+    return res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -77,7 +77,9 @@ export function calcularDiferenciaDeTiempo(date1, date2) {
 
   // Si las horas son iguales y representan el final del día, establece la diferencia a 24 horas
   if (horasInicio === horasFin && parseInt(minutes1) === parseInt(minutes2)) {
-    return "24:00";
+    const tiempo_formateado = "24:00";
+    const tiempo_minutos = 24*60;
+    return { tiempo_formateado, tiempo_minutos }    
   }
 
   // Calcula la diferencia en minutos
