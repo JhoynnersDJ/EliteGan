@@ -48,6 +48,23 @@ class MetricasController {
             res.status(500).json({ message: error.message });
         }
     }
+    // devuelve las metricas de un proyecto segun su id
+    static async metricasProyectoById(req, res){
+        try {
+            // capturar id de proyecto
+            const { id_proyecto } = req.params
+            // obtener las metricas de un proyecto
+            const proyecto = await Metricas.metricasProyecto(id_proyecto)
+            // si no existe el proyecto
+            if (!proyecto) {
+                return res.status(404).json({message: 'Proyecto no encontrado'});  
+            }
+            // devuelve una respuesta
+            res.status(200).json(proyecto);  
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
     // devuelve los 2 proyectos mas recientes por un usuario
     static async proyectosRecientesByUser(req, res){
         try {
