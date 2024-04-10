@@ -57,7 +57,7 @@ async function restPoolProjectById(id, horas) {
   if (dbSelect == "SEQUELIZE") {
     const project = await Proyectos.findByPk(id);
     if (!project) return null;
-    const result = project.pool_horas - parseInt(horas);
+    const result = project.pool_horas - Number(horas);
     const resultHour = project.horas_trabajadas + parseFloat(horas);
     project.pool_horas = result;
     project.horas_trabajadas = resultHour;
@@ -178,7 +178,7 @@ async function deleteTasksById(id) {
     const project = await Proyectos.findByPk(task.dataValues.id_proyecto);
     if (!project) return null;
 
-    const plus = project.pool_horas + (parseInt(task.factor_tiempo_total)*60);
+    const plus = project.pool_horas + (Number(task.factor_tiempo_total)*60);
     const minus = project.horas_trabajadas - (parseFloat(task.factor_tiempo_total)*60);
     console.log(minus)
     project.pool_horas = plus;
