@@ -181,12 +181,12 @@ export function calculartarifa(date1, date2, inicio, holidays) {
     }
   }
 
-  if (!tarifa1) tarifa1 = Number(tarifa.toFixed(3));
+  if (!tarifa1) tarifa1 = Number(tarifa.toFixed(2));
 
   if (tarifa !== tarifa1)
-    tarifa2 = Number(tarifa.toFixed(3)) - Number(tarifa1.toFixed(3));
+    tarifa2 = Number(tarifa.toFixed(2)) - Number(tarifa1.toFixed(2));
 
-  tarifa1 = Number(tarifa1.toFixed(3));
+  tarifa1 = Number(tarifa1.toFixed(2));
   //console.log(tarifa1);
   return { tarifa1, tarifa2, fin };
 }
