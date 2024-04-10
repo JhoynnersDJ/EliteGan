@@ -2,7 +2,7 @@
 
 export function formatearMinutos(minutos) {
     let horas = Math.floor(minutos / 60)
-    let minutosRestantes = minutos % 60
+    let minutosRestantes = parseInt(minutos % 60)
     if ((horas < 0 ) && (minutosRestantes < 0)) {
         horas = horas.toString().replace('-','').padStart(3, '-0')
         minutosRestantes = minutosRestantes.toString().replace('-','').padStart(2, '0')
