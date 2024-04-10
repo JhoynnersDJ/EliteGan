@@ -37,14 +37,10 @@ export const createTaskSchema = z.object({
 
 //se asegura que los campos ingresados al actualizar una tarea sean validos
 export const updateTaskSchema = z.object({
-    status: z.string({
-        required_error: 'Id de proyecto es requerido',
-        invalid_type_error: 'Id de proyecto debe ser tipo cadena de carácteres'
+    status: z.boolean({
+        invalid_type_error: 'Status debe ser tipo cadena de carácteres'
         }).optional(),
     id_servicio: z.string({
-        required_error: 'Id de servicio es requerido',
         invalid_type_error: 'Id de servicio debe ser tipo cadena de carácteres'
-        }).uuid({
-            message: "Id de servicio debe ser tipo UUID"
         }).optional()
 })
