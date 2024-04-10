@@ -71,7 +71,6 @@ export const register = async (req, res) => {
       });
     }
 
-    //console.log(tasks)
 
     const serviceFound = await tarea.findServiceById(id_servicio);
 
@@ -196,12 +195,8 @@ export const register = async (req, res) => {
         null,
         id_usuario
       );
-      console.log(time2)
-      console.log(tareaSaved)
-      console.log(time2)
       await tarea.save(tareaSaved);
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
-      console.log()
       await tarea.restPoolProjectById(
         id_proyecto,
         Number(factor_horas3.toFixed(2))
@@ -278,6 +273,10 @@ export const updateTask = async (req, res) => {
   const { id } = req.params;
   try {
     const taskFound = await tarea.getTasksById(id);
+
+    if (!taskFound)
+      return res.status(404).json({ message: "tarea no encontrada" });
+
     if (id_servicio) {
       const serviceFound = await tarea.findServiceById(id_servicio);
 
@@ -286,12 +285,9 @@ export const updateTask = async (req, res) => {
     } else {
       id_servicio = taskFound.id_servicio;
     }
-    console.log(typeof status);
     if (status && typeof status === "boolean") {
-      console.log("holaaaaaa");
       status = "C";
     } else {
-      console.log("holaaaaaa1111111111");
       status = "P";
     }
 
