@@ -187,6 +187,7 @@ export class Metricas {
                 nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
                 nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre_cliente,
                 total_tarifa_proyecto: sumaTotalTarifa,
+                fecha_busqueda: fecha_busqueda,
                 tareas: formatedTarea
             }
             return formattedProyectos
