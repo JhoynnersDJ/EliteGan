@@ -8,6 +8,21 @@ import {sequelizeClients} from './src/database/sequelize.js';
 
 import ClientesRouter from './src/modules/clientes/routes/ClientesRouter.js';
 import ResponsablesClienteRouter from './src/modules/responsables_clientes/routes/responsables_clienteRoutes.js';
+import ServicioRouter from './src/modules/servicios/routes/ServicioRouter.js'
+import ProyectoRouter from './src/modules/proyectos/routes/ProyectoRouter.js'
+import MetricasRouter from './src/modules/metricas/routes/metricasRoutes.js'
+
+//usuarios
+import UsuariosRouter from './src/modules/usuarios/routes/usuarios.js'
+
+//feriados
+import FeriadosRouter from './src/modules/feriados/routes/feriados.js'
+
+//tareas
+import TareasRouter from './src/modules/tareas/routes/tareas.js'
+
+// tareas programadas de node-cron
+import { proyectoFin } from "./src/services/tareasProgramadas.js";
 
 const port = process.env.PORT || 3000;
 const host = process.env.HOST;
@@ -41,7 +56,26 @@ app.use('/clientes', ClientesRouter);
 //Middleware para responsable cliente
 app.use('/responsables-cliente', ResponsablesClienteRouter);
 
-app.use(express.static('public'));
+//Middleware para usuarios
+app.use('/usuarios', UsuariosRouter);
+
+//Middleware para feriados
+app.use('/feriados', FeriadosRouter);
+
+//Middleware para tareas
+app.use('/tareas', TareasRouter);
+//Middleware para servicios
+app.use('/servicios', ServicioRouter);
+//Middleware para proyectos
+app.use('/proyectos', ProyectoRouter);
+//Middleware para proyectos
+app.use('/metricas', MetricasRouter);
+
+
+// tareas programadas
+proyectoFin.start();
+
+// app.use(express.static('public'));
 
 app.listen(port, () => {
   console.log(`La aplicación está corriendo en http://${host}:${port}`);

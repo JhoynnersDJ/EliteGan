@@ -22,7 +22,7 @@ const Servicios = sequelize.define('servicios', {
     }, 
     tipo_servicio: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     }, 
     descripcion_servicio: {
         type: DataTypes.STRING,

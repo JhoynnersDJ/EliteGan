@@ -25,11 +25,20 @@ fecha_inicio: {
     allowNull: false
   },
 fecha_fin: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
     allowNull: false
   },
 pool_horas: {
     type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  pool_horas_contratadas: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  horas_trabajadas: {
+    type: DataTypes.FLOAT,
+    defaultValue: 0,
     allowNull: false,
   },
 id_responsable_cliente: {
@@ -41,7 +50,9 @@ id_responsable_cliente: {
     },
   },
 }, {
-  timestamps: false, // Desactivar las columnas createdAt y updatedAt
+  timestamps: true,
+  createdAt: true,
+  updatedAt: false
 });
 
 export { Proyectos } ;
