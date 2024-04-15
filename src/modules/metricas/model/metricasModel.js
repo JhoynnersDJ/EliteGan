@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { Proyectos, Usuarios, Asignaciones, Tareas, ResponsablesClienteR, EstadoUsuarios, ClientesR } from '../../../database/hormiwatch/asociaciones.js'
 import { sequelize } from "../../../database/sequelize.js";
 import { formatearMinutos } from "../../proyectos/libs/pool_horas.js";
@@ -96,7 +97,7 @@ export class Metricas {
     }
 
     // metricas de un proyecto por id
-    static async metricasProyecto(id_proyecto){
+    static async metricasProyecto(id_proyecto, fecha_busqueda){
         try {
           // funcion para las bases de datos de sequelize
           if (database === "SEQUELIZE") {
@@ -133,7 +134,8 @@ export class Metricas {
             // buscar los datos de las tareas de cada tecnico
             const tareas = await Tareas.findAll({
                 where: {
-                    id_proyecto: id_proyecto
+                    id_proyecto: id_proyecto,
+                    [Op.between]: [proyecto.fecha_inicio, fecha_busqueda]
                 },
                 attributes: [
                     'id_usuario',

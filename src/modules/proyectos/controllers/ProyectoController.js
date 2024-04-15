@@ -164,8 +164,7 @@ class ProyectoController {
           {
             code: "Bad Request",
             message: "Fecha de fin no válida, verifique que sea posterior a la fecha de creación",
-            details:
-              "La fecha de finalización debe ser posterior a la fecha de creación",
+            details: "La fecha de finalización debe ser posterior a la fecha de creación",
             timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
             requestID: fecha_fin,
           }

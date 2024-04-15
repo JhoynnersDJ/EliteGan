@@ -2,6 +2,7 @@ import { Metricas } from "../model/metricasModel.js";
 import { user } from "../../usuarios/model/UserModel.js";
 import { Proyecto } from "../../proyectos/model/ProyectoModel.js";
 import date from "date-and-time"
+import { Op } from "sequelize"
 
 class MetricasController {
     // devuelve la cantidad de proyectos completos segun el id_usuario
@@ -53,14 +54,66 @@ class MetricasController {
         try {
             // capturar id de proyecto
             const { id_proyecto } = req.params
-            // obtener las metricas de un proyecto
-            const proyecto = await Metricas.metricasProyecto(id_proyecto)
+            // fecha tope para la busqueda
+            const { fecha } = req.body
+            // buscar si el proyecto existe
+            const proyectoExistente = await Proyecto.findByPk(id_proyecto)
             // si no existe el proyecto
-            if (!proyecto) {
-                return res.status(404).json({message: 'Proyecto no encontrado'});  
+            if (!proyectoExistente) {
+                return res.status(404).json({
+                  code: "Recurso no encontrado",
+                  message: "Proyecto no encontrado",
+                  details:
+                    "Proyecto con el id " + id + " no se encuentra en la base de datos",
+                  timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+                  requestID: id,
+                });
+              }
+            // objeto Date con la fecha de inicio del proyecto
+            let fecha_inicio = new Date(proyectoExistente.fecha_inicio)
+            fecha_inicio = date.format(fecha_inicio, "YYYY-MM-DD")
+            console.log(fecha_inicio)
+            // objeto Date con la fecha fin del proyecto
+            let fecha_fin = new Date(proyectoExistente.fecha_fin)
+            fecha_fin = date.format(fecha_fin, "YYYY-MM-DD")
+            console.log(fecha_fin)
+            // objeto Date con la fecha de busqueda del proyecto
+            let fecha_busqueda = new Date(fecha)
+            console.log(fecha_busqueda)
+            // fecha_busqueda = date.addDays(fecha_busqueda, 1)
+            fecha_busqueda = date.format(fecha_busqueda, "YYYY-MM-DD")
+            // verificar que la fecha de busqueda sea posterior a la fecha de inicio
+            if (fecha_busqueda <= fecha_inicio) {
+                return res.status(400).json(
+                    {
+                        code: "Bad Request",
+                        message: "Fecha de búsqueda no válida, verifique que sea posterior a la fecha de creación de proyecto",
+                        details: "La fecha de finalización debe ser posterior a la fecha de creación",
+                        timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+                        requestID: fecha_busqueda,
+                    }
+                );
+            }
+            // verificar que la fecha de busqueda sea anterior o igual a la fecha de fin
+            if (fecha_busqueda > fecha_fin) {
+                return res.status(400).json(
+                    {
+                        code: "Bad Request",
+                        message: "Fecha de búsqueda no válida, verifique que sea anterior o igual a la fecha de finalización de proyecto",
+                        details: "La fecha de finalización debe ser posterior a la fecha de creación",
+                        timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+                        requestID: fecha_busqueda,
+                    }
+                );
+            }
+            // obtener las metricas de un proyecto
+            const metricas = await Metricas.metricasProyecto(id_proyecto, fecha_busqueda)
+            // si no existe el proyecto
+            if (!metricas) {
+                return res.status(404).json({message: 'Métricas no encontradas'});  
             }
             // devuelve una respuesta
-            res.status(200).json(proyecto);  
+            res.status(200).json(metricas);  
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
