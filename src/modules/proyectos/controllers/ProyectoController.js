@@ -1,4 +1,5 @@
 import { Proyecto } from "../model/ProyectoModel.js";
+import { Metricas } from "../../metricas/model/metricasModel.js";
 import { user } from "../../usuarios/model/UserModel.js";
 import  tarea  from "../../tareas/model/TareaModel.js";
 import { ResponsableClienteReplica } from "../../responsables_clientes/model/responsable_clienteModel.js";
@@ -672,6 +673,284 @@ class ProyectoController {
 
       // Establecer el contenido HTML de la página
       await page.setContent(content);
+      // Generar el PDF en formato A4
+      const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+
+      // Cerrar el navegador
+      await browser.close();
+
+      // Enviar el PDF como respuesta HTTP
+      res.contentType("application/pdf");
+      res.send(pdfBuffer);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  static async generarPDFProyectoSimpleUser(req, res) {
+    try {
+      // Capturar el id_proyecto de los parámetros de la solicitud
+      const { id } = req.params;
+
+      // Verificar si se proporcionó el id_proyecto
+      if (!id) {
+        return res
+          .status(400)
+          .json({ message: "Falta el parámetro id_proyecto" });
+      }
+      const project = await Proyecto.findByPkPDF(id);
+
+      // Comprobar si el proyecto existe
+      if (!project) {
+        return res.status(404).json({ message: "Proyecto no encontrado" });
+      }
+      // Configurar el contenido HTML que se va a renderizar en el PDF
+      const content = `
+        <!DOCTYPE html>
+        <html lang="en">
+        
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <script src="https://cdn.tailwindcss.com"></script>
+            <title>Reporte</title>
+        </head>
+        
+        <body>
+            <div class="flex flex-col justify-between my-8 mx-8">
+                <!-- Encabezado -->
+                <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl my-6 px-4">
+                    <!-- Logo -->
+                    <div class="flex p-4">
+                <h2 class="text-2xl font-bold text-center">Hormi<span class="text-sky-500">Watch</span></h2>
+                    </div>
+                    <!-- Titulo -->
+                    <div class="p-4">
+                        <h1 class="text-xl font-bold text-center text-gray-800">Reporte de Atencion al Cliente</h1>
+                    </div>
+                    <!-- Datos Solicitud -->
+                    <div class="text-right border-l-2 h-24 border-sky-500 flex flex-col p-4 justify-center">
+                        <p
+                        class="text-sm font-bold text-gray-800"
+                        >Fecha:
+                            <span class="font-normal">
+                            ${new Date().toLocaleDateString()}
+                            </span>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800">
+                            Codigo Proyecto:
+                            <span class="font-normal">
+                            ${project.id_proyecto.split("-")[0]}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <!-- Datos del Cliente -->
+                <h6 class="text-left font-bold">
+                    1. Datos del Cliente
+                </h6>
+                <h6 class="text-left font-bold">
+                <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl">
+                <div class="flex flex-col w-1/2 gap-y-2 py-2">
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Nombre: 
+                        <span class="font-normal">${
+                          project.nombre_cliente
+                        }</span>
+    
+                    </p>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                            Codigo Cliente:
+                            <span class="font-normal">
+                            ${project.id_cliente.split("-")[0]}
+                            </span>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800 px-2">
+                            Departamento:
+                            <span class="font-normal">
+                            ${project.departamento_responsable_cliente}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="flex flex-col border-l-2 w-1/2 border-sky-500 gap-y-2 py-2">
+                       <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                            Responsable Cliente:
+                            <span class="font-normal">
+                            ${project.nombre_responsable_cliente}
+                            </span>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                            Cargo:
+                            <span class="font-normal">
+                            ${project.cargo_responsable_cliente}
+                            </span>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800 px-2">
+                            Telefono:
+                            <span class="font-normal">
+                            ${project.telefono_responsable_cliente}
+                            </span>
+                       </p> 
+                    </div>
+                </div>
+                <!-- Datos del Proyecto  -->
+                <h6 class="text-left font-bold">
+                    2. Datos del Proyecto
+                </h6>
+                <div class="flex flex-col gap-y-2 py-2 border-2 border-sky-500 rounded-2xl">
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Nombre del Proyecto:
+                        <span class="font-normal">
+                        ${project.nombre_proyecto}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Fecha de Inicio:
+                        <span class="font-normal">
+                        ${project.fecha_inicio}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                        Pool de Horas Asignadas
+                        <span class="font-normal">
+                        ${project.pool_horas}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 px-2 border-b-[1px] border-gray-600">
+                        Tarifa por Hora:
+                        <span class="font-normal">
+                        ${project.tarifa}
+                        </span>
+                    </p>
+                    <p class="text-sm font-bold text-gray-800 px-2">
+                        Tecnico Asignado:
+                        <span class="font-normal">
+                        ${project.usuarios.map(
+                          (usuario) => ` ${usuario.nombre} ${usuario.apellido}`
+                        )}
+                        </span>
+                    </p>
+                </div>
+                <!-- Detalles del Proyecto -->
+                <h6 class="text-left font-bold">
+                    3. Detalles del Proyecto
+                </h6>
+                <div class="flex flex-col gap-y-2 py-2 border-2 border-sky-500 rounded-2xl">
+                    <!-- Encabezado de la tabla explicando la Leyenda de la columna estatus -->
+                    <p class="text-xs text-gray-800 text-center px-2">
+                        Leyenda Columna Estatus:  C= Actividad Culminada /  P= Actividad Pendiente
+                    </p>
+                    <p class="text-xs text-gray-800 text-center px-2">
+                        Horario Oficina <span class="font-bold" >
+                            (HO) : Factor = 1
+                        </span> / Extrahorario 
+                        
+                        <span class="font-bold" >
+                            (EH) : Factor = 1,5
+                        </span>/ Dom y feriado <span class="font-bold" >
+                            (DF): Factor = 2
+                        </span>
+                    </p>
+                    <div class="overflow-x-auto px-2">
+                        <table class="min-w-full divide-y divide-gray-200">
+                          <thead class="bg-sky-500 text-sky-100">
+                            <tr>
+                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Tecnico</th>
+                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Cedula</th>
+                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Correo Electronico</th>
+                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Cantidad de Tareas</th>
+                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Tiempo total</th>
+                            </tr>
+                          </thead>
+                          <tbody class="bg-white divide-y divide-gray-200 text-gray-800">
+                          <!-- Iterar sobre las tareas -->
+                          ${project.tecnicos
+                            .map(
+                               (usuario) => `
+                            <tr>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                usuario.nombre
+                              } ${usuario.apellido}</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                usuario.cedula
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                usuario.email
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                 usuario.allTask
+                              }</td>
+                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                                 usuario.allhours
+                              }</td>                              
+                            </tr>
+                            `
+                            )
+                            .join("")}
+                          </tbody>
+                          <tfoot class="">
+                            <tr class="bg-white border-[1px]">                              
+                            </tr>
+                        </table>
+                      </div>
+                </div>
+                <!-- Aceptacion -->
+                <h6 class="text-left font-bold">
+                    4. Aceptacion
+                </h6>
+                <div class="flex justify-between items-center border-2 border-sky-500 rounded-2xl">
+                    <div class="flex flex-col gap-y-2 py-2 w-1/2  border-sky-500">
+                        <h6 class="text-left font-bold pl-2">
+                            Por el Lider Tecnico:
+                        </h6>
+                        <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                            Nombre: 
+                            <span class="font-normal">
+
+                            </span>
+                        </p>
+                        <p class="text-sm font-bold text-gray-800 border-b-[1px] border-gray-600 px-2">
+                            C.I:
+                            <span class="font-normal">
+
+                            </span>
+                        </p>  
+                                                            <!-- Genera espacio de firmas por cada usuario -->
+                                        <p class="text-sm font-bold text-gray-800 px-2">
+                                        Firma: 
+                                        <span class="font-normal">
+                                           ______________________________________________________
+                                        </span>
+                                        </p>
+          
+
+                    </div>
+                </div>
+                <!-- Cierre -->
+                <div class="flex flex-col gap-y-2 my-4 py-2 border-2 border-sky-500 rounded-2xl">
+                    <p class="p-2">
+                        Al firmar este reporte como receptor del servicio prestado, el cliente acepta y está conforme con el
+                        mismo, así como que ha verificado su efectiva ejecución. Los términos para el posterior pago de la
+                        correspondiente factura, si el caso amerita, será según las tarifas vigentes para el tipo de servicio
+                        prestado y/o cotizado, previamente autorizado por el Cliente.
+                    </p>
+                </div>
+            </div>
+        </div>
+        </body>
+        
+        </html>
+        `;
+      // Crear una instancia del navegador con Puppeteer
+      const browser = await puppeteer.launch();
+
+      // Abrir una nueva página
+      const page = await browser.newPage();
+
+      // Establecer el contenido HTML de la página
+      await page.setContent(content);
+
       // Generar el PDF en formato A4
       const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
 

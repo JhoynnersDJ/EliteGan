@@ -7,6 +7,7 @@ import {
   Tareas,
   Servicios,
 } from "../../../database/hormiwatch/asociaciones.js";
+import { Metricas } from "../../metricas/model/metricasModel.js";
 // import { user } from '../../usuarios/model/UserModel.js';
 import { formatearMinutos } from "../libs/pool_horas.js";
 import { sendEmail } from "../../../middlewares/sendEmail.js";
@@ -453,7 +454,7 @@ export class Proyecto {
             {
               model: Usuarios,
               attributes: [
-                ["id_usuario", "id"],
+                "id_usuario",
                 "nombre",
                 "apellido",
                 "email",
@@ -491,8 +492,35 @@ export class Proyecto {
 
             return accumulator;
           }, []);
-
-          
+          let tecnicos = [];
+          for  (const usuario of proyecto.usuarios ) {
+            const allTask = await Metricas.tareasByTecnico(usuario.id_usuario)
+            const allhours= await Metricas.totalFactorByUser(usuario.id_usuario)            
+              const jkl ={
+                nombre: usuario.nombre,
+                apellido: usuario.apellido,
+                cedula: usuario.cedula,
+                email: usuario.email,
+                allTask: allTask,
+                allhours: allhours
+              };             
+              tecnicos.push(jkl)
+          }
+          /*const tecnicos2 = proyecto.usuarios.forEach(async (tecnicos, usuario) => {
+            const allTask = await Metricas.totalFactorByUser(usuario.id_usuario)
+            const allhours= await Metricas.totalFactorByUser(usuario.id_usuario)            
+              const jkl ={
+                nombre: usuario.nombre,
+                apellido: usuario.apellido,
+                cedula: usuario.cedula,
+                email: usuario.email,
+                allTask: allTask,
+                allhours: allhours
+              };              
+              tecnicos.push(jkl)
+              return tecnicos
+          }, []);*/
+          //console.log(tecnicos)
         
         // formato de los datos
         const formattedProyecto = {
@@ -522,6 +550,7 @@ export class Proyecto {
           tareas: proyecto.tareas,
           total_horas_tareas: sumaFactor,
           total_tareas: total_tareas,
+          tecnicos: tecnicos
         };
         return formattedProyecto;
       }

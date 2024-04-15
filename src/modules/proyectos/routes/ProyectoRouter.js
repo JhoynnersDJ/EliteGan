@@ -18,5 +18,6 @@ ProyectoRouter.delete('/eliminar/:id', ProyectoController.delete)
 //ProyectoRouter.get('/Graficaproyecto/:id', ProyectoController.graph)
 ProyectoRouter.get('/:id/pdf', ProyectoController.generarPDFProyectoSimple)
 ProyectoRouter.get('/:id/pdf-grafico', ProyectoController.generarPDFProyectoGrafico)
+ProyectoRouter.get('/:id/pdf-usuario', ProyectoController.generarPDFProyectoSimpleUser)
 
 export default ProyectoRouter
