@@ -333,6 +333,7 @@ export const addUserPhoto = async (req, res) => {
     //si no encuentra al usurio da el mensaje de error
     if (!userFound)
       return res.status(404).json({ message: "Usuario no encontrado" });
+    console.log(req.files)
     if (!req.files[0].buffer)
       return res.status(406).json({ message: "No se agrego foto de perfil" });
     //busca al usuario por el email

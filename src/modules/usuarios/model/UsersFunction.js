@@ -230,12 +230,13 @@ async function findOne(email) {
   //return users.users.find((users) => users.email == email);
 }
 
-async function saveProfilePhoto(id_usuario, file){   
-  console.log(file) 
+async function saveProfilePhoto(id_usuario, file){
   //const bitmap = fs.readFileSync(file);
   const buf = Buffer.from(file);
   const userFound2 = await Usuarios.findByPk(id_usuario);
   userFound2.foto_perfil = buf;
+  /*const userFound2 = await Usuarios.findByPk(id_usuario);
+  userFound2.foto_perfil = file;*/
   userFound2.save()
   return userFound2;
   /*const buf2 = Buffer.from(userFound2.foto_perfil, 'binary');

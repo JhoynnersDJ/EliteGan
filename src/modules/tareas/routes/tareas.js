@@ -6,16 +6,16 @@ import {createTaskSchema, updateTaskSchema} from "../schemas/TareaSchema.js"
 
 const router = Router();
 
-router.post('/crear',validateSchema(createTaskSchema),register)
+router.post('/crear',authRequired,validateSchema(createTaskSchema),register)
 
-router.get('/proyecto/:id',getByProject)
+router.get('/proyecto/:id',authRequired,getByProject)
 
-router.get('/proyecto-tecnico/:id/:id_usuario',getByProjectAndUser)
+router.get('/proyecto-tecnico/:id/:id_usuario',authRequired,getByProjectAndUser)
 
-router.get('/seleccionar/:id',getByProject)
+router.get('/seleccionar/:id',authRequired,getByProject)
 
-router.delete('/eliminar/:id',deleteById)
+router.delete('/eliminar/:id',authRequired,deleteById)
 
-router.put('/actualizar/:id',validateSchema(updateTaskSchema), updateTask)
+router.put('/actualizar/:id',authRequired,validateSchema(updateTaskSchema), updateTask)
 
 export default router;

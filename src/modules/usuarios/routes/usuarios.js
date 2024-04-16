@@ -41,7 +41,7 @@ router.post("/login", validateSchema(loginSchema), login);
 router.post("/logout", authRequired, logout);
 
 //obtener datos del usuario
-router.get("/perfil/:id_usuario", profile);
+router.get("/perfil/:id_usuario",authRequired, profile);
 
 //actualizar rol del usuario
 router.post(
@@ -53,29 +53,29 @@ router.post(
 );
 
 //verificar el authToken
-router.get("/verificar", verifyToken);
+router.get("/verificar",authRequired, verifyToken);
 
 //enviar token por email, verificado = false
-router.post("/actualizar-email", validateSchema(updateEmailTokenSchema),updateEmailToken);
+router.post("/actualizar-email", authRequired,validateSchema(updateEmailTokenSchema),updateEmailToken);
 
 //cambiar email por el nuevo, verificado = true
-router.post("/verificar-email",validateSchema(updateEmailSchema), updateEmail);
+router.post("/verificar-email",authRequired,validateSchema(updateEmailSchema), updateEmail);
 
-router.get("/todos-tecnicos", getByRol);
+router.get("/todos-tecnicos",authRequired, getByRol);
 
-router.post("/suspender_usuario/:id", authRequired2,suspendUser);
+router.post("/suspender_usuario/:id",authRequired, authRequired2,suspendUser);
 import multer from 'multer';
 const upload = multer();
-router.post("/foto-perfil",upload.array('foto_perfil'),addUserPhoto);
+router.post("/foto-perfil",upload.array('foto_perfil'),authRequired,addUserPhoto);
 
-router.put("/actualizar",updateUser);
+router.put("/actualizar",authRequired,updateUser);
 
-router.put("/actualizar-password",validateSchema(updatePasswordSchema),updatePassword);
+router.put("/actualizar-password",authRequired,validateSchema(updatePasswordSchema),updatePassword);
 
 //enviar token por email, verificado = false
-router.post("/actualizar-password",validateSchema(forgotUpdatePasswordTokenSchema), updatePasswordToken);
+router.post("/actualizar-password",authRequired,validateSchema(forgotUpdatePasswordTokenSchema), updatePasswordToken);
 
 //cambiar email por el nuevo, verificado = true
-router.put("/verificar-password",validateSchema(forgotUpdatePasswordSchema), forgotPassword);
+router.put("/verificar-password",authRequired,validateSchema(forgotUpdatePasswordSchema), forgotPassword);
 
 export default router;
