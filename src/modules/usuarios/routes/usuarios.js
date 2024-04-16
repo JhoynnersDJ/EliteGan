@@ -30,6 +30,7 @@ import {
   forgotUpdatePasswordTokenSchema
 } from "../schemas/UserSchema.js";
 
+
 const router = Router();
 //registrar usuario (nombre de usuario, contraseña, email)
 router.post("/crear", validateSchema(registerSchema), register);
@@ -64,9 +65,13 @@ router.post("/verificar-email",authRequired,validateSchema(updateEmailSchema), u
 router.get("/todos-tecnicos",authRequired, getByRol);
 
 router.post("/suspender_usuario/:id",authRequired, authRequired2,suspendUser);
+
+import { getStorage } from "firebase/storage";
+// Initialize Cloud Storage and get a reference to the service
+const storage = getStorage();
 import multer from 'multer';
-const upload = multer();
-router.post("/foto-perfil",upload.array('foto_perfil'),authRequired,addUserPhoto);
+const upload = multer({ storage: multer.memoryStorage() });
+router.post("/foto-perfil",upload.array('foto_perfil'),addUserPhoto);
 
 router.put("/actualizar",authRequired,updateUser);
 

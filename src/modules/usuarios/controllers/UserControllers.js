@@ -3,6 +3,16 @@ import bcrypt from "bcryptjs";
 import { createAccessToken } from "../libs/jwt.js";
 import jwt from "jsonwebtoken";
 import { v4 } from "uuid";
+import { initializeApp } from "firebase/app";
+import { getStorage, ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
+import multer from "multer";
+import config from "../libs/firebase.js"
+
+//Initialize a firebase application
+initializeApp(config.firebaseConfig);
+
+// Initialize Cloud Storage and get a reference to the service
+const storage = getStorage();
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
@@ -58,7 +68,6 @@ export const register = async (req, res) => {
       id_usuario: newuser.getUserId(),
       id_rol: userSaved.id_rol,
     });    
-
     await user.sendEmailTokenVerify(newuser, password);
 
     //se envia de respuesta el token yy los datos ingresados
@@ -329,7 +338,7 @@ export const addUserPhoto = async (req, res) => {
   //const { foto_perfil } = req.files;
   try {
     //busca al usuario por el id
-    const userFound = await user.findOneById(id_usuario);
+    /*const userFound = await user.findOneById(id_usuario);
     //si no encuentra al usurio da el mensaje de error
     if (!userFound)
       return res.status(404).json({ message: "Usuario no encontrado" });
@@ -340,7 +349,30 @@ export const addUserPhoto = async (req, res) => {
     const newPhoto = await user.saveProfilePhoto(
       id_usuario,
       req.files[0].buffer
-    );
+    );*/
+    const storageRef = ref(storage, `files/${req.files[0].originalname + "       " }`);
+    
+        // Create file metadata including the content type
+        const metadata = {
+            contentType: req.files[0].mimetype,
+        };
+        
+        //console.log(metadata)
+        //console.log(storageRef)
+        // Upload the file in the bucket storage
+        const snapshot = await uploadBytesResumable(storageRef, req.files[0].buffer, metadata);
+        //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
+        
+        // Grab the public url
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        const newPhoto = await user.saveProfilePhoto(
+          id_usuario,
+          downloadURL
+        );
+        return res.send({
+            message: "Foto de perfil agregada",
+            downloadURL: downloadURL
+        })
 
     res.status(200).json({ message: "Foto de perfil agregada" });
   } catch (error) {
