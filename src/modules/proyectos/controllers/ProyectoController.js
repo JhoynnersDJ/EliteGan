@@ -666,7 +666,7 @@ class ProyectoController {
         </html>
         `;
       // Crear una instancia del navegador con Puppeteer
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({executablePath: '/opt/render/.cache/puppeteer/chrome/linux-123.0.6312.122/chrome-linux64/chrome'});
 
       // Abrir una nueva página
       const page = await browser.newPage();
