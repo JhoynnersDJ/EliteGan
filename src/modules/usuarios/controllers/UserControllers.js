@@ -353,19 +353,6 @@ export const addUserPhoto = async (req, res) => {
   const { id_usuario } = req.body;
   //const { foto_perfil } = req.files;
   try {
-    //busca al usuario por el id
-    /*const userFound = await user.findOneById(id_usuario);
-    //si no encuentra al usurio da el mensaje de error
-    if (!userFound)
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    console.log(req.files)
-    if (!req.files[0].buffer)
-      return res.status(406).json({ message: "No se agrego foto de perfil" });
-    //busca al usuario por el email
-    const newPhoto = await user.saveProfilePhoto(
-      id_usuario,
-      req.files[0].buffer
-    );*/
     const storageRef = ref(
       storage,
       `files/${req.files[0].originalname + "       "}`
@@ -390,7 +377,10 @@ export const addUserPhoto = async (req, res) => {
     const downloadURL = await getDownloadURL(snapshot.ref);
     const newPhoto = await user.saveProfilePhoto(id_usuario, downloadURL);
 
-    return res.status(200).json({ message: "Foto de perfil agregada" });
+    return res.status(200).json({ 
+      message: "Foto de perfil agregada" ,
+      foto_perfil: downloadURL
+  });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
