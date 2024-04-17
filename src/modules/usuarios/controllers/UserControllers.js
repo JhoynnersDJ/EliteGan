@@ -3,6 +3,21 @@ import bcrypt from "bcryptjs";
 import { createAccessToken } from "../libs/jwt.js";
 import jwt from "jsonwebtoken";
 import { v4 } from "uuid";
+import { initializeApp } from "firebase/app";
+import {
+  getStorage,
+  ref,
+  getDownloadURL,
+  uploadBytesResumable,
+} from "firebase/storage";
+import multer from "multer";
+import config from "../libs/firebase.js";
+
+//Initialize a firebase application
+initializeApp(config.firebaseConfig);
+
+// Initialize Cloud Storage and get a reference to the service
+const storage = getStorage();
 
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
 
@@ -25,7 +40,8 @@ export const register = async (req, res) => {
     const userFound = await user.findOne(email);
 
     //si se encuentra el email se da el siguiente mensaje de error
-    if (userFound) return res.status(511).json(["El correo electronico ya existe"]);
+    if (userFound)
+      return res.status(511).json(["El correo electronico ya existe"]);
 
     //se cifra la contraseña
     const passwordHash = await bcrypt.hash(password, 10);
@@ -57,15 +73,14 @@ export const register = async (req, res) => {
     const authToken = await createAccessToken({
       id_usuario: newuser.getUserId(),
       id_rol: userSaved.id_rol,
-    });    
-
+    });
     await user.sendEmailTokenVerify(newuser, password);
 
     //se envia de respuesta el token yy los datos ingresados
     res.cookie("authToken", authToken);
 
     res.status(200).json({
-      message: "Usuario creado exitosamente" 
+      message: "Usuario creado exitosamente",
     });
     //userFound = null;
     //newuser = null;
@@ -85,11 +100,15 @@ export const login = async (req, res) => {
 
     //si no se encuentra el email se da el siguiente mensaje de error
     if (!userFound)
-      return res.status(511).json({ message: "Correo electronico no encontrado" });
+      return res
+        .status(511)
+        .json({ message: "Correo electronico no encontrado" });
     const verificado = await user.verificado(email);
     //si no se encuentra el email se da el siguiente mensaje de error
     if (!verificado)
-      return res.status(511).json({ message: "Correo electronico no verificado" });
+      return res
+        .status(511)
+        .json({ message: "Correo electronico no verificado" });
 
     //se decifra la contrase;a y se compara
     const isMatch = await bcrypt.compare(password, userFound.password);
@@ -181,7 +200,7 @@ export const updateRol = async (req, res) => {
     if (!newuser) return res.status(404).json({ message: "rol no encontrado" });
 
     res.status(200).json({
-      message: "Rol actualizado correctamente" 
+      message: "Rol actualizado correctamente",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -199,7 +218,8 @@ export const verifyToken = async (req, res) => {
 
       const userFound = await user.findOneById(user2.id_usuario);
 
-      if (!userFound) return res.status(404).json({ message: "Usuario no encontrado" });
+      if (!userFound)
+        return res.status(404).json({ message: "Usuario no encontrado" });
 
       return res.json({
         id_usuario: userFound.id_us,
@@ -223,11 +243,15 @@ export const updateEmailToken = async (req, res) => {
   try {
     const userFound2 = await user.findOne(email);
 
-    if (userFound2) return res.status(404).json({ message: "Este Email ya se encuantra registrado" });
+    if (userFound2)
+      return res
+        .status(404)
+        .json({ message: "Este Email ya se encuantra registrado" });
 
     const userFound = await user.findOneById(id_usuario);
 
-    if (!userFound) return res.status(404).json({ message: "Usuario no encontrado" });
+    if (!userFound)
+      return res.status(404).json({ message: "Usuario no encontrado" });
 
     const token = v4().split("-")[0];
 
@@ -238,7 +262,6 @@ export const updateEmailToken = async (req, res) => {
 
     return res.json({
       message: "Codigo de verificacion enviado al email",
-      
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -254,21 +277,24 @@ export const updateEmail = async (req, res) => {
   try {
     const userFound = await user.findOneById(id_usuario);
 
-    if (!userFound) return res.status(404).json({ message: "Usuario no encontrado" });
+    if (!userFound)
+      return res.status(404).json({ message: "Usuario no encontrado" });
 
     if (userFound.token === token) {
       await user.updateVerificar("verificado", userFound.id_usuario);
 
       const userSaved = await user.updateEmail(userFound.id_usuario, email);
     } else {
-      return res.status(401).json({ message: "Codigo de verificacion no coincide" });
+      return res
+        .status(401)
+        .json({ message: "Codigo de verificacion no coincide" });
     }
     res.cookie("authToken", "", {
       expires: new Date(0),
     });
 
     return res.json({
-      message: "Email actualizado correctamente"
+      message: "Email actualizado correctamente",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -316,9 +342,8 @@ export const suspendUser = async (req, res) => {
         .json({ message: "estado de usuario no encontrado" });
 
     res.status(200).json({
-      message: "Usuario suspendido exitosamente"
+      message: "Usuario suspendido exitosamente",
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -329,19 +354,43 @@ export const addUserPhoto = async (req, res) => {
   //const { foto_perfil } = req.files;
   try {
     //busca al usuario por el id
-    const userFound = await user.findOneById(id_usuario);
+    /*const userFound = await user.findOneById(id_usuario);
     //si no encuentra al usurio da el mensaje de error
     if (!userFound)
       return res.status(404).json({ message: "Usuario no encontrado" });
+    console.log(req.files)
     if (!req.files[0].buffer)
       return res.status(406).json({ message: "No se agrego foto de perfil" });
     //busca al usuario por el email
     const newPhoto = await user.saveProfilePhoto(
       id_usuario,
       req.files[0].buffer
+    );*/
+    const storageRef = ref(
+      storage,
+      `files/${req.files[0].originalname + "       "}`
     );
 
-    res.status(200).json({ message: "Foto de perfil agregada" });
+    // Create file metadata including the content type
+    const metadata = {
+      contentType: req.files[0].mimetype,
+    };
+
+    //console.log(metadata)
+    //console.log(storageRef)
+    // Upload the file in the bucket storage
+    const snapshot = await uploadBytesResumable(
+      storageRef,
+      req.files[0].buffer,
+      metadata
+    );
+    //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
+
+    // Grab the public url
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    const newPhoto = await user.saveProfilePhoto(id_usuario, downloadURL);
+
+    return res.status(200).json({ message: "Foto de perfil agregada" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -382,7 +431,7 @@ export const updateUser = async (req, res) => {
     const userUpdate = await user.updateUser(newuser);
 
     res.status(200).json({
-      message: "Usuario actualizado correctamente"
+      message: "Usuario actualizado correctamente",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -396,7 +445,8 @@ export const updatePassword = async (req, res) => {
   try {
     const userFound = await user.findOneById(id_usuario);
 
-    if (!userFound) return res.status(511).json({ message: "Usuario no encontrado" });
+    if (!userFound)
+      return res.status(511).json({ message: "Usuario no encontrado" });
 
     //se decifra la contrase;a y se compara
     const isMatch = await bcrypt.compare(password, userFound.password);
@@ -411,7 +461,9 @@ export const updatePassword = async (req, res) => {
       expires: new Date(0),
     });
 
-    return res.status(200).json({message: "Contraseña actualizada correctamente" });
+    return res
+      .status(200)
+      .json({ message: "Contraseña actualizada correctamente" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -425,7 +477,10 @@ export const updatePasswordToken = async (req, res) => {
   try {
     const userFound = await user.findOne(email);
 
-    if (!userFound) return res.status(511).json({ message: "Correo electronico no encontrado" });
+    if (!userFound)
+      return res
+        .status(511)
+        .json({ message: "Correo electronico no encontrado" });
 
     const token = v4().split("-")[0];
 
@@ -435,7 +490,7 @@ export const updatePasswordToken = async (req, res) => {
     await user.sendEmailTokenPassword(token, email, userFound.nombre);
 
     return res.status(200).json({
-      message: "Token enviado al email exitosamente" 
+      message: "Token enviado al email exitosamente",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -448,8 +503,11 @@ export const forgotPassword = async (req, res) => {
   const { password, email, token } = req.body;
   try {
     const userFound = await user.findOne(email);
-    
-    if (!userFound) return res.status(511).json({ message: "Correo electronico no encontrado" });
+
+    if (!userFound)
+      return res
+        .status(511)
+        .json({ message: "Correo electronico no encontrado" });
 
     if (userFound.token === token) {
       await user.updateVerificar("verificado", userFound.id_usuario);
@@ -460,11 +518,8 @@ export const forgotPassword = async (req, res) => {
         userFound.id_usuario,
         passwordHash
       );
-
     } else {
-
       return res.status(401).json({ message: "Token no coincide" });
-
     }
 
     res.cookie("authToken", "", {
@@ -472,9 +527,8 @@ export const forgotPassword = async (req, res) => {
     });
 
     return res.status(200).json({
-      message: "Contraseña actualizada correctamente" 
+      message: "Contraseña actualizada correctamente",
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
