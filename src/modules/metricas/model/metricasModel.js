@@ -97,7 +97,7 @@ export class Metricas {
     }
 
     // metricas de un proyecto por id
-    static async metricasProyecto(id_proyecto, fecha_busqueda){
+    static async metricasProyecto(id_proyecto, fecha_busqueda_inicio, fecha_busqueda_fin){
         try {
           // funcion para las bases de datos de sequelize
           if (database === "SEQUELIZE") {
@@ -135,7 +135,7 @@ export class Metricas {
             const tareas = await Tareas.findAll({
                 where: {
                     id_proyecto: id_proyecto,
-                    [Op.between]: [proyecto.fecha_inicio, fecha_busqueda]
+                    [Op.between]: [fecha_busqueda_inicio, fecha_busqueda_fin]
                 },
                 attributes: [
                     'id_usuario',
@@ -187,7 +187,8 @@ export class Metricas {
                 nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
                 nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre_cliente,
                 total_tarifa_proyecto: sumaTotalTarifa,
-                fecha_busqueda: fecha_busqueda,
+                fecha_busqueda_inicio: fecha_busqueda_inicio,
+                fecha_busqueda_fin: fecha_busqueda_fin,
                 tareas: formatedTarea
             }
             return formattedProyectos

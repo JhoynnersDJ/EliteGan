@@ -55,7 +55,7 @@ class MetricasController {
             // capturar id de proyecto
             const { id_proyecto } = req.params
             // fecha tope para la busqueda
-            const { fecha } = req.body
+            const { fecha_busqueda_inicio, fecha_busqueda_fin } = req.body
             // buscar si el proyecto existe
             const proyectoExistente = await Proyecto.findByPk(id_proyecto)
             // si no existe el proyecto
@@ -77,37 +77,64 @@ class MetricasController {
             let fecha_fin = new Date(proyectoExistente.fecha_fin)
             fecha_fin = date.format(fecha_fin, "YYYY-MM-DD")
             console.log(fecha_fin)
-            // objeto Date con la fecha de busqueda del proyecto
-            let fecha_busqueda = new Date(fecha)
-            console.log(fecha_busqueda)
+            // objeto Date con la fecha de busqueda de fin del proyecto
+            let fecha_fin_busqueda = new Date(fecha_busqueda_fin)
+            console.log(fecha_fin_busqueda)
+            // objeto Date con la fecha de busqueda de fin del proyecto
+            let fecha_inicio_busqueda = new Date(fecha_busqueda_inicio)
+            console.log(fecha_inicio_busqueda)
             // fecha_busqueda = date.addDays(fecha_busqueda, 1)
-            fecha_busqueda = date.format(fecha_busqueda, "YYYY-MM-DD")
-            // verificar que la fecha de busqueda sea posterior a la fecha de inicio
-            if (fecha_busqueda <= fecha_inicio) {
+            fecha_fin_busqueda = date.format(fecha_fin_busqueda, "YYYY-MM-DD")
+            // verificar que la fecha de busqueda fin sea posterior a la fecha de inicio
+            if (fecha_fin_busqueda <= fecha_inicio) {
                 return res.status(400).json(
                     {
                         code: "Bad Request",
-                        message: "Fecha de búsqueda no válida, verifique que sea posterior a la fecha de creación de proyecto",
+                        message: "Fecha de búsqueda (fin) no válida, verifique que sea posterior a la fecha de creación de proyecto",
                         details: "La fecha de finalización debe ser posterior a la fecha de creación",
                         timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
-                        requestID: fecha_busqueda,
+                        requestID: fecha_fin_busqueda,
                     }
                 );
             }
-            // verificar que la fecha de busqueda sea anterior o igual a la fecha de fin
-            if (fecha_busqueda > fecha_fin) {
+            // verificar que la fecha de busqueda fin sea anterior o igual a la fecha de fin
+            if (fecha_fin_busqueda > fecha_fin) {
+                return res.status(400).json(
+                    {
+                        code: "Bad Request",
+                        message: "Fecha de búsqueda (fin) no válida, verifique que sea anterior o igual a la fecha de finalización de proyecto",
+                        details: "La fecha de finalización debe ser posterior a la fecha de creación",
+                        timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+                        requestID: fecha_fin_busqueda,
+                    }
+                );
+            }
+            // verificar que la fecha de busqueda inicio sea igual o superior a la fecha de inicio
+            if (fecha_inicio_busqueda < fecha_inicio) {
+                return res.status(400).json(
+                    {
+                        code: "Bad Request",
+                        message: "Fecha de búsqueda (inicio) no válida, verifique que sea igual o posterior a la fecha de inicio de proyecto",
+                        details: "La fecha de finalización debe ser posterior a la fecha de creación",
+                        timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+                        requestID: fecha_inicio_busqueda,
+                    }
+                );
+            }
+            // verificar que la fecha de busqueda fin sea anterior o igual a la fecha de fin
+            if (fecha_inicio_busqueda > fecha_fin) {
                 return res.status(400).json(
                     {
                         code: "Bad Request",
                         message: "Fecha de búsqueda no válida, verifique que sea anterior o igual a la fecha de finalización de proyecto",
                         details: "La fecha de finalización debe ser posterior a la fecha de creación",
                         timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
-                        requestID: fecha_busqueda,
+                        requestID: fecha_fin_busqueda,
                     }
                 );
             }
             // obtener las metricas de un proyecto
-            const metricas = await Metricas.metricasProyecto(id_proyecto, fecha_busqueda)
+            const metricas = await Metricas.metricasProyecto(id_proyecto, fecha_inicio_busqueda, fecha_fin_busqueda)
             // si no existe el proyecto
             if (!metricas) {
                 return res.status(404).json({message: 'Métricas no encontradas'});  
