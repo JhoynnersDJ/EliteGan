@@ -75,14 +75,23 @@ class ServicioController {
             const primera_letra_categoria = categoria.charAt(0)
             // primera letra tipo
             let letra_tipo = null
-            // si es null toma el nombre
+            // si tipo es null toma el nombre
             if (!tipo) {
                 letra_tipo = nombre.slice(0,3)
             } else {
                 letra_tipo = tipo.charAt(0)
             }
             // generar id de servicio
-            let id = primera_letra_plataforma + primera_letra_categoria + letra_tipo + '-'
+            let id = null
+            console.log(id)
+            if (primera_letra_categoria == 'O' || primera_letra_categoria == 'o') {
+                id = 'OTR-'
+                console.log(id)
+            }else{
+                id = primera_letra_plataforma + primera_letra_categoria + letra_tipo + '-'
+                console.log(id)
+            }
+            console.log(id)
             // cantidad de filas con ese patron
             let filas = await Servicio.findPatronId(id)
             // console.log(filas)
@@ -114,12 +123,12 @@ class ServicioController {
         }
     }
 
-    // eliminar un proyecto
+    // eliminar un servicio
     static async delete(req, res) {
         try {
-            // capturar id de proyecto
+            // capturar id de servicio
             const { id } = req.params
-            // comprobar si existe el proyecto
+            // comprobar si existe el servicio
             const servicioFound = await Servicio.findByPk(id)
             if (!servicioFound) {
                 return res.status(404).json({
@@ -130,7 +139,7 @@ class ServicioController {
                     requestID: id
                 })
             }
-            // eliminar un proyecto de la base de datos
+            // eliminar un servicio de la base de datos
             await Servicio.delete(id)
             res.status(200).json({ message: 'Servicio eliminado correctamente' })
         } catch (error) {

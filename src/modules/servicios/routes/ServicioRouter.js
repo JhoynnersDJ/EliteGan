@@ -9,7 +9,7 @@ const ServicioRouter = Router()
 // Endpoints
 ServicioRouter.get('/todos', authRequired,ServicioController.index)
 ServicioRouter.get('/seleccionar/:id',authRequired, ServicioController.getById)
-ServicioRouter.post('/crear',authRequired, validateSchema(createEschema), ServicioController.create)
+ServicioRouter.post('/crear', authRequired, validateSchema(createEschema), ServicioController.create)
 ServicioRouter.delete('/eliminar/:id',authRequired, ServicioController.delete)
 // ServicioRouter.post('/actualizar/:id', /*validateSchema(updateEschema)*/, ServicioController.update)
 

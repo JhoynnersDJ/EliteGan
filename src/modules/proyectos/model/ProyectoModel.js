@@ -26,7 +26,8 @@ export class Proyecto {
     fecha_inicio,
     fecha_fin,
     responsable_cliente,
-    tecnicos
+    tecnicos,
+    facturable
   ) {
     this.nombre = nombre;
     this.tarifa = tarifa;
@@ -36,6 +37,7 @@ export class Proyecto {
     this.responsable_cliente = responsable_cliente;
     this.tecnicos = tecnicos;
     this.status = status;
+    this.facturable = facturable;
   }
 
   // devuelve todos los registros
@@ -90,6 +92,7 @@ export class Proyecto {
           nombre_responsable_cliente: proyecto.responsables_cliente.dataValues.nombre,
           id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
           nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre,
+          facturable: proyecto.facturable,
           usuarios: proyecto.usuarios,
         }));
         return formattedProyectos;
@@ -157,8 +160,8 @@ export class Proyecto {
           nombre_responsable_cliente:
             proyecto.responsables_cliente.dataValues.nombre,
           id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
-          nombre_cliente:
-            proyecto.responsables_cliente.cliente.dataValues.nombre,
+          nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre,
+          facturable: proyecto.facturable,
           usuarios: proyecto.tecnicos,
         }));
         return formattedProyectos;
@@ -217,6 +220,7 @@ export class Proyecto {
           id_cliente: proyecto.responsables_cliente.cliente.dataValues.id,
           nombre_cliente:
             proyecto.responsables_cliente.cliente.dataValues.nombre,
+          facturable: proyecto.facturable,
           usuarios: proyecto.usuarios,
         };
         return formattedProyecto;
@@ -279,7 +283,8 @@ export class Proyecto {
             id_responsable_cliente: proyecto.responsable_cliente,
             pool_horas: proyecto.pool_horas,
             fecha_fin: proyecto.fecha_fin,
-            pool_horas_contratadas: proyecto.pool_horas
+            pool_horas_contratadas: proyecto.pool_horas,
+            facturable: proyecto.facturable
           },
           {
             fields: [
@@ -291,6 +296,7 @@ export class Proyecto {
               "pool_horas",
               "fecha_fin",
               "pool_horas_contratadas",
+              "facturable",
             ],
           }
         );
