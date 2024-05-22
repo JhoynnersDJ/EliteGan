@@ -28,6 +28,10 @@ factor_tiempo_total: {
     type: DataTypes.FLOAT,
     allowNull: false
   },
+descripcion: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
 status: {
     type: DataTypes.STRING(36),
     allowNull: false
