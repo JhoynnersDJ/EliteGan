@@ -403,7 +403,7 @@ export const updateUser = async (req, res) => {
     //si no encuentra al usurio da el mensaje de error
     if (!userFound)
       return res.status(404).json({ message: "Usuario no encontrado" });
-    console.log(nombre);
+    
     const newuser = new user(
       nombre !== null ? nombre : null,
       apellido !== null ? apellido : null,

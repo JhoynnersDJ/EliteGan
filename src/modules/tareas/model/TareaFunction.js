@@ -22,7 +22,8 @@ async function save(tarea) {
         id_servicio: tarea.id_servicio,
         total_tarifa: tarea.total_tarifa,
         status: isCompleted,
-        id_usuario: tarea.id_usuario
+        id_usuario: tarea.id_usuario,
+        descripcion: tarea.descripcion
       },
       {
         fields: [
@@ -35,7 +36,8 @@ async function save(tarea) {
           "id_servicio",
           "total_tarifa",
           "status",
-          "id_usuario"
+          "id_usuario",
+          "descripcion"
         ],
       }
     );
@@ -179,8 +181,7 @@ async function deleteTasksById(id) {
     if (!project) return null;
 
     const plus = project.pool_horas + (Number(task.factor_tiempo_total)*60);
-    const minus = project.horas_trabajadas - (parseFloat(task.factor_tiempo_total)*60);
-    console.log(minus)
+    const minus = project.horas_trabajadas - (parseFloat(task.factor_tiempo_total)*60);    
     project.pool_horas = plus;
     project.horas_trabajadas = minus;
     project.save();
@@ -188,6 +189,25 @@ async function deleteTasksById(id) {
     return await Tareas.destroy({
       where: { id_tarea: id },
     });
+  }
+  return null;
+}
+
+async function updatePlusProjectById(id, factor_tiempo_total) {
+  if (dbSelect == "SEQUELIZE") {
+    const task = await Tareas.findByPk(id);
+    if (!task) return null;
+
+    const project = await Proyectos.findByPk(task.dataValues.id_proyecto);
+    if (!project) return null;
+
+    const plus = project.pool_horas + (Number(factor_tiempo_total)*60);
+    const minus = project.horas_trabajadas - (parseFloat(factor_tiempo_total)*60);    
+    project.pool_horas = plus;
+    project.horas_trabajadas = minus;
+    return project.save();
+
+    
   }
   return null;
 }
@@ -354,5 +374,8 @@ export default class tareaFunction {
   }
   static findUserByProjectId(id) {
     return findUserByProjectId(id);
+  }
+  static updatePlusProjectById(id, factor_tiempo_total) {
+    return updatePlusProjectById(id,factor_tiempo_total);
   }
 }

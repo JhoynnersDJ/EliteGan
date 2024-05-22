@@ -23,6 +23,7 @@ export const register = async (req, res) => {
     id_servicio,
     status,
     id_usuario,
+    descripcion,
   } = req.body;
 
   try {
@@ -71,7 +72,6 @@ export const register = async (req, res) => {
       });
     }
 
-
     const serviceFound = await tarea.findServiceById(id_servicio);
 
     if (!serviceFound)
@@ -80,9 +80,8 @@ export const register = async (req, res) => {
     var time = calcularDiferenciaDeTiempo(hora_inicio, hora_fin);
 
     var time2 = calculartarifa(hora_inicio, hora_fin, fecha, holidays);
-    
+
     if (time2.fin && hora_fin !== "00:00") {
-      
       const horas1 = formatHour(hora_inicio, hora_fin);
 
       const horas2 = formatHour(hora_inicio, hora_fin);
@@ -95,7 +94,12 @@ export const register = async (req, res) => {
 
       if (tasks1.length !== 0) {
         if (
-          !comprobarHorario(tasks1, fecha, horas1.tiempo_formateado1, id_usuario) ||
+          !comprobarHorario(
+            tasks1,
+            fecha,
+            horas1.tiempo_formateado1,
+            id_usuario
+          ) ||
           !comprobarHorario(tasks1, fecha, "00:00AM", id_usuario)
         ) {
           return res.status(406).json({
@@ -107,7 +111,12 @@ export const register = async (req, res) => {
       if (tasks1.length !== 0) {
         if (
           !comprobarHorario(tasks1, time2.fin, "00:00AM", id_usuario) ||
-          !comprobarHorario(tasks1, time2.fin, horas2.tiempo_formateado2, id_usuario)
+          !comprobarHorario(
+            tasks1,
+            time2.fin,
+            horas2.tiempo_formateado2,
+            id_usuario
+          )
         ) {
           return res.status(406).json({
             message: "No se puede agrear tareas en tiempo ya ocupado",
@@ -126,7 +135,8 @@ export const register = async (req, res) => {
         time2.tarifa1 * proyectFound.tarifa,
         status,
         null,
-        id_usuario
+        id_usuario,
+        descripcion
       );
       let factor_horas1 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
@@ -153,7 +163,8 @@ export const register = async (req, res) => {
         time2.tarifa2 * proyectFound.tarifa,
         status,
         null,
-        id_usuario
+        id_usuario,
+        descripcion
       );
       await tarea.save(tareaSaved_dia2);
       let factor_horas2 = parseFloat(time2.tarifa2) * 60;
@@ -163,7 +174,7 @@ export const register = async (req, res) => {
       );
     } else {
       const horas = formatHour(hora_inicio, hora_fin);
-      
+
       const tasks = await tarea.findTaskByProjectId(id_proyecto);
       if (tasks.length !== 0) {
         if (
@@ -193,7 +204,8 @@ export const register = async (req, res) => {
         time2.tarifa1 * proyectFound.tarifa,
         status,
         null,
-        id_usuario
+        id_usuario,
+        descripcion
       );
       await tarea.save(tareaSaved);
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
@@ -322,14 +334,16 @@ export const updateTask = async (req, res) => {
 };
 
 export const updateTaskMaster = async (req, res) => {
-  var { id_servicio, status, hora_inicio,
-    hora_fin, } = req.body;
+  var { id_servicio, status, hora_inicio, hora_fin, id_usuario } = req.body;
   const { id } = req.params;
   try {
     const taskFound = await tarea.getTasksById(id);
 
     if (!taskFound)
       return res.status(404).json({ message: "tarea no encontrada" });
+
+    const fecha = taskFound.fecha;
+    const id_proyecto = taskFound.id_proyecto;
 
     if (id_servicio) {
       const serviceFound = await tarea.findServiceById(id_servicio);
@@ -349,31 +363,73 @@ export const updateTaskMaster = async (req, res) => {
       status = taskFound.status;
     }
 
-    
+    if (!hora_inicio) {
+      hora_inicio = taskFound.hora_inicio;
+    }
+    if (!hora_fin) {
+      hora_fin = taskFound.hora_fin;
+    }
 
-    
+    var time = calcularDiferenciaDeTiempo(hora_inicio, hora_fin);
 
-    const tareaSaved = new tarea(
-      taskFound.id_tarea,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      id_servicio,
-      null,
-      status,
-      null,
-      null
-    );
+    var time2 = calculartarifa(hora_inicio, hora_fin, fecha, holidays);
 
-    const updateTask = await tarea.updateTaskById(tareaSaved);
+    if (time2.fin && hora_fin !== "00:00") {
+      return res.status(400).json({
+        message: "Tarea no pudo ser editada, el las hora final no es valida",
+      });
+    } else {
+      tarea.updatePlusProjectById(id, taskFound.factor_tiempo_total);
 
-    if (!updateTask)
-      return res.status(200).json({ message: "Tarea no pudo ser editada" });
+      const horas = formatHour(hora_inicio, hora_fin);
 
-    res.status(200).json({ message: "Tarea editada exitosamente" });
+      /*const tasks = await tarea.findTaskByProjectId(id_proyecto);
+      if (tasks.length !== 0) {
+        if (
+          !comprobarHorario(
+            tasks,
+            fecha,
+            horas.tiempo_formateado1,
+            id_usuario
+          ) ||
+          !comprobarHorario(tasks, fecha, horas.tiempo_formateado2, id_usuario)
+        ) {
+          return res.status(406).json({
+            message: "No se puede agrear tareas en tiempo ya ocupado",
+          });
+        }
+      }*/
+      const proyectFound = await tarea.findProjectById(id_proyecto);
+
+      if (!proyectFound)
+        return res.status(404).json({ message: "Proyecto no encontrado" });
+
+      const tareaSaved = new tarea(
+        null,
+        fecha,
+        horas.tiempo_formateado1,
+        horas.tiempo_formateado2,
+        time.tiempo_minutos,
+        time2.tarifa1,
+        id_proyecto,
+        id_servicio,
+        time2.tarifa1 * proyectFound.tarifa,
+        status,
+        null,
+        id_usuario
+      );
+      let factor_horas3 = parseFloat(time2.tarifa1) * 60;
+      await tarea.restPoolProjectById(
+        id_proyecto,
+        Number(factor_horas3.toFixed(2))
+      );
+      const updateTask = await tarea.updateTaskById(tareaSaved);
+
+      if (!updateTask)
+        return res.status(400).json({ message: "Tarea no pudo ser editada" });
+
+      res.status(200).json({ message: "Tarea editada exitosamente" });
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -13,7 +13,8 @@ export default class tarea {
     total_tarifa,
     status,
     nombre_servicio,
-    id_usuario
+    id_usuario,
+    descripcion
   ) {
     this.id_tarea = id_tarea;
     this.fecha = fecha;
@@ -27,6 +28,7 @@ export default class tarea {
     this.status = status;
     this.nombre_servicio = nombre_servicio;
     this.id_usuario = id_usuario;
+    this.descripcion = descripcion;
   }
   static save(tarea) {
     return tareaFunction.save(tarea);
@@ -69,5 +71,8 @@ export default class tarea {
   }
   static findUserByProjectId(id) {
     return tareaFunction.findUserByProjectId(id);
+  }
+  static updatePlusProjectById(id, factor_tiempo_total) {
+    return tareaFunction.updatePlusProjectById(id,factor_tiempo_total);
   }
 }
