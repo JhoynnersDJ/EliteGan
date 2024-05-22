@@ -376,36 +376,20 @@ export const updateTaskMaster = async (req, res) => {
 
     if (time2.fin && hora_fin !== "00:00") {
       return res.status(400).json({
-        message: "Tarea no pudo ser editada, el las hora final no es valida",
+        message: "Tarea no pudo ser editada, la hora final no es valida",
       });
     } else {
       tarea.updatePlusProjectById(id, taskFound.factor_tiempo_total);
 
       const horas = formatHour(hora_inicio, hora_fin);
 
-      /*const tasks = await tarea.findTaskByProjectId(id_proyecto);
-      if (tasks.length !== 0) {
-        if (
-          !comprobarHorario(
-            tasks,
-            fecha,
-            horas.tiempo_formateado1,
-            id_usuario
-          ) ||
-          !comprobarHorario(tasks, fecha, horas.tiempo_formateado2, id_usuario)
-        ) {
-          return res.status(406).json({
-            message: "No se puede agrear tareas en tiempo ya ocupado",
-          });
-        }
-      }*/
+      
       const proyectFound = await tarea.findProjectById(id_proyecto);
 
       if (!proyectFound)
         return res.status(404).json({ message: "Proyecto no encontrado" });
-
       const tareaSaved = new tarea(
-        null,
+        id,
         fecha,
         horas.tiempo_formateado1,
         horas.tiempo_formateado2,
@@ -418,6 +402,7 @@ export const updateTaskMaster = async (req, res) => {
         null,
         id_usuario
       );
+      //console.log(tareaSaved)
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,

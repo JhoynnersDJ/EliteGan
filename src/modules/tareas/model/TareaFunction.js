@@ -268,6 +268,11 @@ async function updateTaskById(task) {
     }*/
     taskFound.status = task.status;
     taskFound.id_servicio = task.id_servicio;
+    taskFound.hora_inicio = task.hora_inicio;
+    taskFound.hora_fin = task.hora_fin;
+    taskFound.tiempo_total = task.tiempo_total;
+    taskFound.factor_tiempo_total = task.factor_tiempo_total;
+    taskFound.total_tarifa = task.total_tarifa;
     taskFound.save()
     return taskFound;
     /*return await Tareas.update(
