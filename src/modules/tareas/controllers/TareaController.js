@@ -320,3 +320,61 @@ export const updateTask = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const updateTaskMaster = async (req, res) => {
+  var { id_servicio, status, hora_inicio,
+    hora_fin, } = req.body;
+  const { id } = req.params;
+  try {
+    const taskFound = await tarea.getTasksById(id);
+
+    if (!taskFound)
+      return res.status(404).json({ message: "tarea no encontrada" });
+
+    if (id_servicio) {
+      const serviceFound = await tarea.findServiceById(id_servicio);
+
+      if (!serviceFound)
+        return res.status(404).json({ message: "Servicio no encontrado" });
+    } else {
+      id_servicio = taskFound.id_servicio;
+    }
+    if (status && typeof status === "boolean") {
+      status = "C";
+    } else {
+      status = "P";
+    }
+
+    if (typeof status === "undefined") {
+      status = taskFound.status;
+    }
+
+    
+
+    
+
+    const tareaSaved = new tarea(
+      taskFound.id_tarea,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      id_servicio,
+      null,
+      status,
+      null,
+      null
+    );
+
+    const updateTask = await tarea.updateTaskById(tareaSaved);
+
+    if (!updateTask)
+      return res.status(200).json({ message: "Tarea no pudo ser editada" });
+
+    res.status(200).json({ message: "Tarea editada exitosamente" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
