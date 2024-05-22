@@ -89,13 +89,12 @@ class ProyectoController {
     try {
       // capturar
       const {
-        tarifa,
         pool_horas,
         fecha_fin,
         id_responsable_cliente,
         tecnicos,
       } = req.body;
-      let { nombre } = req.body;
+      let { nombre, tarifa } = req.body;
       // eliminar espacios en blanco del string
       nombre = nombre.trim();
       // establecer status false/0
@@ -170,6 +169,13 @@ class ProyectoController {
           }
         );
       }
+      // declarar variable facturable
+      let facturable = true
+      // comprobar si pool de horas es 0 (no facturable)
+      if (pool_horas == 0) {
+        facturable = false
+        tarifa = 0
+      }
       // instanciar un objeto de la clase proyecto
       const proyecto = new Proyecto(
         nombre,
@@ -179,7 +185,8 @@ class ProyectoController {
         fecha_inicio,
         fecha_fin,
         id_responsable_cliente,
-        tecnicos
+        tecnicos,
+        facturable
       );
       // guardar en la base de datos y actualiza la tabla asignaciones
       await Proyecto.create(proyecto);

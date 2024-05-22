@@ -41,6 +41,11 @@ pool_horas: {
     defaultValue: 0,
     allowNull: false,
   },
+  facturable: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: true
+  },
 id_responsable_cliente: {
     type: DataTypes.UUID, // Tipo de datos UUID para la clave externa
     allowNull: false,
