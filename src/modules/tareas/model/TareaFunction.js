@@ -59,7 +59,13 @@ async function restPoolProjectById(id, horas) {
   if (dbSelect == "SEQUELIZE") {
     const project = await Proyectos.findByPk(id);
     if (!project) return null;
-    const result = project.pool_horas - Number(horas);
+    var result;
+    if(project.facturable){
+      result = project.pool_horas - Number(horas);
+    }else{
+      result = project.pool_horas + Number(horas);
+    }
+    
     const resultHour = project.horas_trabajadas + parseFloat(horas);
     project.pool_horas = result;
     project.horas_trabajadas = resultHour;
@@ -179,8 +185,18 @@ async function deleteTasksById(id) {
 
     const project = await Proyectos.findByPk(task.dataValues.id_proyecto);
     if (!project) return null;
-
-    const plus = project.pool_horas + (Number(task.factor_tiempo_total)*60);
+    console.log("project.facturable")
+    console.log(project.facturable)
+    console.log("project.facturable")
+    var plus = 0;
+    if(project.facturable){
+      plus = project.pool_horas + (Number(task.factor_tiempo_total)*60);
+    }else{
+      plus = project.pool_horas - (Number(task.factor_tiempo_total)*60);
+    }
+    console.log("project.facturable")
+    console.log(plus)
+    console.log("project.facturable")
     const minus = project.horas_trabajadas - (parseFloat(task.factor_tiempo_total)*60);    
     project.pool_horas = plus;
     project.horas_trabajadas = minus;
@@ -199,12 +215,18 @@ async function updatePlusProjectById(id, factor_tiempo_total) {
     if (!task) return null;
 
     const project = await Proyectos.findByPk(task.dataValues.id_proyecto);
+    var plus;
     if (!project) return null;
-
-    const plus = project.pool_horas + (Number(factor_tiempo_total)*60);
+    if(project.facturable){
+      plus = project.pool_horas + (Number(factor_tiempo_total)*60);
+    } else{
+      plus = project.pool_horas - (Number(factor_tiempo_total)*60);
+    }
+    
     const minus = project.horas_trabajadas - (parseFloat(factor_tiempo_total)*60);    
     project.pool_horas = plus;
     project.horas_trabajadas = minus;
+    console.log(project)
     return project.save();
 
     
