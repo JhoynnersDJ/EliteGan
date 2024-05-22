@@ -312,6 +312,142 @@ async function getUserById(id) {
   return null;
 }
 
+// enviar notificacion al correo al momento de crear una tarea
+async function sendEmailCreate(tarea){
+  try {
+    const responsable = await ResponsableClienteReplica.findByPk(proyecto.responsable_cliente)
+    const asunto = `Nuevo proyecto: ${proyecto.nombre}`
+    // formatear fecha
+    let fecha_fin = new Date(proyecto.fecha_fin)
+    fecha_fin = date.format(fecha_fin, 'DD/MM/YYYY');  
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Título de la Página</title>
+        <style>
+            body {
+                margin: 0;
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+            }
+    
+            header {
+                background-color: #00A4D3;
+                padding-left: 4vh;
+                padding-right: 10vh;
+                padding-top: 2%;
+                padding-bottom: 2%;
+            }
+    
+            h1 {
+                color: white;
+                font-size: 5vh;
+            }
+    
+            h2 {
+                font-weight: bold;
+                margin-left: 5%;
+                margin-top: 10px;
+                font-size: 24px;
+                margin-right: 5%;
+            }
+    
+            p {
+                margin-left: 5%;
+                font-size: 16px;
+                line-height: 1.5;
+                margin-right: 5%;
+                margin-top: 20px;
+                font-size: 18px;
+                color: #333;
+                line-height: 1.5;
+                text-align: justify;
+            }
+            .token-container {
+                background-color: #666;
+                color: #fff;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 18px;
+                margin-top: 10px;
+                text-align: center;
+            }        
+            .container {
+                  max-width: 900px;
+                  margin: 0 auto;
+                  background-color: #fff;
+                  border-radius: 5px;
+                  box-shadow: 0 0 10px #f2f2f2;
+                }
+            .span1 {
+                color: #00A4D3
+            }
+            .piePagina {
+                background-color: #00A4D3;
+                color: white;
+                padding: 10px;
+                text-align: center;
+            }
+            .piePagina p {
+                color: white;
+            }
+        li {
+            list-style-type: none;
+        }
+        ul span {
+            font-weight: bold;
+            color : #00A4D3;
+        }
+        </style>
+    </head>
+    <body style="padding: 20px;">
+        <div class="container">
+            <header>
+                <h1>Hormiwatch<h1>
+            </header>
+            <h2>¡Tienes un nuevo proyecto!</h2>
+            <p>Hola <span class="span1">${usuario.nombre} ${usuario.apellido}</span>!</p>
+            <p>
+                Ha sido agregado a un proyecto 
+            </p>
+            <p style="text-align: center; font-weight: bold;">
+                Datos del Proyecto
+                </p> 
+                <li>
+                    <ul> <span>-</span> Nombre del Proyecto: <span>${proyecto.nombre}</span>
+                    </ul>
+                    <ul>
+                        <span>-</span> Fecha de Inicio: <span>${proyecto.fecha_inicio}</span> 
+                        - Fecha de Fin: <span>${proyecto.fecha_fin}</span>
+                    </ul>
+                    <ul>
+                        <span>-</span> Cliente del Proyecto: <span>${responsable.nombre_cliente}</span>
+                    </ul>
+                    <ul>
+                        <span>-</span> Responsable del Proyecto: <span>${responsable.nombre}</span>
+                    </ul>
+                    <ul>
+                        <span>-</span> Pool de Horas del Proyecto: <span>${formatearMinutos(proyecto.pool_horas)}</span>
+                    </ul>
+                </li>
+            <footer class="piePagina">
+                <p>Este mensaje fue enviado automáticamente por el sistema. Por favor, no responda a este correo.</p>
+        </div>
+    </body>
+    </html>  
+    `
+    await sendEmail(htmlContent,usuario.email, asunto);
+    console.log('Correo de creación de proyecto enviado a: ' + usuario.nombre + " " +usuario.apellido)
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+
+
 export default class tareaFunction {
   static save(tarea) {
     return save(tarea);
