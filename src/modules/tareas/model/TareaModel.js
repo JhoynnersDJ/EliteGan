@@ -70,4 +70,7 @@ export default class tarea {
   static findUserByProjectId(id) {
     return tareaFunction.findUserByProjectId(id);
   }
+  static sendEmailCreate(tarea, usuario, tarea2) {
+    return tareaFunction.sendEmailCreate(tarea, usuario, tarea2);
+  }
 }

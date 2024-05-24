@@ -161,6 +161,8 @@ export const register = async (req, res) => {
         id_proyecto,
         Number(factor_horas2.toFixed(2))
       );
+      // enviar notificacion al correo
+      await tarea.sendEmailCreate(tareaSaved_dia1, userFound,tareaSaved_dia2)
     } else {
       const horas = formatHour(hora_inicio, hora_fin);
       
@@ -201,6 +203,9 @@ export const register = async (req, res) => {
         id_proyecto,
         Number(factor_horas3.toFixed(2))
       );
+      // enviar notificacion al correo
+      console.log("console log dentro del controlador")
+      await tarea.sendEmailCreate(tareaSaved, userFound)
     }
     res
       .status(200)
