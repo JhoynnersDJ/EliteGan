@@ -22,12 +22,15 @@ export const register = async (req, res) => {
     id_proyecto,
     id_servicio,
     status,
-    id_usuario,
-    descripcion,
+    id_usuario    
   } = req.body;
+
+  var { descripcion} = req.body;
 
   try {
     const userFound = await tarea.getUserById(id_usuario);
+    if (!descripcion)
+      descripcion = "";
 
     if (!userFound)
       return res.status(404).json({ message: "Usuario no encontrado" });
@@ -379,7 +382,7 @@ export const updateTaskMaster = async (req, res) => {
         message: "Tarea no pudo ser editada, la hora final no es valida",
       });
     } else {
-      tarea.updatePlusProjectById(id, taskFound.factor_tiempo_total);
+      await tarea.updatePlusProjectById(id, taskFound.factor_tiempo_total);
 
       const horas = formatHour(hora_inicio, hora_fin);
 
