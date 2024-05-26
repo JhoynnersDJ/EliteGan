@@ -185,18 +185,12 @@ async function deleteTasksById(id) {
 
     const project = await Proyectos.findByPk(task.dataValues.id_proyecto);
     if (!project) return null;
-    console.log("project.facturable")
-    console.log(project.facturable)
-    console.log("project.facturable")
     var plus = 0;
     if(project.facturable){
       plus = project.pool_horas + (Number(task.factor_tiempo_total)*60);
     }else{
       plus = project.pool_horas - (Number(task.factor_tiempo_total)*60);
     }
-    console.log("project.facturable")
-    console.log(plus)
-    console.log("project.facturable")
     const minus = project.horas_trabajadas - (parseFloat(task.factor_tiempo_total)*60);    
     project.pool_horas = plus;
     project.horas_trabajadas = minus;
