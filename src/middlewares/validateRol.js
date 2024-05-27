@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 export const rolRequired  = (rol, rol2, rol3) => (req, res, next) => {
     //obtiene el usuario del request
     const {authToken} = req.cookies;
-    //console.log(token)
     //si no hay usuario lanza un error
     if (!authToken) return res.status(401).json({message: "No hay Token, autorizacion denegada"});
     

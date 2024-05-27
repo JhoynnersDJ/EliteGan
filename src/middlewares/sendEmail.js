@@ -23,7 +23,6 @@ export async function sendEmail(html, email, asunto) {
       if (error) {
         console.log(error);
       } else {
-        console.log("Email sent: " + info.response);
       }
     });
   }

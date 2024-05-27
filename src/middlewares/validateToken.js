@@ -6,15 +6,12 @@ export const authRequired  = (req, res, next) => {
     const authHeader = req.headers['authorization']; // Cambiado a minúsculas
     const authToken = authHeader && authHeader.split(' ')[1]; // Asegúrate de obtener el token correcto
     
-    console.log("AuthToken:", authToken); // Imprime el token para verificarlo
-    
     // si no hay usuario lanza un error
     if (!authToken) return res.status(401).json({message: "No hay Token, autorizacion denegada"});
     
     // se verifica el token
     jwt.verify(authToken, TOKEN_SECRET, (err, user) => {
         if (err) return res.status(403).json({message: "Token invalido"});
-        console.group(user)
         req.user = user;
         next();
     });
@@ -24,8 +21,6 @@ export const authRequired2  = (req, res, next) => {
     
     const [authToken] = req.cookies;
     
-    
-    console.log(req.cookies)
     //si no hay usuario lanza un error
     if (!authToken) return res.status(401).json({message: "No hay Token, autorizacion denegada"});
     
