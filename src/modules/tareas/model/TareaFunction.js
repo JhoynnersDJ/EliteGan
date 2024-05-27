@@ -581,8 +581,14 @@ async function sendEmailCreate(tarea, usuario, tarea2){
       </html>  
       `
     }
-    await sendEmail(htmlContent, usuario.email, asunto);
-    console.log('Correo de creación de tarea enviado a: ' + usuario.nombre + " " +usuario.apellido)
+    // obtener los usuarios con rol lider tecnico
+    const liderDeProyecto = await user.getLider()
+    console.log(liderDeProyecto)
+    // enviar correo a los lideres
+    for (const lider of liderDeProyecto) {
+      await sendEmail(htmlContent, lider.email, asunto);
+      console.log('Correo de creación de tarea enviado a: ' + lider.nombre + " " +lider.apellido)
+    }
   } catch (error) {
     console.log(error.message);
   }
