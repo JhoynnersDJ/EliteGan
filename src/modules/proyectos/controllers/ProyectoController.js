@@ -235,7 +235,6 @@ class ProyectoController {
       // capturar datos del proyecto
       const { id } = req.params
       const { tarifa, fecha_fin, id_responsable_cliente, tecnicos} = req.body;
-      console.log(tarifa)
       let { nombre_proyecto, pool_horas_contratadas } = req.body;
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk(id);
@@ -545,7 +544,7 @@ class ProyectoController {
                               (tarea) => `
                             <tr>
                               <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
-                                tarea.servicio.nombre_servicio
+                                tarea.servicio.id_servicio.split("-")[0] === "OTR" ?  `${tarea.descripcion}` : `${tarea.servicio.nombre_servicio}`
                               }</td>
                               <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
                                 tarea.fecha
@@ -672,6 +671,7 @@ class ProyectoController {
         </html>
         `;
       // Crear una instancia del navegador con Puppeteer
+      //const browser = await puppeteer.launch()
       const browser = await puppeteer.launch({
         headless: true,
         executablePath: '/opt/render/.cache/puppeteer/chrome/linux-123.0.6312.122/chrome-linux64/chrome',

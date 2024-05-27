@@ -67,7 +67,6 @@ export const register = async (req, res) => {
 
     //se guarda el usuario
     const userSaved = await user.save(newuser);
-    //console.log(userSaved)
     if (!userSaved) res.status(406).json({ message: "ERROR AL CREAR USUARIO" });
     //se genera el token para ser manejado por la cookie
     const authToken = await createAccessToken({
@@ -84,7 +83,6 @@ export const register = async (req, res) => {
     });
     //userFound = null;
     //newuser = null;
-    //console.log(newuser);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -302,7 +300,6 @@ export const updateEmail = async (req, res) => {
 };
 
 export const getByRol = async (req, res) => {
-  //console.log(req.user)
   //busca al usuario por el id
   /*const userFound = await user.findOneById(req.user.id_usuario);
 
@@ -363,8 +360,6 @@ export const addUserPhoto = async (req, res) => {
       contentType: req.files[0].mimetype,
     };
 
-    //console.log(metadata)
-    //console.log(storageRef)
     // Upload the file in the bucket storage
     const snapshot = await uploadBytesResumable(
       storageRef,
@@ -446,7 +441,6 @@ export const updatePassword = async (req, res) => {
       return res.status(511).json({ message: "Contraseña actual erronea" });
     const passwordHash = await bcrypt.hash(new_password, 10);
     const userFound2 = await user.updatePassword(id_usuario, passwordHash);
-    //console.log(passwordHash)
     res.cookie("authToken", "", {
       expires: new Date(0),
     });

@@ -220,7 +220,6 @@ async function updatePlusProjectById(id, factor_tiempo_total) {
     const minus = project.horas_trabajadas - (parseFloat(factor_tiempo_total)*60);    
     project.pool_horas = plus;
     project.horas_trabajadas = minus;
-    console.log(project)
     return project.save();
 
     

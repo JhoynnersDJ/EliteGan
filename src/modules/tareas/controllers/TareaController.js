@@ -29,8 +29,10 @@ export const register = async (req, res) => {
 
   try {
     const userFound = await tarea.getUserById(id_usuario);
-    if (!descripcion)
-      descripcion = "";
+    if (!descripcion) descripcion = "";
+
+    if (descripcion.length > 30)
+      return res.status(404).json({ message: "Descripcion es mayor a 30 caracteres" });
 
     if (!userFound)
       return res.status(404).json({ message: "Usuario no encontrado" });
@@ -405,7 +407,6 @@ export const updateTaskMaster = async (req, res) => {
         null,
         id_usuario
       );
-      //console.log(tareaSaved)
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,

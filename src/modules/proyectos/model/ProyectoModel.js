@@ -430,6 +430,7 @@ export class Proyecto {
                 "total_tarifa",
                 "factor_tiempo_total",
                 "status",
+                "descripcion",
               ],
               include: [
                 {

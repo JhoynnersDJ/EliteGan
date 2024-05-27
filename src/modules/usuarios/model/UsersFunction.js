@@ -33,13 +33,11 @@ async function saveUser(user) {
       const rol = await Roles.findOne({
         where: { nombre_rol: "Tecnico" },
       });
-      //console.log(rol)
       if (!rol) return null;
 
       const estado = await EstadoUsuarios.findOne({
         where: { nombre_estado_usuario: "verificado" },
       });
-      //console.log(rol)
       if (!estado) return null;
 
       const user1 = await Usuarios.create(
@@ -114,7 +112,6 @@ async function saveUser(user) {
                 ]
               );
               conn.close(() => {
-                // console.log('done');
               });
               console.log(data[0]);
               resolve(data[0]);
@@ -141,12 +138,10 @@ async function verificado(email) {
     const user1 = await Usuarios.findOne({
       where: { email: email },
     });
-    //console.log(user1);
     if (!user1) return null;
     const estado = await EstadoUsuarios.findOne({
       where: { id_estado_usuario: user1.dataValues.id_estado_usuario },
     });
-    //console.log(rol)
     if (!estado) return null;
     return estado.nombre_estado_usuario === "verificado";
   }
@@ -159,7 +154,6 @@ async function findOne(email) {
     const user1 = await Usuarios.findOne({
       where: { email: email },
     });
-    //console.log(user1);
     if (!user1) return null;
     const rol = await Roles.findOne({
       where: { id_rol: user1.dataValues.id_rol },
@@ -384,7 +378,6 @@ async function updateRol(rol, email) {
               [email]
             );
             conn.close(() => {
-              // console.log('done');
             });
             resolve(user1[0]);
           } catch (err) {
@@ -425,7 +418,6 @@ async function updateToken(token, id) {
 
 async function sendEmailToken(token, email, nombre) {
   emailTemp = email; 
-  console.log(email)
   const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">
@@ -562,7 +554,6 @@ async function updateVerificar(ver, id) {
     const estado = await EstadoUsuarios.findOne({
       where: { nombre_estado_usuario: ver },
     });
-    //console.log(rol)
     if (!estado) return null;
 
     userFound.id_estado_usuario = estado.id_estado_usuario;
@@ -605,7 +596,6 @@ async function updateState(state, id) {
     const estado = await EstadoUsuarios.findOne({
       where: { nombre_estado_usuario: state },
     });
-    //console.log(rol)
     if (!estado) return null;
 
     const user1 = await Usuarios.findOne({
@@ -697,7 +687,6 @@ async function updatePassword(id, password) {
 }
 
 async function sendEmailTokenPassword(token, email, nombre) {  
-  console.log(email)
   const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">
@@ -938,25 +927,12 @@ async function sendEmailTokenVerify(usuario, password) {
   await sendEmail(htmlContent,usuario.email, "Bienvenido a HormiWatch");
   
 }
-/*async function sendSMSToken(token,num_tel, nombre) {
-  const client = new twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
-  return client.messages.create({body: 'Hola que tal, si necesitas algo me avisas', from: process.env.PHONE_NUMBER, to:'+584128027107'})
-  .then(
-    message => {
-      console.log(message, "message send")
-    }
-  ).catch(
-    err => {
-      console.log(err, "zmessage not send")
-    }
-  )
-}*/
+
 
 export default class userFunction {
   users = [];
   static save(user) {
     return saveUser(user);
-    //console.log(users);
   }
 
   static findOne(email) {
