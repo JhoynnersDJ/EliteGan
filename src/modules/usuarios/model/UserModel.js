@@ -136,6 +136,9 @@ export class user {
   static sendEmailTokenVerify(usuario, password) {
     return userFunction.sendEmailTokenVerify(usuario, password);
   }
+  static getLider() {
+    return userFunction.getLider();
+  }
 }
 
 export class userRol {
@@ -145,6 +148,9 @@ export class userRol {
       (this.descripcion_rol = descripcion_rol);
   }
   getUseRol() {
+    return this.nombre_rol;
+  }
+  getLider() {
     return this.nombre_rol;
   }
 }

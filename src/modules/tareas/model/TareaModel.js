@@ -73,6 +73,8 @@ export default class tarea {
     return tareaFunction.findUserByProjectId(id);
   }
   static updatePlusProjectById(id, factor_tiempo_total) {
-    return tareaFunction.updatePlusProjectById(id,factor_tiempo_total);
+    return tareaFunction.updatePlusProjectById(id,factor_tiempo_total);}
+  static sendEmailCreate(tarea, usuario, tarea2) {
+    return tareaFunction.sendEmailCreate(tarea, usuario, tarea2);
   }
 }

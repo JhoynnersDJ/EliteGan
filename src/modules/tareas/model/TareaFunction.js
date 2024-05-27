@@ -1,9 +1,13 @@
 import { Proyectos, Usuarios } from "../../../database/hormiwatch/asociaciones.js";
+import { Proyecto } from "../../proyectos/model/ProyectoModel.js"
+import { Servicio } from "../../servicios/model/servicioModel.js"
 import { Servicios } from "../../../database/hormiwatch/asociaciones.js";
 import { Tareas } from "../../../database/hormiwatch/asociaciones.js";
 import tarea from "./TareaModel.js";
 import {user} from "../../usuarios/model/UserModel.js"
 import { calcularDiferenciaDeTiempo, calculartarifa } from '../libs/Tarifa.js'
+import { sendEmail } from "../../../middlewares/sendEmail.js";
+import { formatearMinutos } from "../../proyectos/libs/pool_horas.js";
 import "dotenv/config";
 
 const dbSelect = process.env.SELECT_DB;
@@ -352,6 +356,286 @@ async function getUserById(id) {
   return null;
 }
 
+// enviar notificacion al correo al momento de crear una tarea
+async function sendEmailCreate(tarea, usuario, tarea2){
+  try {
+    const proyecto = await Proyecto.findByPk(tarea.id_proyecto)
+    const servicio = await Servicio.findByPk(tarea.id_servicio)
+    const asunto = `El técnico: ${usuario.nombre} ${usuario.apellido} ha agregado una nueva tarea`
+    let htmlContent
+    if ((tarea2 == null) || (tarea2 == undefined)) {
+      // formatear minutos
+      const tiempo = formatearMinutos(tarea.tiempo_total)
+        htmlContent = `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Título de la Página</title>
+            <style>
+                body {
+                    margin: 0;
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f4;
+                }
+        
+                header {
+                    background-color: #00A4D3;
+                    padding-left: 4vh;
+                    padding-right: 10vh;
+                    padding-top: 2%;
+                    padding-bottom: 2%;
+                }
+        
+                h1 {
+                    color: white;
+                    font-size: 5vh;
+                }
+        
+                h2 {
+                    font-weight: bold;
+                    margin-left: 5%;
+                    margin-top: 10px;
+                    font-size: 24px;
+                    margin-right: 5%;
+                }
+        
+                p {
+                    margin-left: 5%;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin-right: 5%;
+                    margin-top: 20px;
+                    font-size: 18px;
+                    color: #333;
+                    line-height: 1.5;
+                    text-align: justify;
+                }
+                .token-container {
+                    background-color: #666;
+                    color: #fff;
+                    padding: 10px;
+                    border-radius: 5px;
+                    font-size: 18px;
+                    margin-top: 10px;
+                    text-align: center;
+                }        
+                .container {
+                      max-width: 900px;
+                      margin: 0 auto;
+                      background-color: #fff;
+                      border-radius: 5px;
+                      box-shadow: 0 0 10px #f2f2f2;
+                    }
+                .span1 {
+                    color: #00A4D3
+                }
+                .piePagina {
+                    background-color: #00A4D3;
+                    color: white;
+                    padding: 10px;
+                    text-align: center;
+                }
+                .piePagina p {
+                    color: white;
+                }
+            li {
+                list-style-type: none;
+            }
+            ul span {
+                font-weight: bold;
+                color : #00A4D3;
+            }
+            </style>
+        </head>
+        <body style="padding: 20px;">
+            <div class="container">
+                <header>
+                    <h1>Hormiwatch<h1>
+                </header>
+                <h2>¡Se ha registrado una nueva tarea!</h2>
+                <p>El técnico <span class="span1">${usuario.nombre} ${usuario.apellido}</span> ha registrado una tarea en el proyecto <span class="span1">${proyecto.nombre}</span></p>
+                <p style="text-align: center; font-weight: bold;">
+                    Datos de la tarea ${tarea.fecha}
+                    </p> 
+                    <li>
+                        <ul>
+                          Hora de inicio: <span>${tarea.hora_inicio}</span>
+                        </ul>
+                        <ul>
+                          Hora de fin: <span>${tarea.hora_fin}</span>
+                        </ul>
+                        <ul>
+                          Tiempo total: <span>${tiempo}</span>h
+                        </ul>
+                        <ul>
+                          Id de servicio: <span>${servicio.id_servicio}</span>
+                        </ul>
+                        <ul>
+                          Servicio: <span>${servicio.nombre_servicio}</span>
+                        </ul>
+                    </li>
+                <footer class="piePagina">
+                    <p>Este mensaje fue enviado automáticamente por el sistema. Por favor, no responda a este correo.</p>
+            </div>
+        </body>
+        </html>  
+        `
+    }else{
+      // formatear minutos
+      const tiempo = formatearMinutos(tarea.tiempo_total)
+      const tiempo2 = formatearMinutos(tarea2.tiempo_total)
+      htmlContent = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Título de la Página</title>
+          <style>
+              body {
+                  margin: 0;
+                  font-family: Arial, sans-serif;
+                  background-color: #f4f4f4;
+              }
+              header {
+                  background-color: #00A4D3;
+                  padding-left: 4vh;
+                  padding-right: 10vh;
+                  padding-top: 2%;
+                  padding-bottom: 2%;
+              }
+              h1 {
+                  color: white;
+                  font-size: 5vh;
+              }
+
+              h2 {
+                  font-weight: bold;
+                  margin-left: 5%;
+                  margin-top: 10px;
+                  font-size: 24px;
+                  margin-right: 5%;
+              }
+      
+              p {
+                  margin-left: 5%;
+                  font-size: 16px;
+                  line-height: 1.5;
+                  margin-right: 5%;
+                  margin-top: 20px;
+                  font-size: 18px;
+                  color: #333;
+                  line-height: 1.5;
+                  text-align: justify;
+              }
+              .token-container {
+                  background-color: #666;
+                  color: #fff;
+                  padding: 10px;
+                  border-radius: 5px;
+                  font-size: 18px;
+                  margin-top: 10px;
+                  text-align: center;
+              }        
+              .container {
+                    max-width: 900px;
+                    margin: 0 auto;
+                    background-color: #fff;
+                    border-radius: 5px;
+                    box-shadow: 0 0 10px #f2f2f2;
+                  }
+              .span1 {
+                  color: #00A4D3
+              }
+              .piePagina {
+                  background-color: #00A4D3;
+                  color: white;
+                  padding: 10px;
+                  text-align: center;
+              }
+              .piePagina p {
+                  color: white;
+              }
+          li {
+              list-style-type: none;
+          }
+          ul span {
+              font-weight: bold;
+              color : #00A4D3;
+          }
+          </style>
+      </head>
+      <body style="padding: 20px;">
+          <div class="container">
+              <header>
+                  <h1>Hormiwatch<h1>
+              </header>
+              <h2>¡Se ha registrado una nueva tarea!</h2>
+              <p>El técnico <span class="span1">${usuario.nombre} ${usuario.apellido}</span> ha registrado una tarea en el proyecto <span class="span1">${proyecto.nombre}</span></p>
+              <p style="text-align: center; font-weight: bold;">
+                  Datos de la tarea ${tarea.fecha}
+                  </p> 
+                  <li>
+                      <ul>
+                        Hora de inicio: <span>${tarea.hora_inicio}</span>
+                      </ul>
+                      <ul>
+                        Hora de fin: <span>${tarea.hora_fin}</span>
+                      </ul>
+                      <ul>
+                        Tiempo total: <span>${tiempo}</span>h
+                      </ul>
+                      <ul>
+                        Id de servicio: <span>${servicio.id_servicio}</span>
+                      </ul>
+                      <ul>
+                        Servicio: <span>${servicio.nombre_servicio}</span>
+                      </ul>
+                  </li>
+              <p style="text-align: center; font-weight: bold;">
+                  Datos de la tarea ${tarea2.fecha}
+                  </p> 
+                  <li>
+                      <ul>
+                        Hora de inicio: <span>${tarea2.hora_inicio}</span>
+                      </ul>
+                      <ul>
+                        Hora de fin: <span>${tarea2.hora_fin}</span>
+                      </ul>
+                      <ul>
+                        Tiempo total: <span>${tiempo2}</span>h
+                      </ul>
+                      <ul>
+                        Id de servicio: <span>${servicio.id_servicio}</span>
+                      </ul>
+                      <ul>
+                        Servicio: <span>${servicio.nombre_servicio}</span>
+                      </ul>
+                  </li>
+              <footer class="piePagina">
+                  <p>Este mensaje fue enviado automáticamente por el sistema. Por favor, no responda a este correo.</p>
+          </div>
+      </body>
+      </html>  
+      `
+    }
+    // obtener los usuarios con rol lider tecnico
+    const liderDeProyecto = await user.getLider()
+    console.log(liderDeProyecto)
+    // enviar correo a los lideres
+    for (const lider of liderDeProyecto) {
+      await sendEmail(htmlContent, lider.email, asunto);
+      console.log('Correo de creación de tarea enviado a: ' + lider.nombre + " " +lider.apellido)
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+
+
 export default class tareaFunction {
   static save(tarea) {
     return save(tarea);
@@ -396,6 +680,8 @@ export default class tareaFunction {
     return findUserByProjectId(id);
   }
   static updatePlusProjectById(id, factor_tiempo_total) {
-    return updatePlusProjectById(id,factor_tiempo_total);
+    return updatePlusProjectById(id,factor_tiempo_total);}
+  static sendEmailCreate(tarea, usuario, tarea2) {
+    return sendEmailCreate(tarea, usuario, tarea2);
   }
 }

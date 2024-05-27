@@ -929,6 +929,35 @@ async function sendEmailTokenVerify(usuario, password) {
 }
 
 
+async function getLider() {
+  if (dbSelect == "SEQUELIZE") {
+    const rol = await Roles.findOne({
+      where: { nombre_rol: "Lider de Proyecto" },
+    });
+
+    if (!rol) return null;
+
+    const userFound = await Usuarios.findAll({
+      where: { id_rol: rol.id_rol },
+    });
+
+    if (userFound.length === 0 || !userFound) return [];
+    
+    const fromatedUser = userFound.map(
+      (users) => ({
+      id_usuario:  users.id_usuario,
+      nombre: users.nombre,
+      apellido: users.apellido,  
+      email: users.email    
+      })
+      
+    );
+    
+
+    return fromatedUser;
+  }
+}
+
 export default class userFunction {
   users = [];
   static save(user) {
@@ -988,5 +1017,8 @@ export default class userFunction {
   }
   static sendEmailTokenVerify(usuario, password) {
     return sendEmailTokenVerify(usuario, password);
+  }
+  static getLider() {
+    return getLider();
   }
 }
