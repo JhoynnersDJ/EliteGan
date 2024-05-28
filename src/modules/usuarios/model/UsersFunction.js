@@ -11,7 +11,6 @@ import nodemailer from "nodemailer";
 import ibmdb from "ibm_db";
 
 const dbSelect = process.env.SELECT_DB;
-var emailTemp = null;
 let connStr =
   "DATABASE=" +
   process.env.DATABASE +
@@ -417,7 +416,6 @@ async function updateToken(token, id) {
 }
 
 async function sendEmailToken(token, email, nombre) {
-  emailTemp = email; 
   const htmlContent = `
       <!DOCTYPE html>
       <html lang="es">

@@ -8,6 +8,7 @@ import {user} from "../../usuarios/model/UserModel.js"
 import { calcularDiferenciaDeTiempo, calculartarifa } from '../libs/Tarifa.js'
 import { sendEmail } from "../../../middlewares/sendEmail.js";
 import { formatearMinutos } from "../../proyectos/libs/pool_horas.js";
+import {AuditoriaController} from "../../auditoria/controllers/AuditoriaController.js";
 import "dotenv/config";
 
 const dbSelect = process.env.SELECT_DB;
@@ -15,7 +16,7 @@ const dbSelect = process.env.SELECT_DB;
 async function save(tarea) {
   if (dbSelect == "SEQUELIZE") {
     const isCompleted = tarea.status === true ? "C" : "P";
-    return await Tareas.create(
+    const datos2 = await Tareas.create(
       {
         fecha: new Date(tarea.fecha),
         hora_inicio: tarea.hora_inicio,
@@ -45,7 +46,13 @@ async function save(tarea) {
         ],
       }
     );
-    
+    const id_tarea1 = datos2.dataValues.id_tarea
+    const datos = await Tareas.findByPk(id_tarea1);
+    console.log("datos")
+    console.log(datos)
+    console.log("datos")
+    //AuditoriaController.resgistrarAccion("crear", "tarea", datos.dataValues)
+    return datos;
   }
   return null;
 }
@@ -128,7 +135,8 @@ async function findTaskByProjectId(id) {
         status:  task.dataValues.status,
         nombre_servicio:  task.dataValues.servicio.dataValues.nombre_servicio,
         nombre_tecnico: `${task.dataValues.usuario.nombre} ${task.dataValues.usuario.apellido}`,
-        id_usuario: task.dataValues.id_usuario
+        id_usuario: task.dataValues.id_usuario,
+        descripcion: task.dataValues.descripcion
       }
       newTasks.push(formattedTask)}
     );
@@ -292,6 +300,7 @@ async function updateTaskById(task) {
     taskFound.tiempo_total = task.tiempo_total;
     taskFound.factor_tiempo_total = task.factor_tiempo_total;
     taskFound.total_tarifa = task.total_tarifa;
+    taskFound.descripcion = task.descripcion;
     taskFound.save()
     return taskFound;
     /*return await Tareas.update(
@@ -623,7 +632,6 @@ async function sendEmailCreate(tarea, usuario, tarea2){
     }
     // obtener los usuarios con rol lider tecnico
     const liderDeProyecto = await user.getLider()
-    console.log(liderDeProyecto)
     // enviar correo a los lideres
     for (const lider of liderDeProyecto) {
       await sendEmail(htmlContent, lider.email, asunto);
@@ -681,6 +689,7 @@ export default class tareaFunction {
   }
   static updatePlusProjectById(id, factor_tiempo_total) {
     return updatePlusProjectById(id,factor_tiempo_total);}
+
   static sendEmailCreate(tarea, usuario, tarea2) {
     return sendEmailCreate(tarea, usuario, tarea2);
   }

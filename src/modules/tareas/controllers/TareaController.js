@@ -12,6 +12,7 @@ import {
 } from "../libs/Tarifa.js";
 import holidayFunction from "../../feriados/model/HolidaysFunction.js";
 import { ConnectionRefusedError } from "sequelize";
+
 const holidays = await holidayFunction.getHolidaysDate();
 
 export const register = async (req, res) => {
@@ -248,7 +249,7 @@ export const getByProject = async (req, res) => {
       return res.status(404).json({ message: "Proyecto no encontrado" });
 
     const tasks = await tarea.findTaskByProjectId(id);
-    res.status(200).json(tasks);
+    return res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -346,15 +347,23 @@ export const updateTask = async (req, res) => {
 };
 
 export const updateTaskMaster = async (req, res) => {
-  var { id_servicio, status, hora_inicio, hora_fin, id_usuario } = req.body;
+  var { id_servicio, status, hora_inicio, hora_fin, id_usuario, descripcion } = req.body;
   const { id } = req.params;
   try {
     const taskFound = await tarea.getTasksById(id);
+
+    if ((typeof descripcion === "undefined") && (!descripcion)) {
+      descripcion = taskFound.descripcion;
+    }
+
+    if (descripcion.length > 30)
+        return res.status(404).json({ message: "Descripcion es mayor a 30 caracteres" });
 
     if (!taskFound)
       return res.status(404).json({ message: "tarea no encontrada" });
 
     const fecha = taskFound.fecha;
+
     const id_proyecto = taskFound.id_proyecto;
 
     if (id_servicio) {
@@ -375,13 +384,12 @@ export const updateTaskMaster = async (req, res) => {
       status = taskFound.status;
     }
 
-    if (!hora_inicio) {
+    if (!hora_inicio || typeof hora_inicio === "undefined") {
       hora_inicio = taskFound.hora_inicio;
     }
-    if (!hora_fin) {
+    if (!hora_fin || typeof hora_fin === "undefined") {
       hora_fin = taskFound.hora_fin;
     }
-
     var time = calcularDiferenciaDeTiempo(hora_inicio, hora_fin);
 
     var time2 = calculartarifa(hora_inicio, hora_fin, fecha, holidays);
@@ -412,7 +420,8 @@ export const updateTaskMaster = async (req, res) => {
         time2.tarifa1 * proyectFound.tarifa,
         status,
         null,
-        id_usuario
+        id_usuario, 
+        descripcion
       );
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(

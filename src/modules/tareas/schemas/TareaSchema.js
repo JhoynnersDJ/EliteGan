@@ -42,5 +42,17 @@ export const updateTaskSchema = z.object({
         }).optional(),
     id_servicio: z.string({
         invalid_type_error: 'Id de servicio debe ser tipo cadena de carácteres'
-        }).optional()
+        }).optional(),
+    hora_inicio: z.string({
+        //required_error: 'Hora de inicio es requerido',
+        // invalid_type_error: 'Hora de inicio debe ser un número'
+        invalid_type_error: 'Hora de inicio debe ser tipo cadena de carácteres'
+        }).optional(),
+    hora_fin: z.string({
+        //required_error: 'Hora de finalización es requerido',
+        invalid_type_error: 'Hora de finalización debe ser tipo cadena de carácteres'
+        }).optional(),
+    descripcion: z.string({
+        invalid_type_error: 'Descripcion debe ser tipo cadena de carácteres'
+    }).optional()
 })

@@ -18,8 +18,7 @@ export const authRequired  = (req, res, next) => {
 }
 export const authRequired2  = (req, res, next) => {
     //obtiene el usuario del request
-    
-    const [authToken] = req.cookies;
+    const {authToken} = req.cookies;    
     
     //si no hay usuario lanza un error
     if (!authToken) return res.status(401).json({message: "No hay Token, autorizacion denegada"});
