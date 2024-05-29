@@ -48,11 +48,9 @@ async function save(tarea) {
     );
     const id_tarea1 = datos2.dataValues.id_tarea
     const datos = await Tareas.findByPk(id_tarea1);
-    console.log("datos")
-    console.log(datos)
-    console.log("datos")
-    //AuditoriaController.resgistrarAccion("crear", "tarea", datos.dataValues)
-    return datos;
+    //console.log(datos.dataValues)
+    //AuditoriaController.resgistrarAccion("creado", "tarea", datos.dataValues);
+    return datos.dataValues;
   }
   return null;
 }
@@ -255,7 +253,8 @@ async function getTasksById(id) {
       task.total_tarifa,
       task.status,
       null,
-      task.id_usuario
+      task.id_usuario,
+      task.descripcion
     )
   }
   return null;
@@ -293,24 +292,17 @@ async function updateTaskById(task) {
     }else{
       taskFound.status = "P";
     }*/
-    taskFound.status = task.status;
-    taskFound.id_servicio = task.id_servicio;
-    taskFound.hora_inicio = task.hora_inicio;
-    taskFound.hora_fin = task.hora_fin;
-    taskFound.tiempo_total = task.tiempo_total;
-    taskFound.factor_tiempo_total = task.factor_tiempo_total;
-    taskFound.total_tarifa = task.total_tarifa;
-    taskFound.descripcion = task.descripcion;
+    task.status != null ? taskFound.status = task.status : null;
+    task.id_servicio != null ? taskFound.id_servicio = task.id_servicio : null;
+    task.hora_inicio != null ? taskFound.hora_inicio = task.hora_inicio : null;
+    task.hora_fin != null ? taskFound.hora_fin = task.hora_fin : null;
+    task.tiempo_total != null ? taskFound.tiempo_total = task.tiempo_total : null;
+    task.factor_tiempo_total != null ? taskFound.factor_tiempo_total = task.factor_tiempo_total : null;
+    task.total_tarifa != null ? taskFound.total_tarifa = task.total_tarifa : null;
+    task.descripcion != null ? taskFound.descripcion = task.descripcion : null;
     taskFound.save()
     return taskFound;
-    /*return await Tareas.update(
-      {        
-        id_servicio: task.id_service, status: task.status        
-      },
-      {
-        fields: [ 'id_servicio', 'status' ],
-        where: { id_tarea: task.id_tarea }
-      })*/
+    
   }
   return null;
 }

@@ -12,6 +12,7 @@ import {
 } from "../libs/Tarifa.js";
 import holidayFunction from "../../feriados/model/HolidaysFunction.js";
 import { ConnectionRefusedError } from "sequelize";
+import {AuditoriaController} from "../../auditoria/controllers/AuditoriaController.js";
 
 const holidays = await holidayFunction.getHolidaysDate();
 
@@ -27,7 +28,7 @@ export const register = async (req, res) => {
   } = req.body;
 
   var { descripcion} = req.body;
-
+  var datos = null;
   try {
     const userFound = await tarea.getUserById(id_usuario);
     if (!descripcion) descripcion = "";
@@ -150,7 +151,9 @@ export const register = async (req, res) => {
         Number(factor_horas1.toFixed(2))
       );
 
-      await tarea.save(tareaSaved_dia1);
+      datos = await tarea.save(tareaSaved_dia1);
+
+      await AuditoriaController.resgistrarAccion("creado", "tarea", datos)(req, res);
 
       const tiempo_total_dia2 = calcularDiferenciaDeTiempo(
         "00:00AM",
@@ -172,8 +175,12 @@ export const register = async (req, res) => {
         id_usuario,
         descripcion
       );
-      await tarea.save(tareaSaved_dia2);
+      datos = await tarea.save(tareaSaved_dia2);
+
+      await AuditoriaController.resgistrarAccion("creado", "tarea", datos)(req, res);
+
       let factor_horas2 = parseFloat(time2.tarifa2) * 60;
+
       await tarea.restPoolProjectById(
         id_proyecto,
         Number(factor_horas2.toFixed(2))
@@ -215,7 +222,8 @@ export const register = async (req, res) => {
         id_usuario,
         descripcion
       );
-      await tarea.save(tareaSaved);
+      datos = await tarea.save(tareaSaved);
+      await AuditoriaController.resgistrarAccion("creado", "tarea", datos)(req, res);
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,
@@ -223,8 +231,10 @@ export const register = async (req, res) => {
       );
       // enviar notificacion al correo
       console.log("console log dentro del controlador")
-      await tarea.sendEmailCreate(tareaSaved, userFound)
+      //await tarea.sendEmailCreate(tareaSaved, userFound)
     }
+
+    datos = null;
     res
       .status(200)
       .json({ id_usuario: userFound.id_usuario, nombre: userFound.nombre });
@@ -350,15 +360,21 @@ export const updateTaskMaster = async (req, res) => {
   var { id_servicio, status, hora_inicio, hora_fin, id_usuario, descripcion } = req.body;
   const { id } = req.params;
   try {
+    var formattedDatos = {
+      id_servicio: id_servicio,
+      status: status,
+      hora_inicio: hora_inicio,
+      hora_fin: hora_fin,
+      descripcion: descripcion      
+    }
     const taskFound = await tarea.getTasksById(id);
-
-    if ((typeof descripcion === "undefined") && (!descripcion)) {
+    if ((typeof descripcion === "undefined") || (descripcion === null)) {
       descripcion = taskFound.descripcion;
     }
 
     if (descripcion.length > 30)
         return res.status(404).json({ message: "Descripcion es mayor a 30 caracteres" });
-
+    console.log(descripcion)
     if (!taskFound)
       return res.status(404).json({ message: "tarea no encontrada" });
 
@@ -371,9 +387,7 @@ export const updateTaskMaster = async (req, res) => {
 
       if (!serviceFound)
         return res.status(404).json({ message: "Servicio no encontrado" });
-    } else {
-      id_servicio = taskFound.id_servicio;
-    }
+    } 
     if (status && typeof status === "boolean") {
       status = "C";
     } else {
@@ -384,12 +398,17 @@ export const updateTaskMaster = async (req, res) => {
       status = taskFound.status;
     }
 
+    var formattedTime = null;
+
+    
     if (!hora_inicio || typeof hora_inicio === "undefined") {
       hora_inicio = taskFound.hora_inicio;
     }
+
     if (!hora_fin || typeof hora_fin === "undefined") {
       hora_fin = taskFound.hora_fin;
     }
+
     var time = calcularDiferenciaDeTiempo(hora_inicio, hora_fin);
 
     var time2 = calculartarifa(hora_inicio, hora_fin, fecha, holidays);
@@ -402,7 +421,12 @@ export const updateTaskMaster = async (req, res) => {
       await tarea.updatePlusProjectById(id, taskFound.factor_tiempo_total);
 
       const horas = formatHour(hora_inicio, hora_fin);
-
+      if ((horas.tiempo_formateado1 !== taskFound.hora_inicio)|| (horas.tiempo_formateado2!==taskFound.hora_fin)){
+        formattedTime = {
+          hora_inicio: horas.tiempo_formateado1,
+          hora_fin: horas.tiempo_formateado2
+        }
+      }
       
       const proyectFound = await tarea.findProjectById(id_proyecto);
 
@@ -415,7 +439,7 @@ export const updateTaskMaster = async (req, res) => {
         horas.tiempo_formateado2,
         time.tiempo_minutos,
         time2.tarifa1,
-        id_proyecto,
+        null,
         id_servicio,
         time2.tarifa1 * proyectFound.tarifa,
         status,
@@ -423,6 +447,26 @@ export const updateTaskMaster = async (req, res) => {
         id_usuario, 
         descripcion
       );
+      var datos = null;
+      if (formattedTime) {
+        datos = {
+          hora_inicio: formattedTime.hora_inicio,
+          hora_fin: formattedTime.hora_fin,
+          tiempo_total: time.tiempo_minutos,
+          factor_tiempo_total: time2.tarifa1,
+          total_tarifa: time2.tarifa1 * proyectFound.tarifa,
+          descripcion: formattedDatos.descripcion,
+          status: formattedDatos.status,
+          id_servicio: formattedDatos.id_servicio
+        }
+      }else{
+        datos = {          
+          descripcion: formattedDatos.descripcion,
+          status: formattedDatos.status,
+          id_servicio: formattedDatos.id_servicio
+        }
+      }
+      await AuditoriaController.resgistrarAccion("modificado", "tarea", datos)(req, res);
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,

@@ -7,7 +7,7 @@ import {AuditoriaController} from "../../auditoria/controllers/AuditoriaControll
 
 const router = Router();
 
-router.post('/crear',authRequired2, validateSchema(createTaskSchema),AuditoriaController.resgistrarAccion("creado","tarea"),register)
+router.post('/crear',authRequired, validateSchema(createTaskSchema),register)
 
 router.get('/proyecto/:id',authRequired,getByProject)
 
@@ -17,6 +17,6 @@ router.get('/seleccionar/:id',authRequired,getByProject)
 
 router.delete('/eliminar/:id',authRequired, deleteById)
 
-router.put('/actualizar/:id', authRequired,validateSchema(updateTaskSchema), AuditoriaController.resgistrarAccion("modificado","tarea"), updateTaskMaster)
+router.put('/actualizar/:id', authRequired, validateSchema(updateTaskSchema), updateTaskMaster)
 
 export default router;
