@@ -77,8 +77,8 @@ Proyectos.belongsToMany(Usuarios, { through: Asignaciones, foreignKey: 'id_proye
 Usuarios.belongsToMany(Proyectos, { through: Asignaciones, foreignKey: 'id_usuario', targetKey: 'id_proyecto'});
 Proyectos.belongsToMany(Usuarios, { through: Asignaciones, foreignKey: 'id_proyecto', as: 'tecnicos', targetKey: 'id_usuario'});
 
-Usuarios.belongsToMany(Proyectos, { through: Notificaciones, foreignKey: 'id_usuario', targetKey: 'id_lider_proyecto'});
-Proyectos.belongsToMany(Usuarios, { through: Notificaciones, foreignKey: 'id_proyecto', targetKey: 'id_lider_proyecto'});
+Usuarios.belongsToMany(Proyectos, { through: Notificaciones, foreignKey: 'id_usuario', targetKey: 'id_proyecto'});
+Proyectos.belongsToMany(Usuarios, { through: Notificaciones, foreignKey: 'id_proyecto', targetKey: 'id_usuario'});
 
 
 /* ----- Hooks ----- */

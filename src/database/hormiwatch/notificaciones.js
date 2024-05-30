@@ -13,7 +13,7 @@ id_proyecto: {
       key: 'id_proyecto', // Clave primaria de la tabla a la que se hace referencia
     },
   },
-id_lider_proyecto: {
+id_usuario: {
     type: DataTypes.UUID, // Tipo de datos UUID para la clave externa
     allowNull: true,
     references: {
