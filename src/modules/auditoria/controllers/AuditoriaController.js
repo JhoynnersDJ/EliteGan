@@ -6,17 +6,14 @@ export class AuditoriaController {
 
         const {id_usuario} = req.user;
         const userFound = await user.findOneById(id_usuario);
-        console.log("datos")
-        console.log(datos)
-        console.log("datos")
-        
         const auditoria = new Auditoria(
-            userFound.nombre+" "+userFound.apellido,
+            `${userFound.nombre} ${userFound.apellido}`,
             userFound.rol.nombre_rol,
-            "Se a "+accion+" en el siguiente item: "+modulo,
+            `Se ha ${accion} en el siguiente item: ${modulo}`,
             datos
         );
-        return await Auditoria.create(auditoria);
+        await Auditoria.create(auditoria);
+        return;
         //console.log(auditoria);
         
     }
