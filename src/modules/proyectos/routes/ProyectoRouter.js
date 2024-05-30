@@ -13,7 +13,7 @@ ProyectoRouter.get('/seleccionar/:id' /*authRequired*/, ProyectoController.getBy
 ProyectoRouter.get('/usuario/:id' /*authRequired*/, ProyectoController.getByUser)
 ProyectoRouter.post('/crear', /*authRequired*/ validateSchema(createEschema), ProyectoController.create)
 ProyectoRouter.post('/completar/:id', authRequired,ProyectoController.concretarProyecto)
-ProyectoRouter.post('/actualizar/:id', authRequired,validateSchema(updateEschema), ProyectoController.editarProyecto)
+ProyectoRouter.post('/actualizar/:id',/* authRequired,*/validateSchema(updateEschema), ProyectoController.editarProyecto)
 ProyectoRouter.delete('/eliminar/:id',authRequired, ProyectoController.delete)
 
 //ProyectoRouter.get('/reporte/:id', pdf)

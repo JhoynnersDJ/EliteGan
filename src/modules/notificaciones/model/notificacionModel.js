@@ -40,11 +40,11 @@ export class Notificacion {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
-        const notificaciones = await Proyectos.findAll({
+        const notificaciones = await Proyectos.findByPk(id_proyecto,{
           attributes: ['id_proyecto', 'nombre_proyecto'],
-          where: {
-            id_proyecto: id_proyecto
-          },
+          // where: {
+          //   id_proyecto: id_proyecto
+          // },
           include: [
             {
               model: Usuarios,
@@ -64,83 +64,51 @@ export class Notificacion {
   }
 
   // actualiza en la base de datos
-  static async editar() {
+  static async actualizarLista(id_proyecto, usuarios) {
     try {
+      console.log(usuarios)
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
-        // guardar en la base de datos
-        const proyectoActualizado = await Proyectos.update(
-          {
-            tarifa: proyecto.tarifa,
-            nombre_proyecto: proyecto.nombre,
-            pool_horas: pool_horas,
-            fecha_fin: proyecto.fecha_fin,
-            pool_horas_contratadas: proyecto.pool_horas
-          },
-          {
-            fields: [
-              "tarifa",
-              "nombre_proyecto",
-              "pool_horas",
-              "fecha_fin",
-              "pool_horas_contratadas"
-            ],
-            where: {
-              id_proyecto: id_proyecto
-            }
-          }
-        );
-        // buscar los tecnicos que ya estaban asignados
-        const tecnicosBDSinFormato = await Asignaciones.findAll({
-          attributes: [
-            'id_asignacion',
-            'id_usuario'
-          ]
-        },
-        {
-          where: {
-            id_proyecto: id_proyecto
-          }
-        })
+        // actualizar la lista de notificaciones
+        const usuariosBdSinFormatear = await Notificacion.findByProject(id_proyecto)
+        const usuariosBdId = usuariosBdSinFormatear.usuarios
         // formato de los datos
-        const tecnicosBD = tecnicosBDSinFormato.map((tecnicos) => ({
-          id_asignacion: tecnicos.id_asignacion,
-          id_usuario: tecnicos.id_usuario
+        const usuariosBd = usuariosBdId.map((user) => ({
+          id_usuario: user.id_usuario
         }));
-        // nuevo array con el valor de los tecnicos actualizados
-        const tecnicosActualizados = proyecto.tecnicos
-        // Asocia los usuarios al proyecto en la tabla asignaciones
-        for (const tecnico of tecnicosActualizados) {
-          const usuario = await Usuarios.findByPk(tecnico.id_usuario);
-          // Comprueba si el tecnico aún existe
-          const existeEnBD = tecnicosBD.some(t => t.id_usuario === tecnico.id_usuario);
-          if (usuario && existeEnBD) {
+        console.log(usuariosBd)
+        // Asocia los usuarios al proyecto en la tabla notificaciones
+        for (const usuario of usuarios) {
+          const userExist = await Usuarios.findByPk(usuario.id_usuario);
+          // Comprueba si el usuario aún existe
+          const existeEnBD = usuariosBd.some(t => t.id_usuario === usuario.id_usuario);
+          if (userExist && existeEnBD) {
             // Si no existe en la base de datos, lo agrega
-            await Asignaciones.create({
-              id_usuario: tecnico.id_usuario,
+            await Notificaciones.create({
+              id_usuario: usuario.id_usuario,
+              id_proyecto: id_proyecto
+            })
+          }else{
+            // Si no existe en la base de datos, lo agrega
+            await Notificaciones.create({
+              id_usuario: usuario.id_usuario,
               id_proyecto: id_proyecto
             })
           }
         }
-      // Desasocia los usuarios que ya no están en el proyecto
-      for (const tecnico of tecnicosBD) {
-        const sigueEnProyecto = tecnicosActualizados.some(t => t.id_usuario === tecnico.id_usuario);
-        if (!sigueEnProyecto) {
+      // Desasocia los usuarios que ya reciben notificaciones
+      for (const usuario of usuariosBd) {
+        const sigueEnNotificaciones = usuarios.some(t => t.id_usuario === usuario.id_usuario);
+        if (!sigueEnNotificaciones) {
           // Si ya no está en este proyecto
-          await Asignaciones.update({
-            status: false
-          },{
+          await Notificaciones.destroy({
             where: {
-              id_usuario: tecnico.id_usuario,
+              id_usuario: usuario.id_usuario,
               id_proyecto: id_proyecto
-            },
-            fields:[
-              'status'
-            ]
+            }
           })
         }
       }
-        return proyectoActualizado;
       }
     } catch (error) {
       console.log(error.message);

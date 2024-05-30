@@ -626,14 +626,19 @@ async function sendEmailCreate(tarea, usuario, tarea2){
     // obtener los usuarios a los que se va a notificar
     // const liderDeProyecto = await user.getLider()
     const notificaciones = await Notificacion.findByProject(tarea.id_proyecto)
-    if (!notificaciones || notificaciones === null) {
-      return res.status(204).json({message: 'No hay registro de notificaciones para este proyecto'})
+    if (notificaciones.usuarios == []) {
+      return []
     }
-    console.log(notificaciones)
+    // formato de los datos
+    // const formatedNotificaciones = {
+    //   id_proyecto: notificaciones.id_proyecto,
+    //   nombre_proyecto: notificaciones.nombre_proyecto,
+    //   usuarios: notificaciones.usuarios ? notificaciones.usuarios : null
+    // }
     // enviar correo a los usuarios
     for (const lider of notificaciones.usuarios) {
-      await sendEmail(htmlContent, lider.email, asunto);
-      console.log(lider)
+      const email = lider.dataValues.email
+      await sendEmail(htmlContent, email, asunto);
       console.log('Correo de creación de tarea enviado a: ' + lider.nombre + " " +lider.apellido)
     }
   } catch (error) {
