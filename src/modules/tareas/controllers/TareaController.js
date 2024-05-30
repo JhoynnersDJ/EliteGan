@@ -231,7 +231,7 @@ export const register = async (req, res) => {
       );
       // enviar notificacion al correo
       console.log("console log dentro del controlador")
-      //await tarea.sendEmailCreate(tareaSaved, userFound)
+      await tarea.sendEmailCreate(tareaSaved, userFound)
     }
 
     datos = null;
