@@ -6,6 +6,7 @@ import {
   Asignaciones,
   Tareas,
   Servicios,
+  Notificaciones
 } from "../../../database/hormiwatch/asociaciones.js";
 import { Metricas } from "../../metricas/model/metricasModel.js";
 // import { user } from '../../usuarios/model/UserModel.js';
@@ -325,7 +326,7 @@ export class Proyecto {
               "pool_horas_contratadas",
               "facturable",
               "id_lider_proyecto"
-            ],
+            ]
           }
         );
         
@@ -335,6 +336,14 @@ export class Proyecto {
           if (usuario) {
             await proyectoCreado.addUsuario(usuario);
           }
+        }
+        // agrega el lider de proyecto a las notificaciones
+        const lider = await Usuarios.findByPk(proyecto.id_lider_proyecto);
+        if (lider) {
+          await Notificaciones.create({
+            id_usuario: proyecto.id_lider_proyecto,
+            id_proyecto: proyectoCreado.id_proyecto,
+          })
         }
         return proyectoCreado;
       }
