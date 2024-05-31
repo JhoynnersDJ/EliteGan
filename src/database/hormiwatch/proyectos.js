@@ -54,6 +54,14 @@ id_responsable_cliente: {
       key: 'id_responsable_cliente', // Clave primaria de la tabla a la que se hace referencia
     },
   },
+id_lider_proyecto: {
+    type: DataTypes.UUID, // Tipo de datos UUID para la clave externa
+    allowNull: true,
+    references: {
+      model: 'usuarios', // Nombre del modelo de la tabla a la que se hace referencia
+      key: 'id_usuario',// Clave primaria de la tabla a la que se hace referencia
+    },
+  },
 }, {
   timestamps: true,
   createdAt: true,

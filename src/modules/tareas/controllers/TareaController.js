@@ -230,7 +230,6 @@ export const register = async (req, res) => {
         Number(factor_horas3.toFixed(2))
       );
       // enviar notificacion al correo
-      console.log("console log dentro del controlador")
       await tarea.sendEmailCreate(tareaSaved, userFound)
     }
 
