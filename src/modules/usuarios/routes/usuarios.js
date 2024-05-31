@@ -14,7 +14,8 @@ import {
   updateUser,
   updatePassword,
   updatePasswordToken,
-  forgotPassword
+  forgotPassword,
+  getAllUser
 } from "../controllers/UserControllers.js";
 import { authRequired, authRequired2} from "../../../middlewares/validateToken.js";
 import { rolRequired } from "../../../middlewares/validateRol.js";
@@ -82,5 +83,7 @@ router.post("/actualizar-password",authRequired,validateSchema(forgotUpdatePassw
 
 //cambiar email por el nuevo, verificado = true
 router.put("/verificar-password",authRequired,validateSchema(forgotUpdatePasswordSchema), forgotPassword);
+
+router.get("/todos-usuarios",authRequired, getAllUser);
 
 export default router;

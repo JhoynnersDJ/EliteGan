@@ -139,6 +139,9 @@ export class user {
   static getLider() {
     return userFunction.getLider();
   }
+  static findAllUsers() {
+    return userFunction.findAllUsers();
+  }
 }
 
 export class userRol {

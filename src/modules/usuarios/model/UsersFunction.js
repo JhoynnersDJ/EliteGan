@@ -223,6 +223,28 @@ async function findOne(email) {
   //return users.users.find((users) => users.email == email);
 }
 
+async function findAllUsers() {
+  if (dbSelect == "SEQUELIZE") {
+    const userFound = await Usuarios.findAll();
+
+    if (userFound.length === 0 || !userFound) return [];
+    
+    const fromatedUser = userFound.map(
+      (users) => ({
+      id_usuario:  users.id_usuario,
+      nombre: users.nombre,
+      apellido: users.apellido,      
+      
+      })
+      
+    );
+    
+    return fromatedUser
+  }
+
+  return null;
+}
+
 async function saveProfilePhoto(id_usuario, file){
   //const bitmap = fs.readFileSync(file);
   /*const buf = Buffer.from(file);
@@ -1018,5 +1040,8 @@ export default class userFunction {
   }
   static getLider() {
     return getLider();
+  }
+  static findAllUsers() {
+    return findAllUsers();
   }
 }
