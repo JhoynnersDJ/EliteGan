@@ -3,7 +3,8 @@ import { Roles } from "../../../database/hormiwatch/asociaciones.js";
 import { Usuarios } from "../../../database/hormiwatch/asociaciones.js";
 import { EstadoUsuarios } from "../../../database/hormiwatch/asociaciones.js";
 import fs from "fs";
-import {sendEmail} from "../../../middlewares/sendEmail.js"
+import {sendEmail} from "../../../middlewares/sendEmail.js";
+import {Op} from "sequelize"
 
 import "dotenv/config";
 import nodemailer from "nodemailer";
@@ -225,7 +226,18 @@ async function findOne(email) {
 
 async function findAllUsers() {
   if (dbSelect == "SEQUELIZE") {
-    const userFound = await Usuarios.findAll();
+    const estado = await EstadoUsuarios.findOne({
+      where: { nombre_estado_usuario: "suspendido" },
+    });
+    if (!estado) return null;
+
+    const userFound = await Usuarios.findAll({
+      where: {
+        id_estado_usuario:  {
+          [Op.ne]: estado.id_estado_usuario,
+        },
+      },
+    });
 
     if (userFound.length === 0 || !userFound) return [];
     
