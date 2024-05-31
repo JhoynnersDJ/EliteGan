@@ -9,9 +9,11 @@ import {
   Notificaciones
 } from "../../../database/hormiwatch/asociaciones.js";
 import { Metricas } from "../../metricas/model/metricasModel.js";
+import {user} from "../../usuarios/model/UserModel.js";
 // import { user } from '../../usuarios/model/UserModel.js';
 import { formatearMinutos } from "../libs/pool_horas.js";
 import { sendEmail } from "../../../middlewares/sendEmail.js";
+import { Auditoria } from "../../auditoria/model/AuditoriaModel.js";
 import { ResponsableClienteReplica } from "../../responsables_clientes/model/responsable_clienteModel.js";
 import date from "date-and-time";
 import { Op } from "sequelize";
@@ -345,7 +347,34 @@ export class Proyecto {
             id_proyecto: proyectoCreado.id_proyecto,
           })
         }
+        // objeto de auditoria
+        const proyectoAuditoria = {
+            id_proyecto: proyectoCreado.id_proyecto,
+            createdAt: proyectoCreado.createdAt,
+            tarifa: proyecto.tarifa,
+            nombre_proyecto: proyecto.nombre,
+            status: proyecto.status,
+            fecha_inicio: proyecto.fecha_inicio,
+            id_responsable_cliente: proyecto.responsable_cliente,
+            pool_horas: proyecto.pool_horas,
+            fecha_fin: proyecto.fecha_fin,
+            pool_horas_contratadas: proyecto.pool_horas,
+            facturable: proyecto.facturable,
+            id_lider_proyecto: proyecto.id_lider_proyecto,
+            tecnicos: proyecto.tecnicos
+        }
+        console.log(proyectoAuditoria)
+        // busqueda de los datos de auditoria
+        const userFound = await user.findOneById(id_lider_proyecto);
+        const auditoria = new Auditoria(
+            `${userFound.nombre} ${userFound.apellido}`,
+            userFound.rol.nombre_rol,
+            `Se ha creado en el siguiente item: proyecto`,
+            proyectoAuditoria
+        );
+        await Auditoria.create(auditoria);
         return proyectoCreado;
+
       }
     } catch (error) {
       console.log(error.message);
