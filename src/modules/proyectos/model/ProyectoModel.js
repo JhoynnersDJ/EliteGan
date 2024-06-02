@@ -218,6 +218,13 @@ export class Proyecto {
               through: {
                 model: Asignaciones,
                 attributes: [],
+                where: {
+                  [Op.or]:[
+                    {status: null},
+                    {status: 1},
+                    {status: true}
+                  ]
+                }
               },
             },
             {
@@ -363,9 +370,8 @@ export class Proyecto {
             id_lider_proyecto: proyecto.id_lider_proyecto,
             tecnicos: proyecto.tecnicos
         }
-        console.log(proyectoAuditoria)
         // busqueda de los datos de auditoria
-        const userFound = await user.findOneById(id_lider_proyecto);
+        const userFound = await user.findOneById(proyecto.id_lider_proyecto);
         const auditoria = new Auditoria(
             `${userFound.nombre} ${userFound.apellido}`,
             userFound.rol.nombre_rol,
@@ -385,6 +391,39 @@ export class Proyecto {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
+        // obtener datos antes de actualizar
+        const proyectoBD = await Proyectos.findByPk(id_proyecto, {
+          include: [
+            {
+              model: ResponsablesClienteR,
+              attributes: [["nombre_responsable_cliente", "nombre"]],
+              include: [
+                {
+                  model: ClientesR,
+                  attributes: [
+                    ["id_cliente", "id"],
+                    ["nombre_cliente", "nombre"],
+                  ],
+                },
+              ],
+            },
+            {
+              model: Usuarios,
+              as:'tecnicos',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+              through: {
+                model: Asignaciones,
+                as: 'asignacion',
+                attributes: ["id_asignacion", "status"],
+              },
+            },
+            {
+              model: Usuarios,
+              as: 'lider',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+            }
+          ],
+        });
         // guardar en la base de datos
         const proyectoActualizado = await Proyectos.update(
           {
@@ -457,6 +496,16 @@ export class Proyecto {
           })
         }
       }
+      // busqueda de los datos de auditoria
+      const userFound = await user.findOneById(proyecto.id_lider_proyecto);
+      const auditoria = new Auditoria(
+          `${userFound.nombre} ${userFound.apellido}`,
+          userFound.rol.nombre_rol,
+          `Se ha editado en el siguiente item: proyecto`,
+          proyectoBD
+      );
+        await Auditoria.create(auditoria);
+
         return proyectoActualizado;
       }
     } catch (error) {
@@ -469,10 +518,52 @@ export class Proyecto {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
+        // obtener datos antes de actualizar
+        const proyectoBD = await Proyectos.findByPk(id, {
+          include: [
+            {
+              model: ResponsablesClienteR,
+              attributes: [["nombre_responsable_cliente", "nombre"]],
+              include: [
+                {
+                  model: ClientesR,
+                  attributes: [
+                    ["id_cliente", "id"],
+                    ["nombre_cliente", "nombre"],
+                  ],
+                },
+              ],
+            },
+            {
+              model: Usuarios,
+              as:'tecnicos',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+              through: {
+                model: Asignaciones,
+                as: 'asignacion',
+                attributes: ["id_asignacion", "status"],
+              },
+            },
+            {
+              model: Usuarios,
+              as: 'lider',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+            }
+          ],
+        });
         // guardar en la base de datos
         const proyecto = await Proyectos.destroy({
           where: { id_proyecto: id },
         });
+        // busqueda de los datos de auditoria
+      const userFound = await user.findOneById(proyectoBD.id_lider_proyecto);
+      const auditoria = new Auditoria(
+          `${userFound.nombre} ${userFound.apellido}`,
+          userFound.rol.nombre_rol,
+          `Se ha eliminado en el siguiente item: proyecto`,
+          proyectoBD
+      );
+        await Auditoria.create(auditoria);
         return proyecto;
       }
     } catch (error) {

@@ -329,7 +329,9 @@ class ProyectoController {
         proyectoExistente.fecha_inicio,
         fin,
         id_responsable_cliente,
-        tecnicos
+        tecnicos,
+        proyectoExistente.facturable,
+        proyectoExistente.id_lider_proyecto
       );
       // actualiza el proyecto
       await Proyecto.editar(proyecto, pool_horas, id)
