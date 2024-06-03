@@ -252,7 +252,7 @@ async function getTasksById(id) {
       task.id_servicio,
       task.total_tarifa,
       task.status,
-      null,
+      task.id_servicio,
       task.id_usuario,
       task.descripcion
     )
