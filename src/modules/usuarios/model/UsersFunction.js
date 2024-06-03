@@ -54,6 +54,7 @@ async function saveUser(user) {
           id_usuario: user.id_usuario,
           id_estado_usuario: estado.id_estado_usuario,
           cedula: user.cedula,
+          foto_perfil: user.foto_perfil
         },
         {
           fields: [
@@ -69,6 +70,7 @@ async function saveUser(user) {
             "id_usuario",
             "id_estado_usuario",
             "cedula",
+            "foto_perfil"
           ],
         }
       );
