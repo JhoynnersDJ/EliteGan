@@ -7,6 +7,7 @@ import tarea from "./TareaModel.js";
 import {user} from "../../usuarios/model/UserModel.js"
 import { Notificacion } from "../../notificaciones/model/notificacionModel.js"
 import { calcularDiferenciaDeTiempo, calculartarifa } from '../libs/Tarifa.js'
+import { Auditoria } from "../../auditoria/model/AuditoriaModel.js";
 import { sendEmail } from "../../../middlewares/sendEmail.js";
 import { formatearMinutos } from "../../proyectos/libs/pool_horas.js";
 import {AuditoriaController} from "../../auditoria/controllers/AuditoriaController.js";
@@ -173,12 +174,19 @@ async function findUserByProjectId(id) {
 async function completeTaskByProjectId(id) {
   if (dbSelect == "SEQUELIZE") {
     const tasks = await Tareas.findAll({
+      attributes:['id_tarea', 'status'],
       where: {
         id_proyecto: id,
       },      
     });
     if (tasks.length === 0 || !tasks) return [];
-    
+    const auditoria = new Auditoria(
+      'Sistema',
+      'Sistema',
+      `Se ha editado en el siguiente item: tarea`,
+      tasks
+  );
+  await Auditoria.create(auditoria);
     tasks.forEach((task) =>
       {task.status = "C";
       task.save()}

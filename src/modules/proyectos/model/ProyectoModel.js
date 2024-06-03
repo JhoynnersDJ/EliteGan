@@ -738,6 +738,15 @@ export class Proyecto {
         },{
           where: { id_proyecto: id },
         });
+        if ((id_lider_proyecto == undefined) || (id_lider_proyecto == null) ) {
+          const auditoria = new Auditoria(
+            'Sistema',
+            'Sistema',
+            `Se ha editado en el siguiente item: proyecto`,
+            proyectoBD
+        );
+          await Auditoria.create(auditoria);
+        }else{
         // busqueda de los datos de auditoria
         const userFound = await user.findOneById(id_lider_proyecto);
         const auditoria = new Auditoria(
@@ -747,6 +756,7 @@ export class Proyecto {
           proyectoBD
       );
         await Auditoria.create(auditoria);
+        }
         return proyecto;
       }
     } catch (error) {
