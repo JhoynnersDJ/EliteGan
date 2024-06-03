@@ -29,7 +29,7 @@ factor_tiempo_total: {
     allowNull: false
   },
 descripcion: {
-    type: DataTypes.STRING(30),
+    type: DataTypes.STRING(50),
     allowNull: false
   },
 status: {
