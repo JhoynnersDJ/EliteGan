@@ -220,6 +220,8 @@ class ProyectoController {
     try {
       // capturar id de proyecto
       const { id } = req.params
+      // capturar al lider de proyecto que realiza la accion
+      const { id_lider_proyecto } = req.body
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk(id);
       if (!proyectoExistente) {
@@ -233,7 +235,7 @@ class ProyectoController {
         });
       }
       // actualiza el status del proyecto a completado
-      await Proyecto.concretarProyecto(id)
+      await Proyecto.concretarProyecto(id, id_lider_proyecto)
       // actualiza el status de las tareas asociadas a completado
       await tarea.completeTaskByProjectId(id)
       res.status(200).json({ message: "Proyecto concretado correctamente" })
@@ -247,7 +249,7 @@ class ProyectoController {
     try {
       // capturar datos del proyecto
       const { id } = req.params
-      const { tarifa, fecha_fin, id_responsable_cliente, tecnicos} = req.body;
+      const { tarifa, fecha_fin, id_responsable_cliente, tecnicos, id_lider_proyecto} = req.body;
       let { nombre_proyecto, pool_horas_contratadas } = req.body;
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk(id);
@@ -331,7 +333,7 @@ class ProyectoController {
         id_responsable_cliente,
         tecnicos,
         proyectoExistente.facturable,
-        proyectoExistente.id_lider_proyecto
+        id_lider_proyecto
       );
       // actualiza el proyecto
       await Proyecto.editar(proyecto, pool_horas, id)

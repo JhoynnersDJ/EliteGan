@@ -724,16 +724,29 @@ export class Proyecto {
     }
   }
   // actualizar el status de un proyecto a completado en la base de datos
-  static async concretarProyecto(id) {
+  static async concretarProyecto(id, id_lider_proyecto) {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
+        // obtener datos antes de actualizar
+        const proyectoBD = await Proyectos.findByPk(id, {
+          attributes:["id_proyecto", "status"]
+        });
         // actualizar un proyecto en la base de datos
         const proyecto = await Proyectos.update({
           status: 1
         },{
           where: { id_proyecto: id },
         });
+        // busqueda de los datos de auditoria
+        const userFound = await user.findOneById(id_lider_proyecto);
+        const auditoria = new Auditoria(
+          `${userFound.nombre} ${userFound.apellido}`,
+          userFound.rol.nombre_rol,
+          `Se ha editado en el siguiente item: proyecto`,
+          proyectoBD
+      );
+        await Auditoria.create(auditoria);
         return proyecto;
       }
     } catch (error) {

@@ -34,7 +34,11 @@ export const createEschema = z.object({
         }),
     fecha_fin: z.coerce.date({
         invalid_type_error: "La fecha de fin debe ser una cadena de caráteres y formato ISO 8601",
-    })
+    }),
+    id_lider_proyecto: z.string({
+        required_error: 'Id de lider de proyecto es requerido',
+        invalid_type_error: 'Id de lider de proyecto debe ser tipo cadena de carácteres'
+        }),
 }).partial()
 
 //se asegura que los campos ingresados al editar un proyecto sean validos
@@ -68,5 +72,9 @@ export const updateEschema = z.object({
         }),
     fecha_fin: z.coerce.date({
         invalid_type_error: "La fecha de fin debe ser una cadena de caráteres y formato ISO 8601",
-    })
+    }),
+    id_lider_proyecto: z.string({
+        required_error: 'Id de lider de proyecto es requerido',
+        invalid_type_error: 'Id de lider de proyecto debe ser tipo cadena de carácteres'
+        })
 }).partial()
