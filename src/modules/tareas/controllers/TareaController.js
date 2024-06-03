@@ -33,7 +33,7 @@ export const register = async (req, res) => {
     const userFound = await tarea.getUserById(id_usuario);
     if (!descripcion) descripcion = "";
 
-    if (descripcion.length > 30)
+    if (descripcion.length > 50)
       return res.status(404).json({ message: "Descripcion es mayor a 30 caracteres" });
 
     if (!userFound)
@@ -372,9 +372,8 @@ export const updateTaskMaster = async (req, res) => {
       descripcion = taskFound.descripcion;
     }
 
-    if (descripcion.length > 30)
+    if (descripcion.length > 50)
         return res.status(404).json({ message: "Descripcion es mayor a 30 caracteres" });
-    console.log(descripcion)
     if (!taskFound)
       return res.status(404).json({ message: "tarea no encontrada" });
 
