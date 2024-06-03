@@ -6,6 +6,7 @@ import {
   Asignaciones,
   Tareas,
   Servicios,
+  Notificaciones
 } from "../../../database/hormiwatch/asociaciones.js";
 import { Metricas } from "../../metricas/model/metricasModel.js";
 // import { user } from '../../usuarios/model/UserModel.js';
@@ -27,7 +28,8 @@ export class Proyecto {
     fecha_fin,
     responsable_cliente,
     tecnicos,
-    facturable
+    facturable,
+    id_lider_proyecto
   ) {
     this.nombre = nombre;
     this.tarifa = tarifa;
@@ -38,6 +40,7 @@ export class Proyecto {
     this.tecnicos = tecnicos;
     this.status = status;
     this.facturable = facturable;
+    this.id_lider_proyecto = id_lider_proyecto;
   }
 
   // devuelve todos los registros
@@ -75,6 +78,11 @@ export class Proyecto {
                 }
               },
             },
+            {
+              model: Usuarios,
+              as: 'lider',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+            }
           ],
         });
         // formato de los datos
@@ -94,6 +102,9 @@ export class Proyecto {
           nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre,
           facturable: proyecto.facturable,
           usuarios: proyecto.usuarios,
+          id_lider_proyecto: proyecto.lider ? proyecto.lider.dataValues.id_usuario : null,
+          nombre_lider_proyecto: proyecto.lider ? proyecto.lider.dataValues.nombre + ' ' + proyecto.lider.dataValues.apellido : null,
+          email: proyecto.lider ? proyecto.lider.dataValues.email : null
         }));
         return formattedProyectos;
       }
@@ -143,6 +154,11 @@ export class Proyecto {
                 attributes: [],
               },
             },
+            {
+              model: Usuarios,
+              as: 'lider',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+            }
           ],
         });
         // formato de los datos
@@ -163,6 +179,9 @@ export class Proyecto {
           nombre_cliente: proyecto.responsables_cliente.cliente.dataValues.nombre,
           facturable: proyecto.facturable,
           usuarios: proyecto.tecnicos,
+          id_lider_proyecto: proyecto.lider ? proyecto.lider.dataValues.id_usuario : null,
+          nombre_lider_proyecto: proyecto.lider ? proyecto.lider.dataValues.nombre + ' ' + proyecto.lider.dataValues.apellido : null,
+          email: proyecto.lider ? proyecto.lider.dataValues.email : null
         }));
         return formattedProyectos;
       }
@@ -199,6 +218,11 @@ export class Proyecto {
                 attributes: [],
               },
             },
+            {
+              model: Usuarios,
+              as: 'lider',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+            }
           ],
         });
         // formato de los datos
@@ -222,6 +246,9 @@ export class Proyecto {
             proyecto.responsables_cliente.cliente.dataValues.nombre,
           facturable: proyecto.facturable,
           usuarios: proyecto.usuarios,
+          id_lider_proyecto: proyecto.lider ? proyecto.lider.dataValues.id_usuario : null,
+          nombre_lider_proyecto: proyecto.lider ? proyecto.lider.dataValues.nombre + ' ' + proyecto.lider.dataValues.apellido : null,
+          email: proyecto.lider ? proyecto.lider.dataValues.email : null
         };
         return formattedProyecto;
       }
@@ -284,7 +311,8 @@ export class Proyecto {
             pool_horas: proyecto.pool_horas,
             fecha_fin: proyecto.fecha_fin,
             pool_horas_contratadas: proyecto.pool_horas,
-            facturable: proyecto.facturable
+            facturable: proyecto.facturable,
+            id_lider_proyecto: proyecto.id_lider_proyecto
           },
           {
             fields: [
@@ -297,15 +325,25 @@ export class Proyecto {
               "fecha_fin",
               "pool_horas_contratadas",
               "facturable",
-            ],
+              "id_lider_proyecto"
+            ]
           }
         );
+        
         // Asocia los usuarios al proyecto en la tabla asignaciones
         for (const tecnico of proyecto.tecnicos) {
           const usuario = await Usuarios.findByPk(tecnico.id_usuario);
           if (usuario) {
             await proyectoCreado.addUsuario(usuario);
           }
+        }
+        // agrega el lider de proyecto a las notificaciones
+        const lider = await Usuarios.findByPk(proyecto.id_lider_proyecto);
+        if (lider) {
+          await Notificaciones.create({
+            id_usuario: proyecto.id_lider_proyecto,
+            id_proyecto: proyectoCreado.id_proyecto,
+          })
         }
         return proyectoCreado;
       }

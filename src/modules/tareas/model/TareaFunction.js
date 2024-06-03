@@ -5,6 +5,7 @@ import { Servicios } from "../../../database/hormiwatch/asociaciones.js";
 import { Tareas } from "../../../database/hormiwatch/asociaciones.js";
 import tarea from "./TareaModel.js";
 import {user} from "../../usuarios/model/UserModel.js"
+import { Notificacion } from "../../notificaciones/model/notificacionModel.js"
 import { calcularDiferenciaDeTiempo, calculartarifa } from '../libs/Tarifa.js'
 import { sendEmail } from "../../../middlewares/sendEmail.js";
 import { formatearMinutos } from "../../proyectos/libs/pool_horas.js";
@@ -622,11 +623,22 @@ async function sendEmailCreate(tarea, usuario, tarea2){
       </html>  
       `
     }
-    // obtener los usuarios con rol lider tecnico
-    const liderDeProyecto = await user.getLider()
-    // enviar correo a los lideres
-    for (const lider of liderDeProyecto) {
-      await sendEmail(htmlContent, lider.email, asunto);
+    // obtener los usuarios a los que se va a notificar
+    // const liderDeProyecto = await user.getLider()
+    const notificaciones = await Notificacion.findByProject(tarea.id_proyecto)
+    if (notificaciones.usuarios == []) {
+      return []
+    }
+    // formato de los datos
+    // const formatedNotificaciones = {
+    //   id_proyecto: notificaciones.id_proyecto,
+    //   nombre_proyecto: notificaciones.nombre_proyecto,
+    //   usuarios: notificaciones.usuarios ? notificaciones.usuarios : null
+    // }
+    // enviar correo a los usuarios
+    for (const lider of notificaciones.usuarios) {
+      const email = lider.dataValues.email
+      await sendEmail(htmlContent, email, asunto);
       console.log('Correo de creación de tarea enviado a: ' + lider.nombre + " " +lider.apellido)
     }
   } catch (error) {

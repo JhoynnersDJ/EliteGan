@@ -11,6 +11,7 @@ import ResponsablesClienteRouter from './src/modules/responsables_clientes/route
 import ServicioRouter from './src/modules/servicios/routes/ServicioRouter.js'
 import ProyectoRouter from './src/modules/proyectos/routes/ProyectoRouter.js'
 import MetricasRouter from './src/modules/metricas/routes/metricasRoutes.js'
+import NotificacionRouter from './src/modules/notificaciones/routes/notificacionRoutes.js'
 
 //usuarios
 import UsuariosRouter from './src/modules/usuarios/routes/usuarios.js'
@@ -73,6 +74,8 @@ app.use('/servicios', ServicioRouter);
 app.use('/proyectos', ProyectoRouter);
 //Middleware para proyectos
 app.use('/metricas', MetricasRouter);
+//Middleware para notificaciones
+app.use('/notificacion', NotificacionRouter);
 
 
 // tareas programadas

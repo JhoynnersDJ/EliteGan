@@ -93,6 +93,7 @@ class ProyectoController {
         fecha_fin,
         id_responsable_cliente,
         tecnicos,
+        id_lider_proyecto
       } = req.body;
       let { nombre, tarifa } = req.body;
       // eliminar espacios en blanco del string
@@ -112,6 +113,17 @@ class ProyectoController {
           });
         }
       }
+      // comprobar si existe el lider de proyecto
+      const lider = await user.findOneById(id_lider_proyecto);
+        if (!lider) {
+          return res.status(404).json({
+            code: "Recurso no encontrado",
+            message: "Id de lider de proyecto no encontrado",
+            details: `Líder de proyecto con el id '+ ${id_lider_proyecto} + ' no se encuentra en la base de datos`,
+            timestamp: date.format(new Date(), "YYYY-MM-DDTHH:mm:ss"),
+            requestID: id_lider_proyecto,
+          });
+        }
       // comprobar que recibo un responsable cliente
       if (id_responsable_cliente == "") {
         return res.status(400).json({
@@ -186,7 +198,8 @@ class ProyectoController {
         fecha_fin,
         id_responsable_cliente,
         tecnicos,
-        facturable
+        facturable,
+        id_lider_proyecto
       );
       // guardar en la base de datos y actualiza la tabla asignaciones
       await Proyecto.create(proyecto);

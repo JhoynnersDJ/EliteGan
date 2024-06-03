@@ -8,6 +8,7 @@ import { Roles } from "./roles.js";
 import { Servicios } from "./servicios.js";
 import { Tareas } from "./tareas.js";
 import { Usuarios } from "./usuarios.js";
+import { Notificaciones } from "./notificaciones.js"
 
 
 /* ----- Asociaciones relacionadas a Roles  ----- */
@@ -24,6 +25,8 @@ Usuarios.belongsTo(Roles, { targetKey:'id_rol', foreignKey: 'id_rol'});
 Usuarios.hasMany(Tareas, { foreignKey:'id_usuario'});
 Tareas.belongsTo(Usuarios, { targetKey:'id_usuario', foreignKey: 'id_usuario'});
 
+Usuarios.hasMany(Proyectos, { foreignKey:'id_lider_proyecto', sourceKey: 'id_usuario'});
+Proyectos.belongsTo(Usuarios, { as: 'lider', targetKey:'id_usuario', foreignKey: 'id_lider_proyecto'});
 
 /* ----- Asociaciones relacionadas a EstadoUsuarios  ----- */
 
@@ -74,9 +77,12 @@ Proyectos.belongsToMany(Usuarios, { through: Asignaciones, foreignKey: 'id_proye
 Usuarios.belongsToMany(Proyectos, { through: Asignaciones, foreignKey: 'id_usuario', targetKey: 'id_proyecto'});
 Proyectos.belongsToMany(Usuarios, { through: Asignaciones, foreignKey: 'id_proyecto', as: 'tecnicos', targetKey: 'id_usuario'});
 
+Usuarios.belongsToMany(Proyectos, { through: Notificaciones, foreignKey: 'id_usuario', targetKey: 'id_proyecto'});
+Proyectos.belongsToMany(Usuarios, { through: Notificaciones, foreignKey: 'id_proyecto', targetKey: 'id_usuario'});
+
 
 /* ----- Hooks ----- */
 
 
 /* ----- exportar los modelos con sus respectivas relaciones ----- */
-export { Asignaciones, ClientesR, EstadoUsuarios,  Proyectos, ResponsablesClienteR, Roles, Servicios, Tareas, Usuarios }
+export { Asignaciones, ClientesR, EstadoUsuarios,  Proyectos, ResponsablesClienteR, Roles, Servicios, Tareas, Usuarios, Notificaciones }
