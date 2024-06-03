@@ -62,7 +62,9 @@ export const register = async (req, res) => {
       null,
       idUnico,
       null,
-      cedula
+      cedula,
+      null,
+      "https://firebasestorage.googleapis.com/v0/b/hormiwatch.appspot.com/o/files%2Fhormiwatch%20default.jpeg?alt=media&token=73c62bec-e2fd-495b-8f8f-4799b656f80c"
     );
 
     //se guarda el usuario
