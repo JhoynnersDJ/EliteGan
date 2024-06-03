@@ -15,7 +15,7 @@ router.get('/proyecto-tecnico/:id/:id_usuario',authRequired,getByProjectAndUser)
 
 router.get('/seleccionar/:id',authRequired,getByProject)
 
-router.delete('/eliminar/:id',authRequired, deleteById)
+router.delete('/eliminar/:id',authRequired2, deleteById)
 
 router.put('/actualizar/:id', authRequired, validateSchema(updateTaskSchema), updateTaskMaster)
 

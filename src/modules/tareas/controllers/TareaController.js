@@ -289,7 +289,8 @@ export const deleteById = async (req, res) => {
   const { id } = req.params;
   try {
     const taskFound = await tarea.getTasksById(id);
-
+    const datos = taskFound;
+    await AuditoriaController.resgistrarAccion("eliminado", "tarea", datos)(req, res);
     if (!taskFound)
       return res.status(404).json({ message: "tarea no encontrada" });
 
