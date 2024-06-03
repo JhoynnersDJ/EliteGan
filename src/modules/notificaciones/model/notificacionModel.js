@@ -66,7 +66,6 @@ export class Notificacion {
   // actualiza en la base de datos
   static async actualizarLista(id_proyecto, usuarios) {
     try {
-      console.log(usuarios)
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
         // actualizar la lista de notificaciones

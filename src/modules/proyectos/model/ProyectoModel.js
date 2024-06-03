@@ -9,9 +9,11 @@ import {
   Notificaciones
 } from "../../../database/hormiwatch/asociaciones.js";
 import { Metricas } from "../../metricas/model/metricasModel.js";
+import {user} from "../../usuarios/model/UserModel.js";
 // import { user } from '../../usuarios/model/UserModel.js';
 import { formatearMinutos } from "../libs/pool_horas.js";
 import { sendEmail } from "../../../middlewares/sendEmail.js";
+import { Auditoria } from "../../auditoria/model/AuditoriaModel.js";
 import { ResponsableClienteReplica } from "../../responsables_clientes/model/responsable_clienteModel.js";
 import date from "date-and-time";
 import { Op } from "sequelize";
@@ -216,6 +218,13 @@ export class Proyecto {
               through: {
                 model: Asignaciones,
                 attributes: [],
+                where: {
+                  [Op.or]:[
+                    {status: null},
+                    {status: 1},
+                    {status: true}
+                  ]
+                }
               },
             },
             {
@@ -345,7 +354,33 @@ export class Proyecto {
             id_proyecto: proyectoCreado.id_proyecto,
           })
         }
+        // objeto de auditoria
+        const proyectoAuditoria = {
+            id_proyecto: proyectoCreado.id_proyecto,
+            createdAt: proyectoCreado.createdAt,
+            tarifa: proyecto.tarifa,
+            nombre_proyecto: proyecto.nombre,
+            status: proyecto.status,
+            fecha_inicio: proyecto.fecha_inicio,
+            id_responsable_cliente: proyecto.responsable_cliente,
+            pool_horas: proyecto.pool_horas,
+            fecha_fin: proyecto.fecha_fin,
+            pool_horas_contratadas: proyecto.pool_horas,
+            facturable: proyecto.facturable,
+            id_lider_proyecto: proyecto.id_lider_proyecto,
+            tecnicos: proyecto.tecnicos
+        }
+        // busqueda de los datos de auditoria
+        const userFound = await user.findOneById(proyecto.id_lider_proyecto);
+        const auditoria = new Auditoria(
+            `${userFound.nombre} ${userFound.apellido}`,
+            userFound.rol.nombre_rol,
+            `Se ha creado en el siguiente item: proyecto`,
+            proyectoAuditoria
+        );
+        await Auditoria.create(auditoria);
         return proyectoCreado;
+
       }
     } catch (error) {
       console.log(error.message);
@@ -356,6 +391,39 @@ export class Proyecto {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
+        // obtener datos antes de actualizar
+        const proyectoBD = await Proyectos.findByPk(id_proyecto, {
+          include: [
+            {
+              model: ResponsablesClienteR,
+              attributes: [["nombre_responsable_cliente", "nombre"]],
+              include: [
+                {
+                  model: ClientesR,
+                  attributes: [
+                    ["id_cliente", "id"],
+                    ["nombre_cliente", "nombre"],
+                  ],
+                },
+              ],
+            },
+            {
+              model: Usuarios,
+              as:'tecnicos',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+              through: {
+                model: Asignaciones,
+                as: 'asignacion',
+                attributes: ["id_asignacion", "status"],
+              },
+            },
+            {
+              model: Usuarios,
+              as: 'lider',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+            }
+          ],
+        });
         // guardar en la base de datos
         const proyectoActualizado = await Proyectos.update(
           {
@@ -428,6 +496,16 @@ export class Proyecto {
           })
         }
       }
+      // busqueda de los datos de auditoria
+      const userFound = await user.findOneById(proyecto.id_lider_proyecto);
+      const auditoria = new Auditoria(
+          `${userFound.nombre} ${userFound.apellido}`,
+          userFound.rol.nombre_rol,
+          `Se ha editado en el siguiente item: proyecto`,
+          proyectoBD
+      );
+        await Auditoria.create(auditoria);
+
         return proyectoActualizado;
       }
     } catch (error) {
@@ -440,10 +518,52 @@ export class Proyecto {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
+        // obtener datos antes de actualizar
+        const proyectoBD = await Proyectos.findByPk(id, {
+          include: [
+            {
+              model: ResponsablesClienteR,
+              attributes: [["nombre_responsable_cliente", "nombre"]],
+              include: [
+                {
+                  model: ClientesR,
+                  attributes: [
+                    ["id_cliente", "id"],
+                    ["nombre_cliente", "nombre"],
+                  ],
+                },
+              ],
+            },
+            {
+              model: Usuarios,
+              as:'tecnicos',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+              through: {
+                model: Asignaciones,
+                as: 'asignacion',
+                attributes: ["id_asignacion", "status"],
+              },
+            },
+            {
+              model: Usuarios,
+              as: 'lider',
+              attributes: ["id_usuario", "nombre", "apellido", "email"],
+            }
+          ],
+        });
         // guardar en la base de datos
         const proyecto = await Proyectos.destroy({
           where: { id_proyecto: id },
         });
+        // busqueda de los datos de auditoria
+      const userFound = await user.findOneById(proyectoBD.id_lider_proyecto);
+      const auditoria = new Auditoria(
+          `${userFound.nombre} ${userFound.apellido}`,
+          userFound.rol.nombre_rol,
+          `Se ha eliminado en el siguiente item: proyecto`,
+          proyectoBD
+      );
+        await Auditoria.create(auditoria);
         return proyecto;
       }
     } catch (error) {
@@ -604,16 +724,39 @@ export class Proyecto {
     }
   }
   // actualizar el status de un proyecto a completado en la base de datos
-  static async concretarProyecto(id) {
+  static async concretarProyecto(id, id_lider_proyecto) {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
+        // obtener datos antes de actualizar
+        const proyectoBD = await Proyectos.findByPk(id, {
+          attributes:["id_proyecto", "status"]
+        });
         // actualizar un proyecto en la base de datos
         const proyecto = await Proyectos.update({
           status: 1
         },{
           where: { id_proyecto: id },
         });
+        if ((id_lider_proyecto == undefined) || (id_lider_proyecto == null) ) {
+          const auditoria = new Auditoria(
+            'Sistema',
+            'Sistema',
+            `Se ha editado en el siguiente item: proyecto`,
+            proyectoBD
+        );
+          await Auditoria.create(auditoria);
+        }else{
+        // busqueda de los datos de auditoria
+        const userFound = await user.findOneById(id_lider_proyecto);
+        const auditoria = new Auditoria(
+          `${userFound.nombre} ${userFound.apellido}`,
+          userFound.rol.nombre_rol,
+          `Se ha editado en el siguiente item: proyecto`,
+          proyectoBD
+      );
+        await Auditoria.create(auditoria);
+        }
         return proyecto;
       }
     } catch (error) {

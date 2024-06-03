@@ -45,6 +45,7 @@ class NotificacionController{
       // capturar datos del proyecto
       const { id_proyecto } = req.params
       const { usuarios } = req.body;
+
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk(id_proyecto);
       if (!proyectoExistente) {
