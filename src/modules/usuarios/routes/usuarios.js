@@ -84,6 +84,6 @@ router.post("/actualizar-password",authRequired,validateSchema(forgotUpdatePassw
 //cambiar email por el nuevo, verificado = true
 router.put("/verificar-password",authRequired,validateSchema(forgotUpdatePasswordSchema), forgotPassword);
 
-router.get("/todos-usuarios",authRequired2, getAllUser);
+router.get("/todos-usuarios",authRequired, getAllUser);
 
 export default router;
