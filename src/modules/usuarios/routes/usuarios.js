@@ -79,10 +79,10 @@ router.put("/actualizar",authRequired,updateUser);
 router.put("/actualizar-password",authRequired,validateSchema(updatePasswordSchema),updatePassword);
 
 //enviar token por email, verificado = false
-router.post("/actualizar-password",authRequired,validateSchema(forgotUpdatePasswordTokenSchema), updatePasswordToken);
+router.post("/actualizar-password",validateSchema(forgotUpdatePasswordTokenSchema), updatePasswordToken);
 
 //cambiar email por el nuevo, verificado = true
-router.put("/verificar-password",authRequired,validateSchema(forgotUpdatePasswordSchema), forgotPassword);
+router.put("/verificar-password",validateSchema(forgotUpdatePasswordSchema), forgotPassword);
 
 router.get("/todos-usuarios",authRequired, getAllUser);
 
