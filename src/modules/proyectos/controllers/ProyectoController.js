@@ -560,7 +560,7 @@ class ProyectoController {
                             .map(
                               (tarea) => `
                             <tr>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                              <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 tarea.servicio.id_servicio.split("-")[0] === "OTR" ?  `${tarea.descripcion}` : `${tarea.servicio.nombre_servicio}`
                               }</td>
                               <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
