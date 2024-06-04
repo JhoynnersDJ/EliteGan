@@ -595,7 +595,6 @@ class ProyectoController {
                               <th scope="col" class="px-2 py-3 "></th>
                               <th scope="col" class="px-2 py-3 "></th>
                               <th scope="col" class="px-2 py-3 "></th>
-                              <th scope="col" class="px-2 py-3 "></th>
                               <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border-2  border-sky-500 bg-sky-500 text-sky-100">Total de Horas</th>
                               <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">${
                                 project.total_horas_tareas
