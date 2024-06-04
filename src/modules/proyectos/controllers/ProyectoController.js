@@ -563,28 +563,28 @@ class ProyectoController {
                               <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 tarea.servicio.id_servicio.split("-")[0] === "OTR" ?  `${tarea.descripcion}` : `${tarea.servicio.nombre_servicio}`
                               }</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                              <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 tarea.fecha
                               }</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                              <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 tarea.hora_inicio
                               }</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                              <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 tarea.hora_fin
                               }</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                              <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 calcularDiferenciaDeTiempo(
                                   tarea.hora_inicio,
                                   tarea.hora_fin
                                 ).tiempo_formateado
                               }</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                              <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 tarea.factor_tiempo_total
                               }</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                              <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 tarea.status
                               }</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-sm font-normal text-gray-800 text-center border">${
+                              <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 tarea.total_tarifa
                               }</td>
                             </tr>
