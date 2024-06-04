@@ -582,9 +582,6 @@ class ProyectoController {
                                 tarea.factor_tiempo_total
                               }</td>
                               <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
-                                tarea.status
-                              }</td>
-                              <td class="px-2 py-4 whitespace-nowrap text-xs font-normal text-gray-800 text-center border">${
                                 tarea.total_tarifa
                               }</td>
                             </tr>
