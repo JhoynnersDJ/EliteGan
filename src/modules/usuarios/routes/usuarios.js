@@ -76,7 +76,7 @@ router.post("/foto-perfil",upload.array('foto_perfil'),addUserPhoto);
 
 router.put("/actualizar",authRequired,updateUser);
 
-router.put("/actualizar-password",authRequired,validateSchema(updatePasswordSchema),updatePassword);
+router.put("/actualizar-password",validateSchema(updatePasswordSchema),updatePassword);
 
 //enviar token por email, verificado = false
 router.post("/actualizar-password",validateSchema(forgotUpdatePasswordTokenSchema), updatePasswordToken);
