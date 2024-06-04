@@ -65,7 +65,7 @@ router.post("/verificar-email",authRequired,validateSchema(updateEmailSchema), u
 
 router.get("/todos-tecnicos",authRequired, getByRol);
 
-router.post("/suspender_usuario/:id",authRequired, authRequired2,suspendUser);
+router.post("/suspender_usuario/:id",authRequired,suspendUser);
 
 import { getStorage } from "firebase/storage";
 // Initialize Cloud Storage and get a reference to the service

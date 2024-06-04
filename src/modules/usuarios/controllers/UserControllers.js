@@ -456,7 +456,6 @@ export const updatePassword = async (req, res) => {
 };
 
 export const updatePasswordToken = async (req, res) => {
-  const { authToken } = req.cookies;
 
   const { email } = req.body;
   //if (!authToken) return res.status(401).json({ message: "Invalid token" });
