@@ -550,7 +550,6 @@ class ProyectoController {
                               <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Hora Fin</th>
                               <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Total Horas</th>
                               <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Valor de las Horas con Factor</th>
-                              <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Estatus</th>
                               <th scope="col" class="px-2 py-3 text-xs font-bold tracking-wider text-center border">Total Tarifa</th>
                             </tr>
                           </thead>
