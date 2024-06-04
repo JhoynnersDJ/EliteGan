@@ -18,8 +18,8 @@ ProyectoRouter.delete('/eliminar/:id',authRequired, ProyectoController.delete)
 
 //ProyectoRouter.get('/reporte/:id', pdf)
 //ProyectoRouter.get('/Graficaproyecto/:id', ProyectoController.graph)
-ProyectoRouter.get('/:id/pdf',authRequired, ProyectoController.generarPDFProyectoSimple)
-ProyectoRouter.get('/:id/pdf-grafico',authRequired, ProyectoController.generarPDFProyectoGrafico)
-ProyectoRouter.get('/:id/pdf-usuarios',authRequired,  ProyectoController.generarPDFProyectoSimpleUser) 
+ProyectoRouter.get('/:id/pdf', ProyectoController.generarPDFProyectoSimple)
+ProyectoRouter.get('/:id/pdf-grafico', ProyectoController.generarPDFProyectoGrafico)
+ProyectoRouter.get('/:id/pdf-usuarios',  ProyectoController.generarPDFProyectoSimpleUser) 
 
 export default ProyectoRouter
