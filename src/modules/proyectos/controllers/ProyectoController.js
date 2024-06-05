@@ -251,7 +251,6 @@ class ProyectoController {
       const { id } = req.params
       const { tarifa, fecha_fin, id_responsable_cliente, tecnicos, id_lider_proyecto} = req.body;
       let { nombre_proyecto, pool_horas_contratadas } = req.body;
-      console.log(tecnicos)
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk(id);
       if (!proyectoExistente) {
