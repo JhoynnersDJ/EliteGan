@@ -391,9 +391,7 @@ export class Proyecto {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
-        console.log(proyecto.tecnicos)
         // obtener datos antes de actualizar
-        console.log("antes de buscar proyecto en modelo de proyecto")
         const proyectoBD = await Proyectos.findByPk(id_proyecto, {
           include: [
             {
@@ -426,7 +424,7 @@ export class Proyecto {
             }
           ],
         });
-        console.log("antes de actualizar proyecto en modelo de proyecto")
+
         // guardar en la base de datos
         const proyectoActualizado = await Proyectos.update(
           {
@@ -449,7 +447,7 @@ export class Proyecto {
             }
           }
         );
-        console.log("antes de actualizar buscar tecnicos actuales en base de datos")
+       
         // buscar los tecnicos que ya estaban asignados
         const tecnicosBDSinFormato = await Asignaciones.findAll({
           attributes: [
@@ -462,21 +460,20 @@ export class Proyecto {
             id_proyecto: id_proyecto
           }
         })
-        console.log("CONSOLE LOG TECNICOS EN BD SIN FORMATEAR " + tecnicosBDSinFormato)
+    
         // formato de los datos
         const tecnicosBD = tecnicosBDSinFormato.map((tecnicos) => ({
           id_asignacion: tecnicos.id_asignacion,
           id_usuario: tecnicos.id_usuario
         }));
-        console.log("CONSOLE LOG TECNICOS EN BD FORMATEADOS " + tecnicosBD)
+
         // nuevo array con el valor de los tecnicos actualizados
         const tecnicosActualizados = proyecto.tecnicos
-        console.log("CONSOLE LOG array de TECNICOS ACTUALIZADOS " + tecnicosActualizados)
-        console.log("ANTES DE ACTUALIZAR TECNICOS")
+
         // Asocia los usuarios al proyecto en la tabla asignaciones
         for (const tecnico of tecnicosActualizados) {
           const usuario = await Usuarios.findByPk(tecnico.id_usuario);
-          console.log("ANTES DE ASOCIAR A LOS NUEVOS TENICOS")
+
           // Comprueba si el tecnico aún existe
           const existeEnBD = tecnicosBD.some(t => t.id_usuario === tecnico.id_usuario);
           if (usuario && existeEnBD) {
@@ -487,7 +484,7 @@ export class Proyecto {
             })
           }
         }
-        console.log("ANTES DE DESASOCIAR A LOS NUEVOS TENICOS")
+
       // Desasocia los usuarios que ya no están en el proyecto
       for (const tecnico of tecnicosBD) {
         const sigueEnProyecto = tecnicosActualizados.some(t => t.id_usuario === tecnico.id_usuario);
@@ -506,7 +503,7 @@ export class Proyecto {
           })
         }
       }
-      console.log("CONSOLE LOG ANTES DE GUARDAR AUDITORIA")
+
       // busqueda de los datos de auditoria
       const userFound = await user.findOneById(proyecto.id_lider_proyecto);
       const auditoria = new Auditoria(
