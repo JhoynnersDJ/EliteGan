@@ -323,12 +323,9 @@ class ProyectoController {
       let horas_trabajadas = convertirMinutos(proyectoExistente.horas_trabajadas)
       // let horas_trabajadas = proyectoExistente.horas_trabajadas
       // calculo pool de horas
-      if (proyectoExistente.facturable == false) {
-        pool_horas = pool_horas_contratadas+horas_trabajadas
-      } else {
+      if (!(pool_horas_contratadas == proyectoExistente.pool_horas_contratadas) && (proyectoExistente.facturable == true)) {
         pool_horas = pool_horas_contratadas-horas_trabajadas
       }
-
       // instanciar un objeto de la clase proyecto
       const proyecto = new Proyecto(
         nombre_proyecto,
