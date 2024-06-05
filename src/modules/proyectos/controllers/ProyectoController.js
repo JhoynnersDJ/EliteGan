@@ -320,8 +320,8 @@ class ProyectoController {
       // declarar pool de horas ya existente en la base de datos
       let pool_horas = convertirMinutos(proyectoExistente.pool_horas)
       // declarar horas trabajadas ya existente en la base de datos
-      // let horas_trabajadas = convertirMinutos(proyectoExistente.horas_trabajadas)
-      let horas_trabajadas = proyectoExistente.horas_trabajadas
+      let horas_trabajadas = convertirMinutos(proyectoExistente.horas_trabajadas)
+      // let horas_trabajadas = proyectoExistente.horas_trabajadas
       // calculo pool de horas
       if (proyectoExistente.facturable == false) {
         pool_horas = pool_horas_contratadas+horas_trabajadas
