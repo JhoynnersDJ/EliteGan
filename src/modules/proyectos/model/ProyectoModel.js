@@ -391,6 +391,7 @@ export class Proyecto {
     try {
       // funcion para las bases de datos de sequelize
       if (database === "SEQUELIZE") {
+        console.log(proyecto.tecnicos)
         // obtener datos antes de actualizar
         console.log("antes de buscar proyecto en modelo de proyecto")
         const proyectoBD = await Proyectos.findByPk(id_proyecto, {

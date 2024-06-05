@@ -251,6 +251,7 @@ class ProyectoController {
       const { id } = req.params
       const { tarifa, fecha_fin, id_responsable_cliente, tecnicos, id_lider_proyecto} = req.body;
       let { nombre_proyecto, pool_horas_contratadas } = req.body;
+      console.log(tecnicos)
       // comprobar si existe el proyecto
       const proyectoExistente = await Proyecto.findByPk(id);
       if (!proyectoExistente) {
@@ -321,7 +322,12 @@ class ProyectoController {
       // declarar horas trabajadas ya existente en la base de datos
       let horas_trabajadas = convertirMinutos(proyectoExistente.horas_trabajadas)
       // calculo pool de horas
-      pool_horas = pool_horas_contratadas-horas_trabajadas
+      if (proyectoExistente.facturable == false) {
+        pool_horas = pool_horas_contratadas+horas_trabajadas
+      } else {
+        pool_horas = pool_horas_contratada-horas_trabajadas
+      }
+      
       // instanciar un objeto de la clase proyecto
       const proyecto = new Proyecto(
         nombre_proyecto,
