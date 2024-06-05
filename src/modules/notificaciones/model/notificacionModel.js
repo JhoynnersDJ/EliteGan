@@ -75,7 +75,7 @@ export class Notificacion {
         const usuariosBd = usuariosBdId.map((user) => ({
           id_usuario: user.id_usuario
         }));
-        console.log(usuariosBd)
+        // console.log(usuariosBd)
         // Asocia los usuarios al proyecto en la tabla notificaciones
         for (const usuario of usuarios) {
           const userExist = await Usuarios.findByPk(usuario.id_usuario);
