@@ -462,7 +462,7 @@ export class Proyecto {
             id_proyecto: id_proyecto
           }
         })
-        console.log("CONSOLE LOG TECNICOS EN BD SIN FORMATEAR " + tecnicosBDSinFormato)
+        console.log("CONSOLE LOG TECNICOS EN BD SIN FORMATEAR " + tecnicosBDSinFormato.dataValues)
         // formato de los datos
         const tecnicosBD = tecnicosBDSinFormato.map((tecnicos) => ({
           id_asignacion: tecnicos.id_asignacion,
