@@ -77,7 +77,7 @@ async function restPoolProjectById(id, horas) {
       result = project.pool_horas + Number(horas);
     }
     
-    const resultHour = project.horas_trabajadas + parseFloat(horas);
+    const resultHour = project.horas_trabajadas + (horas);
     project.pool_horas = result;
     project.horas_trabajadas = resultHour;
     return project.save();

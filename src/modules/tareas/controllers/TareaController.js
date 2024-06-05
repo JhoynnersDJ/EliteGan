@@ -148,7 +148,7 @@ export const register = async (req, res) => {
       let factor_horas1 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,
-        Number(factor_horas1.toFixed(2))
+        parseInt(factor_horas1.toFixed(2))
       );
 
       datos = await tarea.save(tareaSaved_dia1);
@@ -183,7 +183,7 @@ export const register = async (req, res) => {
 
       await tarea.restPoolProjectById(
         id_proyecto,
-        Number(factor_horas2.toFixed(2))
+        parseInt(factor_horas2.toFixed(2))
       );
       // enviar notificacion al correo
       await tarea.sendEmailCreate(tareaSaved_dia1, userFound,tareaSaved_dia2)
@@ -227,7 +227,7 @@ export const register = async (req, res) => {
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,
-        Number(factor_horas3.toFixed(2))
+        parseInt(factor_horas3.toFixed(2))
       );
       // enviar notificacion al correo
       await tarea.sendEmailCreate(tareaSaved, userFound)
@@ -377,6 +377,8 @@ export const updateTaskMaster = async (req, res) => {
     if (!taskFound)
       return res.status(404).json({ message: "tarea no encontrada" });
 
+    const datos = taskFound;
+
     const fecha = taskFound.fecha;
 
     const id_proyecto = taskFound.id_proyecto;
@@ -396,9 +398,6 @@ export const updateTaskMaster = async (req, res) => {
     if (typeof status === "undefined") {
       status = taskFound.status;
     }
-
-    var formattedTime = null;
-
     
     if (!hora_inicio || typeof hora_inicio === "undefined") {
       hora_inicio = taskFound.hora_inicio;
@@ -420,12 +419,7 @@ export const updateTaskMaster = async (req, res) => {
       await tarea.updatePlusProjectById(id, taskFound.factor_tiempo_total);
 
       const horas = formatHour(hora_inicio, hora_fin);
-      if ((horas.tiempo_formateado1 !== taskFound.hora_inicio)|| (horas.tiempo_formateado2!==taskFound.hora_fin)){
-        formattedTime = {
-          hora_inicio: horas.tiempo_formateado1,
-          hora_fin: horas.tiempo_formateado2
-        }
-      }
+      
       
       const proyectFound = await tarea.findProjectById(id_proyecto);
 
@@ -446,30 +440,13 @@ export const updateTaskMaster = async (req, res) => {
         id_usuario, 
         descripcion
       );
-      var datos = null;
-      if (formattedTime) {
-        datos = {
-          hora_inicio: formattedTime.hora_inicio,
-          hora_fin: formattedTime.hora_fin,
-          tiempo_total: time.tiempo_minutos,
-          factor_tiempo_total: time2.tarifa1,
-          total_tarifa: time2.tarifa1 * proyectFound.tarifa,
-          descripcion: formattedDatos.descripcion,
-          status: formattedDatos.status,
-          id_servicio: formattedDatos.id_servicio
-        }
-      }else{
-        datos = {          
-          descripcion: formattedDatos.descripcion,
-          status: formattedDatos.status,
-          id_servicio: formattedDatos.id_servicio
-        }
-      }
+      
+      
       await AuditoriaController.resgistrarAccion("modificado", "tarea", datos)(req, res);
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,
-        Number(factor_horas3.toFixed(2))
+        parseInt(factor_horas3.toFixed(2))
       );
       const updateTask = await tarea.updateTaskById(tareaSaved);
 
