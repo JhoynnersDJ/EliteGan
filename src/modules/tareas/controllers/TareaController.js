@@ -177,7 +177,7 @@ export const register = async (req, res) => {
       );
       datos = await tarea.save(tareaSaved_dia2);
 
-      await AuditoriaController.resgistrarAccion("creado", "tarea", datos)(req, res);
+      
 
       let factor_horas2 = parseFloat(time2.tarifa2) * 60;
 
@@ -185,6 +185,7 @@ export const register = async (req, res) => {
         id_proyecto,
         parseInt(factor_horas2.toFixed(2))
       );
+      await AuditoriaController.resgistrarAccion("creado", "tarea", datos)(req, res);
       // enviar notificacion al correo
       await tarea.sendEmailCreate(tareaSaved_dia1, userFound,tareaSaved_dia2)
     } else {
@@ -223,12 +224,13 @@ export const register = async (req, res) => {
         descripcion
       );
       datos = await tarea.save(tareaSaved);
-      await AuditoriaController.resgistrarAccion("creado", "tarea", datos)(req, res);
+      
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,
         parseInt(factor_horas3.toFixed(2))
       );
+      await AuditoriaController.resgistrarAccion("creado", "tarea", datos)(req, res);
       // enviar notificacion al correo
       await tarea.sendEmailCreate(tareaSaved, userFound)
     }
@@ -442,14 +444,14 @@ export const updateTaskMaster = async (req, res) => {
       );
       
       
-      await AuditoriaController.resgistrarAccion("modificado", "tarea", datos)(req, res);
+      
       let factor_horas3 = parseFloat(time2.tarifa1) * 60;
       await tarea.restPoolProjectById(
         id_proyecto,
         parseInt(factor_horas3.toFixed(2))
       );
       const updateTask = await tarea.updateTaskById(tareaSaved);
-
+      await AuditoriaController.resgistrarAccion("modificado", "tarea", datos)(req, res);
       if (!updateTask)
         return res.status(400).json({ message: "Tarea no pudo ser editada" });
 

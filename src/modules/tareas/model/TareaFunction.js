@@ -210,7 +210,7 @@ async function deleteTasksById(id) {
     }else{
       plus = project.pool_horas - (Number(task.factor_tiempo_total)*60);
     }
-    const minus = project.horas_trabajadas - (parseFloat(task.factor_tiempo_total)*60);    
+    const minus = project.horas_trabajadas - (parseInt(task.factor_tiempo_total)*60);    
     project.pool_horas = plus;
     project.horas_trabajadas = minus;
     project.save();
